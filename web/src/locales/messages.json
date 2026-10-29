@@ -1088,6 +1088,13 @@
   "Admins can invite people and manage members.": [
     "web/src/app/UsersPanel.tsx"
   ],
+  "Advanced keyboard shortcuts (vim)": [
+    "web/src/app/settingsIndex.ts",
+    "web/src/lib/settingsCopy.ts"
+  ],
+  "Advanced keyboard shortcuts (vim), this device": [
+    "web/src/app/PreferencesPanels.tsx"
+  ],
   "After signing out here, people who signed in with the provider are sent to its sign-out page.": [
     "web/src/app/SsoPanel.tsx"
   ],
@@ -6474,7 +6481,7 @@
   "Keyboard guide": [
     "web/src/app/ShortcutHelp.tsx"
   ],
-  "Keyboard navigation with hjkl": [
+  "Keyboard navigation with hjkl. Off until you turn it on.": [
     "web/src/app/settingsIndex.ts"
   ],
   "Keyboard shortcuts": [
@@ -8329,7 +8336,7 @@
   "Normal text": [
     "web/src/lib/richtextEditor.ts"
   ],
-  "Normal, Insert and Command modes with counts, {kbd}, {kbd2} and {kbd3}. This device only.": [
+  "Normal, Insert and Command modes with counts, {kbd}, {kbd2} and {kbd3}. Off until you turn it on. This device only.": [
     "web/src/lib/settingsCopy.ts"
   ],
   "Not": [
@@ -9822,7 +9829,7 @@
   "Powered by OpenTodo {version} · AGPL-3.0 · no tracking, no telemetry": [
     "web/src/app/InstanceBrand.tsx"
   ],
-  "Prefer modal editing? Vim keybindings can be enabled in Settings → General → Keyboard.": [
+  "Prefer modal editing? Advanced keyboard shortcuts (vim) can be turned on in Settings → General → Keyboard.": [
     "web/src/app/ShortcutHelp.tsx"
   ],
   "Prefix": [
@@ -15461,12 +15468,7 @@
     "web/src/app/vim/help.ts"
   ],
   "Vim keybindings": [
-    "web/src/app/settingsIndex.ts",
-    "web/src/lib/settingsCopy.ts",
     "web/src/lib/shortcuts.ts"
-  ],
-  "Vim keybindings (this device)": [
-    "web/src/app/PreferencesPanels.tsx"
   ],
   "Vim keybindings are on for this device (turn them off in Settings → General → Keyboard). The mode, NORMAL, INSERT or COMMAND, is shown at the bottom; a focused text field is Insert mode. All the usual shortcuts still work in Normal mode.": [
     "web/src/app/vim/help.ts"

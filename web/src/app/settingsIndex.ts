@@ -51,7 +51,7 @@ export const SETTINGS_INDEX: readonly SettingsEntry[] = translatedList<SettingsE
   { section: 'general', label: msg('Start view'), description: msg('The view this device opens on'), page: 'start', anchor: 'start-view-heading', keywords: 'launch open on' },
   { section: 'general', label: msg('Show the briefing'), description: msg('The sentence under the title of Today and Upcoming. On all your devices.'), page: 'start', anchor: 'briefing-heading', keywords: 'briefing summary sentence today upcoming hide' },
   { section: 'general', label: msg('Show shortcut hints'), description: msg('Print the keys in the app, next to quick add and in prompts'), page: 'keyboard', anchor: 'shortcut-hints', keywords: 'keyboard shortcuts kbd badges' },
-  { section: 'general', label: msg('Vim keybindings'), description: msg('Keyboard navigation with hjkl'), page: 'keyboard', anchor: 'keyboard-heading', keywords: 'keyboard shortcuts' },
+  { section: 'general', label: msg('Advanced keyboard shortcuts (vim)'), description: msg('Keyboard navigation with hjkl. Off until you turn it on.'), page: 'keyboard', anchor: 'keyboard-heading', keywords: 'keyboard shortcuts vim advanced modal hjkl' },
   { section: 'general', label: msg('Focus timer'), description: msg('Pomodoro, Flowtime or Countdown, the lengths, breaks and the sound'), page: 'focus', anchor: 'focus-heading', keywords: 'focus pomodoro flowtime countdown timer session break reminder sound tone' },
   { section: 'general', label: msg('Maps'), description: msg('Maps and address search on your devices'), page: 'maps', anchor: 'maps-user-heading', keywords: 'map location address places' },
   // Language and region (settings-subpages: split from General)

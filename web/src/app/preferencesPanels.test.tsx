@@ -5,7 +5,7 @@ import { act } from 'react'
 import { describe, expect, it, vi } from 'vitest'
 import { click, render } from '../ui/test-utils'
 import { CalendarSettingsView } from './CalendarSettings'
-import { KeyboardView, StartViewView } from './PreferencesPanels'
+import { KeyboardSection, KeyboardView, StartViewView } from './PreferencesPanels'
 import { AutoArchiveView } from './ProjectsSettings'
 
 async function choose(select: HTMLSelectElement, value: string) {
@@ -36,6 +36,15 @@ describe('Preferences rows', () => {
     await rerender(<StartViewView views={[]} startView="display:/display/project/p1?eink=1" onChange={onChange} />)
     expect(labels()).toEqual(['Display: Today', 'Display: Upcoming', 'Display pinned on this device'])
     expect(select().value).toBe('display:/display/project/p1?eink=1')
+    await unmount()
+  })
+
+  it('keyboard: advanced shortcuts (vim) are off on a fresh device (declutter)', async () => {
+    localStorage.clear()
+    const { container, unmount } = await render(<KeyboardSection />)
+    const sw = container.querySelector('[data-vim-switch] [role="switch"]') as HTMLButtonElement
+    expect(sw.getAttribute('aria-checked')).toBe('false')
+    expect(container.textContent).toContain('Advanced keyboard shortcuts (vim)')
     await unmount()
   })
 

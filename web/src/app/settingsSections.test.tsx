@@ -205,7 +205,7 @@ describe('opening a section', () => {
     expect(html).toContain('data-settings-section="general"')
     expect(html.match(/<h1/g)).toHaveLength(1)
     expect(html).toMatch(/<h1[^>]*tabindex="-1"[^>]*>Keyboard<\/h1>/)
-    expect(html).toContain('Vim keybindings')
+    expect(html).toContain('Advanced keyboard shortcuts (vim)')
     expect(render(member, 'general', 'start')).toContain('Start view on this device')
     expect(render(member, 'general', 'focus')).toContain('id="focus-heading"')
     // Language, date and time and the calendar grid moved to Language and region (settings-subpages D5).
@@ -377,7 +377,7 @@ describe('demo instance', () => {
   it('leaves local settings alone and disables import', () => {
     const general = render(member, 'general', 'keyboard')
     expect(general).not.toContain('demo-restricted')
-    expect(general).toContain('Vim keybindings')
+    expect(general).toContain('Advanced keyboard shortcuts (vim)')
     const data = render(member, 'data')
     expect(data).toMatch(/<button[^>]*disabled=""[^>]*>Import data<\/button>/)
     expect(data).toContain('Import: Disabled on this demo instance.')

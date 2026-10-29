@@ -135,7 +135,7 @@ export function SidebarView({ promoted, onPromote, arranged = false, showAll }: 
     <SettingsSection {...cardCopy('sidebar', { variant: arranged ? 'arranged' : 'standard' })}>
       {showAll && (
         <SettingRow id="more-show-all" {...rowCopy('sidebar', 'all')} htmlFor="more-show-all-switch"
-          control={<span data-more-show-all><Switch id="more-show-all-switch" checked={showAll.on} onChange={showAll.onChange} label={t('Show all sections in More')} hideLabel /></span>} />
+          control={<span data-more-show-all><Switch id="more-show-all-switch" checked={showAll.on} onChange={showAll.onChange} label={t('Show every More section')} hideLabel /></span>} />
       )}
       {PROMOTABLE.map((id) => (
         <SettingRow key={id} id={`sidebar-${id}`} label={PROMOTABLE_LABEL[id]} htmlFor={`sidebar-switch-${id}`}

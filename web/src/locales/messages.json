@@ -269,11 +269,9 @@
   "A dossier links the steps of one thread.": [
     "web/src/app/resume/ResumeView.tsx"
   ],
-  "A dot on Review and a prompt for the Daily check when a review is due. Off by default; this device only.": [
+  "A dot on Review and a prompt when a review is due. Off by default; this device only.": [
+    "web/src/app/settingsIndex.ts",
     "web/src/lib/settingsCopy.ts"
-  ],
-  "A dot on Review and a prompt for the Daily check when a review is due. This device only.": [
-    "web/src/app/settingsIndex.ts"
   ],
   "A field": [
     "web/src/lib/assistant.ts"
@@ -1093,13 +1091,6 @@
   ],
   "Admins can invite people and manage members.": [
     "web/src/app/UsersPanel.tsx"
-  ],
-  "Advanced keyboard shortcuts (vim)": [
-    "web/src/app/settingsIndex.ts",
-    "web/src/lib/settingsCopy.ts"
-  ],
-  "Advanced keyboard shortcuts (vim), this device": [
-    "web/src/app/PreferencesPanels.tsx"
   ],
   "After signing out here, people who signed in with the provider are sent to its sign-out page.": [
     "web/src/app/SsoPanel.tsx"
@@ -6501,7 +6492,7 @@
   "Keyboard guide": [
     "web/src/app/ShortcutHelp.tsx"
   ],
-  "Keyboard navigation with hjkl. Off until you turn it on.": [
+  "Keyboard navigation with hjkl. Off by default; this device only.": [
     "web/src/app/settingsIndex.ts"
   ],
   "Keyboard shortcuts": [
@@ -7081,11 +7072,9 @@
     "web/src/app/method/LoopHome.tsx",
     "web/src/lib/shortcuts.ts"
   ],
-  "Loop home and Statistics, and Next, Waiting, Anytime and Someday as separate items. This device only.": [
+  "Loop home, Statistics, and the four horizons as separate items. This device only.": [
+    "web/src/app/settingsIndex.ts",
     "web/src/lib/settingsCopy.ts"
-  ],
-  "Loop home, Statistics, and Next, Waiting, Anytime and Someday as separate items. This device only.": [
-    "web/src/app/settingsIndex.ts"
   ],
   "Loop pulse · last {n} days": [
     "web/src/app/method/LoopHome.tsx"
@@ -7323,6 +7312,9 @@
   ],
   "Missing on the server": [
     "web/src/app/task-detail/AttachmentsRow.tsx"
+  ],
+  "Modal editing with counts, {kbd}, {kbd2} and {kbd3}. Off by default; this device only.": [
+    "web/src/lib/settingsCopy.ts"
   ],
   "Mode": [
     "web/src/app/AppearanceSection.tsx",
@@ -8358,9 +8350,6 @@
   ],
   "Normal text": [
     "web/src/lib/richtextEditor.ts"
-  ],
-  "Normal, Insert and Command modes with counts, {kbd}, {kbd2} and {kbd3}. Off until you turn it on. This device only.": [
-    "web/src/lib/settingsCopy.ts"
   ],
   "Not": [
     "web/src/app/filter/ConditionEditor.tsx",
@@ -11899,11 +11888,6 @@
   "Show all ({n})": [
     "web/src/app/ActivityPanel.tsx"
   ],
-  "Show all sections in More": [
-    "web/src/app/AppearanceSection.tsx",
-    "web/src/app/settingsIndex.ts",
-    "web/src/lib/settingsCopy.ts"
-  ],
   "Show archived projects": [
     "web/src/app/ProjectsSettings.tsx"
   ],
@@ -11923,6 +11907,11 @@
     "web/src/app/TaskRow.tsx",
     "web/src/app/task-list/RowActionCluster.tsx",
     "web/src/lib/shortcuts.ts"
+  ],
+  "Show every More section": [
+    "web/src/app/AppearanceSection.tsx",
+    "web/src/app/settingsIndex.ts",
+    "web/src/lib/settingsCopy.ts"
   ],
   "Show in Assigned to me": [
     "web/src/app/task-detail/Facets.tsx"
@@ -15521,10 +15510,15 @@
     "web/src/app/vim/help.ts"
   ],
   "Vim keybindings": [
+    "web/src/app/settingsIndex.ts",
+    "web/src/lib/settingsCopy.ts",
     "web/src/lib/shortcuts.ts"
   ],
   "Vim keybindings are on for this device (turn them off in Settings → General → Keyboard). The mode, NORMAL, INSERT or COMMAND, is shown at the bottom; a focused text field is Insert mode. All the usual shortcuts still work in Normal mode.": [
     "web/src/app/vim/help.ts"
+  ],
+  "Vim keybindings, this device": [
+    "web/src/app/PreferencesPanels.tsx"
   ],
   "Vim mode": [
     "web/src/app/vim/VimLayer.tsx"

@@ -154,7 +154,7 @@ export function KeyboardView({ vim, onVim, hints = false, onHints = () => {}, cl
         control={<span data-hints-switch><Switch checked={hints} onChange={onHints} label={t('Show shortcut hints (this device)')} hideLabel /></span>} />
       <SettingRow label={rowCopy('keyboard', 'vim').label} description={
         <>{t.rich(SETTINGS_COPY.keyboard.rows.vim.description, { kbd: <Kbd k="gg" />, kbd2: <Kbd k="dd" />, kbd3: <Kbd k=":" /> })}</>
-      } control={<span data-vim-switch><Switch checked={vim} onChange={onVim} label={t('Advanced keyboard shortcuts (vim), this device')} hideLabel /></span>} />
+      } control={<span data-vim-switch><Switch checked={vim} onChange={onVim} label={t('Vim keybindings, this device')} hideLabel /></span>} />
     </SettingsSection>
   )
 }

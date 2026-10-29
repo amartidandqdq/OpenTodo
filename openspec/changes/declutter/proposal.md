@@ -18,10 +18,10 @@ brought back.
   command-palette entries and start view choices are unchanged. In Open Loops
   first, Next and Waiting stay primary as the method fixes them.
 - **Loop home and Statistics hidden from More by default.** A device preference,
-  "Show all sections in More" (Settings → Appearance → Sidebar, off by default),
+  "Show every More section" (Settings → Appearance → Sidebar, off by default),
   restores them and the four separate entries. It only changes what is listed.
-- **Advanced keyboard shortcuts (vim).** The Vim keymap and the Vim section of the
-  cheat sheet are behind one device setting, "Advanced keyboard shortcuts (vim)"
+- **Vim keybindings.** The Vim keymap and the Vim section of the
+  cheat sheet are behind one device setting, "Vim keybindings"
   (Settings → General → Keyboard), off by default. A device that stored the
   earlier Vim switch on keeps Vim on until it writes its own value.
 - **Review reminders off by default.** The due dot and text on the Review entry,
@@ -57,6 +57,6 @@ destinations, fewer rows in More).
 - `weekly-review`: the due marker and the Daily check toast are opt-in.
 - `method-views`: the Horizon switch on the four horizon views.
 - `keyboard-shortcuts`: the advanced shortcuts setting.
-- `appearance-preferences`: the Show all sections in More preference.
+- `appearance-preferences`: the Show every More section preference.
 
 No new capability.

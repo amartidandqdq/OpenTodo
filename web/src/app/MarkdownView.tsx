@@ -67,7 +67,7 @@ function renderBlock(b: Block, i: number, ctx: Ctx): ReactNode {
       return (
         <div key={i} className="max-w-full overflow-x-auto" data-scroll-x>
           <table className="md-table border-collapse text-meta">
-            <thead><tr>{b.head.map((c, k) => <th key={k} style={b.align[k] ? { textAlign: b.align[k] as 'left' } : undefined} className="border border-default px-2 py-1 text-left font-semibold">{inl(c)}</th>)}</tr></thead>
+            <thead><tr>{b.head.map((c, k) => <th key={k} style={b.align[k] ? { textAlign: b.align[k] as 'left' } : undefined} className="whitespace-nowrap border border-default px-2 py-1 text-left font-semibold">{inl(c)}</th>)}</tr></thead>
             <tbody>{b.rows.map((r, j) => <tr key={j}>{r.map((c, k) => <td key={k} style={b.align[k] ? { textAlign: b.align[k] as 'left' } : undefined} className="border border-default px-2 py-1">{inl(c)}</td>)}</tr>)}</tbody>
           </table>
         </div>

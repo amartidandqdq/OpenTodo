@@ -66,7 +66,7 @@ describe('skills in the panel', () => {
     await waitFor(() => !!document.querySelector('[data-assistant-chosen]'), 'the chosen skill')
     const chosen = document.querySelector('[data-assistant-chosen]')!
     expect(chosen.textContent).toContain('Skill: Plan my week.')
-    expect(chosen.textContent).toContain('Proposes due dates within your working hours.')
+    expect(chosen.textContent).toContain('Proposes due dates and times for your open work within your working hours.')
     expect(turns).toHaveLength(0)
     await r.unmount()
   })

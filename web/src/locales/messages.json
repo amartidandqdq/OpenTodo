@@ -1927,7 +1927,11 @@
     "web/src/lib/settingsCopy.ts"
   ],
   "Break this down": [
-    "web/src/app/task-detail/TaskActionsMenu.tsx"
+    "web/src/app/task-detail/TaskActionsMenu.tsx",
+    "web/src/lib/assistantSkills.ts"
+  ],
+  "Break this task into steps": [
+    "web/src/lib/assistantSkills.ts"
   ],
   "Briefing": [
     "web/src/lib/settingsCopy.ts"
@@ -8459,7 +8463,10 @@
   "Note (optional)": [
     "web/src/app/review/CloseDay.tsx"
   ],
-  "Note changed": [
+  "Note removed": [
+    "web/src/lib/assistant.ts"
+  ],
+  "Note: {text}": [
     "web/src/lib/assistant.ts"
   ],
   "Notes": [
@@ -9705,6 +9712,9 @@
     "web/src/app/calendar/PlanPanel.tsx",
     "web/src/lib/shortcuts.ts"
   ],
+  "Plan a garden makeover in spring, budget 2000": [
+    "web/src/lib/assistantSkills.ts"
+  ],
   "Plan and change your tasks by talking. Every change is proposed for review.": [
     "web/src/lib/settingsCopy.ts"
   ],
@@ -9715,6 +9725,12 @@
     "web/src/app/CalendarView.tsx",
     "web/src/app/MonthView.tsx",
     "web/src/app/PlanView.tsx"
+  ],
+  "Plan my week": [
+    "web/src/lib/assistantSkills.ts"
+  ],
+  "Plan my week around the Q4 launch": [
+    "web/src/lib/assistantSkills.ts"
   ],
   "Plan today": [
     "web/src/app/FirstDay.tsx"
@@ -10095,6 +10111,12 @@
   ],
   "Proposed changes": [
     "web/src/app/assistant/ChangeSetReview.tsx"
+  ],
+  "Proposes a project, labels, priority and date for each task in your inbox.": [
+    "web/src/lib/assistantSkills.ts"
+  ],
+  "Proposes due dates and times for your open work within your working hours.": [
+    "web/src/lib/assistantSkills.ts"
   ],
   "Provider": [
     "web/src/app/IssueEditor.tsx",
@@ -11056,6 +11078,9 @@
   ],
   "Run automation rules": [
     "web/src/app/rules/AutomationsSettings.tsx"
+  ],
+  "Run my weekly review": [
+    "web/src/lib/assistantSkills.ts"
   ],
   "Run this in a terminal.": [
     "web/src/app/AssistantsPanel.tsx"
@@ -14724,6 +14749,9 @@
   "Trello board (JSON)": [
     "web/src/app/ImportScreen.tsx"
   ],
+  "Triage my inbox": [
+    "web/src/lib/assistantSkills.ts"
+  ],
   "Trigger": [
     "web/src/app/rules/RuleFields.tsx"
   ],
@@ -14741,6 +14769,9 @@
   "Tuesday": [
     "web/src/app/filter/ConditionEditor.tsx",
     "web/src/app/filter/conditionText.ts"
+  ],
+  "Turn an idea into a project": [
+    "web/src/lib/assistantSkills.ts"
   ],
   "Turn attachments on or off and set their size limits": [
     "web/src/app/settingsIndex.ts"
@@ -14805,6 +14836,12 @@
   ],
   "Turning on…": [
     "web/src/app/EncryptionPanel.tsx"
+  ],
+  "Turns an idea or pasted notes into a project with phases and estimated tasks.": [
+    "web/src/lib/assistantSkills.ts"
+  ],
+  "Turns one task into subtasks with estimates.": [
+    "web/src/lib/assistantSkills.ts"
   ],
   "Twenty minutes: your areas, old someday items and the four-week trend.": [
     "web/src/lib/method/vocabulary.json"
@@ -15459,6 +15496,9 @@
     "web/src/app/method/LoopHome.tsx",
     "web/src/app/method/MethodListView.tsx"
   ],
+  "Walks your inbox, earlier and stale tasks and proposes what to reschedule, move or complete.": [
+    "web/src/lib/assistantSkills.ts"
+  ],
   "We send a link to the new address; the change happens when you open it.": [
     "web/src/app/profile/ProfileSection.tsx"
   ],
@@ -15514,7 +15554,8 @@
   "Weekly review": [
     "web/src/app/review/DailyCheck.tsx",
     "web/src/app/review/MonthlyLook.tsx",
-    "web/src/app/review/ReviewView.tsx"
+    "web/src/app/review/ReviewView.tsx",
+    "web/src/lib/assistantSkills.ts"
   ],
   "Weekly review: the next step": [
     "web/src/lib/shortcuts.ts"

@@ -1,5 +1,6 @@
 import 'fake-indexeddb/auto'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { formatShort } from './dates'
 import { db, useDatabase } from './db'
 import { applyOps, createTask, getDeviceId, mutate, resetDeviceId } from './ops'
 import {
@@ -140,7 +141,9 @@ describe('dossiers', () => {
     expect((await db.dossiers.get(id))!.task_ids).toEqual([a, b])
     const hold = await reviewChangeSet([{ entity: 'dossier', entityId: id, patch: { waiting: true, waiting_for: 'the delivery', follow_up: '2026-11-02' }, base: { waiting: false, waiting_for: '', follow_up: null } }])
     expect(hold.items[0].title).toBe('Tyres')
-    expect(hold.items[0].lines).toEqual(['Put on hold', 'Waiting for the delivery', 'Look again on 2026-11-02'])
+    expect(hold.items[0].lines).toEqual(['Put on hold', 'Waiting for the delivery', `Look again on ${formatShort('2026-11-02')}`])
+    const note = await reviewChangeSet([{ entity: 'dossier', entityId: id, patch: { note: 'Call the\nsyndic before Friday' }, base: { note: '' } }])
+    expect(note.items[0].lines).toEqual(['Note: Call the syndic before Friday'])
   })
 })
 

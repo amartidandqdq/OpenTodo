@@ -8,6 +8,7 @@ import { ApiError } from './api'
 import { db, getMeta, setMeta, tableOf, type AssistantMessage, type AssistantThread, type AssistantUndo } from './db'
 import { syncNow } from './sync'
 import type { FieldDef, FieldValue, Label, Project, Section, Task } from './types'
+import { formatShort } from './dates'
 import { formatValue } from './fields'
 import { fieldValueId, readField } from './ops'
 import type { ProposedChange, TurnEvent } from './assistantTypes'
@@ -264,7 +265,7 @@ export function describe(c: ProposedChange, local: Record<string, unknown> | und
         const steps = Array.isArray(p.task_ids) ? p.task_ids : []
         if (steps.length) lines.push(t('Steps: {tasks}', { tasks: steps.map((id) => clip(names.tasks.get(String(id)) ?? t('a task'), 40)).join(', ') }))
         if (p.waiting) lines.push(p.waiting_for ? t('On hold: {reason}', { reason: clip(String(p.waiting_for), 80) }) : t('On hold'))
-        if (p.follow_up) lines.push(t('Look again on {date}', { date: String(p.follow_up) }))
+        if (p.follow_up) lines.push(t('Look again on {date}', { date: formatShort(String(p.follow_up)) }))
         return { title: t('New dossier: {name}', { name: String(p.title ?? '') }), lines }
       }
       case 'comment': {
@@ -324,8 +325,8 @@ export function describe(c: ProposedChange, local: Record<string, unknown> | und
       case 'task_ids': lines.push(t('Steps: {tasks}', { tasks: ((v as string[] | null) ?? []).map((id) => clip(names.tasks.get(String(id)) ?? t('a task'), 40)).join(', ') || t('none') })); break
       case 'waiting': lines.push(v ? t('Put on hold') : t('Resumed')); break
       case 'waiting_for': lines.push(v ? t('Waiting for {reason}', { reason: clip(String(v), 80) }) : t('No waiting reason')); break
-      case 'follow_up': lines.push(v ? t('Look again on {date}', { date: String(v) }) : t('Follow-up date removed')); break
-      case 'note': lines.push(t('Note changed')); break
+      case 'follow_up': lines.push(v ? t('Look again on {date}', { date: formatShort(String(v)) }) : t('Follow-up date removed')); break
+      case 'note': lines.push(v ? t('Note: {text}', { text: clip(String(v).replace(/\s+/g, ' ').trim(), 80) }) : t('Note removed')); break
       case 'position': case 'created_at': case 'notes_doc': break
       default: lines.push(t('{field} changed', { field: f.replace(/_/g, ' ') }))
     }

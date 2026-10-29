@@ -3,8 +3,8 @@
 ## 1. Horizons in More
 
 - [ ] 1.1 `Sidebar.tsx`: `moreEntriesOf` lists one "Horizons" entry (route Next, marked current on the four horizon views) in place of Next, Waiting, Anytime and Someday; test `sidebar.test.tsx` checks one entry and the current mark
-- [ ] 1.2 `method/HorizonSwitch.tsx`: Tabs over Next, Waiting, Anytime and Someday; placed at the top of NextView, WaitingView and the Anytime and Someday lists; test `horizonSwitch.test.tsx` checks the four tabs, navigation and arrow keys
-- [ ] 1.3 Messages extracted; French "Horizons", "Horizon" and tab names in `fr.json`
+- [ ] 1.2 `method/HorizonSwitch.tsx`: Buttons for Next, Waiting, Anytime and Someday, placed under the title of NextView, WaitingView and the Anytime and Someday lists; test `horizonSwitch.test.tsx` checks the four buttons, the current mark and navigation
+- [ ] 1.3 Messages extracted; French "Horizons" and "Horizon" in `fr.json`
 
 ## 2. Plus menu sections hidden by default
 

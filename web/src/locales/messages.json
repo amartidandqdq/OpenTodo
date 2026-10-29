@@ -1369,6 +1369,7 @@
   ],
   "Anytime": [
     "web/src/app/AppearanceSection.tsx",
+    "web/src/app/HorizonSwitch.tsx",
     "web/src/app/Sidebar.tsx",
     "web/src/app/TaskListView.tsx",
     "web/src/lib/shortcuts.ts"
@@ -5737,6 +5738,12 @@
   "Home|icon category": [
     "web/src/ui/icons/catalogue.ts"
   ],
+  "Horizon": [
+    "web/src/app/HorizonSwitch.tsx"
+  ],
+  "Horizons": [
+    "web/src/app/Sidebar.tsx"
+  ],
   "Host": [
     "web/src/app/IssueEditor.tsx"
   ],
@@ -7839,6 +7846,7 @@
     "web/src/app/review/ReviewView.tsx"
   ],
   "Next|method": [
+    "web/src/app/HorizonSwitch.tsx",
     "web/src/app/PreferencesPanels.tsx",
     "web/src/app/Sidebar.tsx",
     "web/src/app/method/MethodListView.tsx",
@@ -12241,6 +12249,7 @@
   ],
   "Someday": [
     "web/src/app/AppearanceSection.tsx",
+    "web/src/app/HorizonSwitch.tsx",
     "web/src/app/ParseChips.tsx",
     "web/src/app/RuleEditor.tsx",
     "web/src/app/Sidebar.tsx",
@@ -15504,6 +15513,7 @@
     "web/src/app/filter/conditionText.ts"
   ],
   "Waiting|method": [
+    "web/src/app/HorizonSwitch.tsx",
     "web/src/app/PreferencesPanels.tsx",
     "web/src/app/Sidebar.tsx",
     "web/src/app/method/MethodListView.tsx",

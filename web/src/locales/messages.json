@@ -5085,6 +5085,9 @@
     "web/src/app/resume/DossierCard.tsx",
     "web/src/lib/dossiers.ts"
   ],
+  "Follow-up date removed": [
+    "web/src/lib/assistant.ts"
+  ],
   "Follow-up date, no due date on the task.": [
     "web/src/app/resume/DossierCard.tsx"
   ],
@@ -6984,7 +6987,8 @@
     "web/src/app/resume/DossierCard.tsx"
   ],
   "Look again on {date}": [
-    "web/src/app/resume/DossierCard.tsx"
+    "web/src/app/resume/DossierCard.tsx",
+    "web/src/lib/assistant.ts"
   ],
   "Look again since {date}": [
     "web/src/app/resume/DossierCard.tsx"
@@ -7627,6 +7631,9 @@
   "New dossier": [
     "web/src/app/resume/ResumeView.tsx"
   ],
+  "New dossier: {name}": [
+    "web/src/lib/assistant.ts"
+  ],
   "New email": [
     "web/src/app/profile/ProfileSection.tsx"
   ],
@@ -8239,6 +8246,9 @@
   "No view to add": [
     "web/src/app/DashboardView.tsx"
   ],
+  "No waiting reason": [
+    "web/src/lib/assistant.ts"
+  ],
   "No webhooks yet": [
     "web/src/app/WebhooksPanel.tsx"
   ],
@@ -8430,6 +8440,9 @@
   ],
   "Note (optional)": [
     "web/src/app/review/CloseDay.tsx"
+  ],
+  "Note changed": [
+    "web/src/lib/assistant.ts"
   ],
   "Notes": [
     "web/src/app/NotesEditor.tsx",
@@ -8835,7 +8848,11 @@
   ],
   "On hold": [
     "web/src/app/resume/DossierCard.tsx",
-    "web/src/app/resume/DossierView.tsx"
+    "web/src/app/resume/DossierView.tsx",
+    "web/src/lib/assistant.ts"
+  ],
+  "On hold: {reason}": [
+    "web/src/lib/assistant.ts"
   ],
   "On iPhone and iPad, push works only in the app installed to the Home Screen: check Settings → Notifications → OpenTodo, and Focus.": [
     "web/src/lib/push.ts"
@@ -10146,7 +10163,8 @@
     "web/src/app/settingsSections.ts"
   ],
   "Put on hold": [
-    "web/src/app/resume/DossierView.tsx"
+    "web/src/app/resume/DossierView.tsx",
+    "web/src/lib/assistant.ts"
   ],
   "Put the thread on hold": [
     "web/src/app/resume/DossierView.tsx"
@@ -10674,6 +10692,9 @@
   "Repositories or projects": [
     "web/src/app/IssueEditor.tsx"
   ],
+  "Reprendre le fil": [
+    "web/src/app/assistant/AssistantPanel.tsx"
+  ],
   "Requesting a reset link needs a connection to the server.": [
     "web/src/app/EmailScreens.tsx"
   ],
@@ -10830,6 +10851,9 @@
   "Resume": [
     "web/src/app/focus/FocusView.tsx",
     "web/src/app/rules/RulesView.tsx"
+  ],
+  "Resumed": [
+    "web/src/lib/assistant.ts"
   ],
   "Retention": [
     "web/src/app/BackupsPanel.tsx",
@@ -12391,6 +12415,9 @@
     "web/src/app/review/ReviewProgress.tsx",
     "web/src/app/review/ReviewView.tsx"
   ],
+  "Steps: {tasks}": [
+    "web/src/lib/assistant.ts"
+  ],
   "Still visible to the server: {PLAINTEXT_FIELDS}. Shared projects are not encrypted, and new projects cannot be shared while encryption is on.": [
     "web/src/app/EncryptionPanel.tsx"
   ],
@@ -13835,6 +13862,9 @@
   ],
   "This device’s sync state": [
     "web/src/app/settingsIndex.ts"
+  ],
+  "This dossier": [
+    "web/src/app/assistant/AssistantPanel.tsx"
   ],
   "This dossier is in another workspace.": [
     "web/src/lib/dossiers.ts"
@@ -15373,6 +15403,9 @@
   "Waiting for the first sync": [
     "web/src/app/CalendarSyncPanel.tsx"
   ],
+  "Waiting for {reason}": [
+    "web/src/lib/assistant.ts"
+  ],
   "Waiting on another task": [
     "web/src/app/filter/conditionText.ts"
   ],
@@ -16851,7 +16884,8 @@
     "web/src/app/Sidebar.tsx"
   ],
   "none": [
-    "web/src/app/ImportScreen.tsx"
+    "web/src/app/ImportScreen.tsx",
+    "web/src/lib/assistant.ts"
   ],
   "none · type a day or a date": [
     "web/src/app/quickadd/FieldRows.tsx"
@@ -17715,10 +17749,10 @@
   "{enter} saves · {esc} cancels": [
     "web/src/app/ShareCapture.tsx"
   ],
-  "{entity, select, task {New task} project {New project} label {New label} section {New section} comment {New comment} view {New view} field {New field} reminder {New reminder} other {New item}}": [
+  "{entity, select, task {New task} project {New project} label {New label} section {New section} comment {New comment} view {New view} field {New field} reminder {New reminder} dossier {New dossier} other {New item}}": [
     "web/src/lib/assistant.ts"
   ],
-  "{entity, select, task {a task} project {a project} label {a label} section {a section} comment {a comment} view {a view} field {a field} reminder {a reminder} other {an item}}": [
+  "{entity, select, task {a task} project {a project} label {a label} section {a section} comment {a comment} view {a view} field {a field} reminder {a reminder} dossier {a dossier} other {an item}}": [
     "web/src/lib/assistant.ts"
   ],
   "{error}. The name stays “{name}”.": [

@@ -126,6 +126,24 @@ describe('review', () => {
   })
 })
 
+describe('dossiers', () => {
+  it('describes a new dossier with its steps, applies it, and describes putting it on hold', async () => {
+    const a = await task('Order the tyres')
+    const b = await task('Book the garage')
+    const id = crypto.randomUUID()
+    const create: ProposedChange = { entity: 'dossier', entityId: id, create: true, patch: { title: 'Tyres', note: '', task_ids: [a, b], waiting: false, waiting_for: '', follow_up: null, position: 1, created_at: 1, deleted_at: null } }
+    const r = await reviewChangeSet([create])
+    expect(r.items).toHaveLength(1)
+    expect(r.items[0].title).toBe('New dossier: Tyres')
+    expect(r.items[0].lines).toEqual(['Steps: Order the tyres, Book the garage'])
+    await applyChanges([create])
+    expect((await db.dossiers.get(id))!.task_ids).toEqual([a, b])
+    const hold = await reviewChangeSet([{ entity: 'dossier', entityId: id, patch: { waiting: true, waiting_for: 'the delivery', follow_up: '2026-11-02' }, base: { waiting: false, waiting_for: '', follow_up: null } }])
+    expect(hold.items[0].title).toBe('Tyres')
+    expect(hold.items[0].lines).toEqual(['Put on hold', 'Waiting for the delivery', 'Look again on 2026-11-02'])
+  })
+})
+
 describe('apply', () => {
   it('applies one batch with device assistant:<device-id>, queued in the outbox (works offline)', async () => {
     const ids = [await task('A'), await task('B'), await task('C')]

@@ -49,7 +49,7 @@ describe('messages', () => {
     expect(t('on')).toBe('activé')
     const html = renderToStaticMarkup(createElement('p', null, t.rich('Signed in as <b>{name}</b>.', { name: 'Ana', b: (s) => createElement('b', null, s) })))
     expect(html).toBe('<p>Connecté en tant que <b>Ana</b>.</p>')
-    expect(t('{entity, select, task {a task} project {a project} label {a label} section {a section} comment {a comment} view {a view} field {a field} reminder {a reminder} other {an item}}', { entity: 'label' })).toBe('une étiquette')
+    expect(t('{entity, select, task {a task} project {a project} label {a label} section {a section} comment {a comment} view {a view} field {a field} reminder {a reminder} dossier {a dossier} other {an item}}', { entity: 'label' })).toBe('une étiquette')
     expect(t('A message no catalog has')).toBe('A message no catalog has')
   })
 

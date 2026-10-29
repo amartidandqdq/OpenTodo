@@ -145,7 +145,10 @@ type Result struct {
 var idPattern = regexp.MustCompile(`^[A-Za-z0-9_-]{1,64}$`)
 
 var views = map[string]string{"inbox": "the Inbox", "today": "Today", "upcoming": "Upcoming", "completed": "Completed", "assigned": "Assigned to me",
-	"project": "a project", "label": "a label", "filter": "Filter", "view": "a saved view", "day": "the Day calendar", "week": "the Week calendar"}
+	"project": "a project", "label": "a label", "filter": "Filter", "view": "a saved view", "day": "the Day calendar", "week": "the Week calendar",
+	"resume":  "the Reprendre le fil page, which shows the user's dossiers (threads of existing tasks, not projects); a \"dossier\" or \"fil\" said here means one of these",
+	"waiting": "the En attente page, which lists the user's dossiers on hold (threads of existing tasks, not projects)",
+	"dossier": "one dossier of the Reprendre le fil page (a thread of existing tasks, not a project)"}
 
 // SystemRules is the fixed middle of every turn's system text: what the
 // assistant can and cannot do, untrusted data and the planning vocabulary. The

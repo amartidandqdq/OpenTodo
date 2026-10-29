@@ -53,6 +53,8 @@ export function contextName(view: string | undefined, selected: number): string 
     case 'inbox': return t('Inbox')
     case 'project': return t('This project')
     case 'view': return t('This view')
+    case 'resume': return t('Reprendre le fil')
+    case 'dossier': return t('This dossier')
     default: return undefined
   }
 }

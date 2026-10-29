@@ -181,6 +181,9 @@ async function loadNames(changes: ProposedChange[]): Promise<Names> {
     if (c.entity === 'label' && name) n.labels.set(c.entityId, name)
     if (c.entity === 'task' && typeof c.patch.title === 'string') n.tasks.set(c.entityId, c.patch.title)
   }
+  // A dossier's steps are named from the tasks it lists.
+  const steps = changes.filter((c) => c.entity === 'dossier' && Array.isArray(c.patch.task_ids)).flatMap((c) => c.patch.task_ids as string[]).filter((id) => !n.tasks.has(id))
+  if (steps.length) for (const row of await db.tasks.bulkGet([...new Set(steps)])) if (row) n.tasks.set(row.id, row.title)
   return n
 }
 
@@ -234,9 +237,9 @@ function planningLines(p: Record<string, unknown>, base: Record<string, unknown>
 }
 
 /** "a task", "a project", … for an entity without a known name. */
-const someEntity = (entity: string) => t('{entity, select, task {a task} project {a project} label {a label} section {a section} comment {a comment} view {a view} field {a field} reminder {a reminder} other {an item}}', { entity })
+const someEntity = (entity: string) => t('{entity, select, task {a task} project {a project} label {a label} section {a section} comment {a comment} view {a view} field {a field} reminder {a reminder} dossier {a dossier} other {an item}}', { entity })
 /** "New task", "New view", … for a proposed entity of another kind. */
-const newEntity = (entity: string) => t('{entity, select, task {New task} project {New project} label {New label} section {New section} comment {New comment} view {New view} field {New field} reminder {New reminder} other {New item}}', { entity })
+const newEntity = (entity: string) => t('{entity, select, task {New task} project {New project} label {New label} section {New section} comment {New comment} view {New view} field {New field} reminder {New reminder} dossier {New dossier} other {New item}}', { entity })
 
 /** A custom field value change in words: "Cost → 120", "Client cleared" (custom-fields D6). */
 export function fieldWords(names: Names, id: string, v: unknown): string {
@@ -256,6 +259,14 @@ export function describe(c: ProposedChange, local: Record<string, unknown> | und
     switch (c.entity) {
       case 'project': return { title: t('New project: {name}', { name: String(p.name ?? '') }), lines: [] }
       case 'label': return { title: t('New label: {name}', { name: String(p.name ?? '') }), lines: [] }
+      case 'dossier': {
+        const lines: string[] = []
+        const steps = Array.isArray(p.task_ids) ? p.task_ids : []
+        if (steps.length) lines.push(t('Steps: {tasks}', { tasks: steps.map((id) => clip(names.tasks.get(String(id)) ?? t('a task'), 40)).join(', ') }))
+        if (p.waiting) lines.push(p.waiting_for ? t('On hold: {reason}', { reason: clip(String(p.waiting_for), 80) }) : t('On hold'))
+        if (p.follow_up) lines.push(t('Look again on {date}', { date: String(p.follow_up) }))
+        return { title: t('New dossier: {name}', { name: String(p.title ?? '') }), lines }
+      }
       case 'comment': {
         const task = names.tasks.get(String(p.task_id)) ?? t('a task')
         return { title: t('Comment on “{task}”', { task: clip(task, 50) }), lines: [clip(String(p.body ?? ''), 140)] }
@@ -310,6 +321,11 @@ export function describe(c: ProposedChange, local: Record<string, unknown> | und
       case 'deadline': case 'start': case 'evening': case 'location':
       case 'blocked_by': if (c.entity !== 'task') lines.push(t('{field} changed', { field: f.replace(/_/g, ' ') })); break
       case 'color': lines.push(t('Colour {name}', { name: String(v) })); break
+      case 'task_ids': lines.push(t('Steps: {tasks}', { tasks: ((v as string[] | null) ?? []).map((id) => clip(names.tasks.get(String(id)) ?? t('a task'), 40)).join(', ') || t('none') })); break
+      case 'waiting': lines.push(v ? t('Put on hold') : t('Resumed')); break
+      case 'waiting_for': lines.push(v ? t('Waiting for {reason}', { reason: clip(String(v), 80) }) : t('No waiting reason')); break
+      case 'follow_up': lines.push(v ? t('Look again on {date}', { date: String(v) }) : t('Follow-up date removed')); break
+      case 'note': lines.push(t('Note changed')); break
       case 'position': case 'created_at': case 'notes_doc': break
       default: lines.push(t('{field} changed', { field: f.replace(/_/g, ' ') }))
     }

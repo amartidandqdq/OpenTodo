@@ -10,7 +10,7 @@ import { undoBatch } from './undo'
 import { ownIn, readWorkspaceState, storeWorkspaces, switchTo } from './workspaces'
 import { toggleFocus } from './review'
 import {
-  attachTaskToDossier, createDossier, deleteDossier, detachTaskFromDossier, dossierLinkOffer, hideDossierLinkOffer,
+  attachTaskToDossier, createDossier, createDossierWithTask, deleteDossier, detachTaskFromDossier, dossierLinkOffer, hideDossierLinkOffer,
   moveDossierTask, offerDossierLink, removeUnavailableDossierTasks, resumeDossier, setDossierFollowUp, setDossierWaiting,
   toggleDossierFocus, updateDossier,
 } from './dossiers'
@@ -322,6 +322,29 @@ describe('attaching, detaching and ordering', () => {
     await undoBatch(cleaned?.id as string)
     expect((await dossierRow(id)).task_ids).toEqual([a, b, c])
     expect((await taskRow(b)).deleted_at).toBeTruthy()
+  })
+})
+
+describe('creating a dossier around an existing task', () => {
+  it('makes the task the only step in one undoable batch, writes no task, and rejects an ineligible task', async () => {
+    const quotes = await createTask({ title: 'Get three quotes', due: { date: '2026-11-01' } })
+    const done = await createTask({ title: 'Done' })
+    await updateTask(done, { completed_at: 5000 })
+    await expect(createDossierWithTask('Kitchen', done)).rejects.toThrow()
+    await expect(createDossierWithTask('   ', quotes)).rejects.toThrow()
+    expect(await db.dossiers.count()).toBe(0)
+    await db.outbox.clear()
+
+    const { id, entry } = await createDossierWithTask('  Kitchen ', quotes)
+    const row = await dossierRow(id)
+    expect(row).toMatchObject({ title: 'Kitchen', task_ids: [quotes], waiting: false, deleted_at: null })
+    expect((await taskRow(quotes)).due).toEqual({ date: '2026-11-01' })
+    expect([...new Set((await db.outbox.toArray()).map((op) => op.entity))]).toEqual(['dossier'])
+    expect(entry).toMatchObject({ source: 'action' })
+
+    await undoBatch(entry?.id as string)
+    expect((await dossierRow(id)).deleted_at).toBeTruthy()
+    expect((await taskRow(quotes)).due).toEqual({ date: '2026-11-01' })
   })
 })
 

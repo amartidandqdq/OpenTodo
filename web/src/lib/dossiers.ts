@@ -111,30 +111,61 @@ export async function deleteDossier(id: string): Promise<Awaited<ReturnType<type
 }
 
 /**
+ * Whether a task may become a step of a dossier that already holds `ids`: a live,
+ * open task of this workspace that the person may edit, with room in the thread.
+ * Runs inside the dossier write, so the reads are the ones the write is based on.
+ */
+async function checkAttachable(task: Task | undefined, ids: readonly string[]): Promise<void> {
+  if (!task || task.deleted_at) throw new Error(t('This task is no longer there.'))
+  if (task.completed_at) throw new Error(t('A completed task cannot be added to a dossier.'))
+  // The task must still be visible in the current workspace: a deleted project, a
+  // project the person left, and another workspace all remove it from this set.
+  const { here } = await visibleTaskSets()
+  if (!here.some((row) => row.id === task.id)) throw new Error(t('This task is no longer available.'))
+  const [project, memberships] = await Promise.all([
+    task.project_id ? db.projects.get(task.project_id) : Promise.resolve(undefined),
+    membershipMap(),
+  ])
+  if (task.project_id && !project) throw new Error(t('This task is no longer available.'))
+  if (project?.archived) throw new Error(t('This task is in an archived project.'))
+  if (!canEditTasks(roleOf(task.project_id, memberships))) throw new Error(t('This task is read-only.'))
+  if (ids.length >= DOSSIER_TASK_MAX) throw new Error(t('A dossier holds at most {n} tasks.', { n: DOSSIER_TASK_MAX }))
+}
+
+/**
  * Attaches a live, open task of this workspace that the person may edit, at the
  * end of the dossier's order. The task itself is never written.
  */
 export async function attachTaskToDossier(dossierId: string, taskId: string): Promise<Awaited<ReturnType<typeof applyBatch>>> {
   return dossierWrite(async () => {
     const [dossier, task] = await Promise.all([liveDossier(dossierId), db.tasks.get(taskId)])
-    if (!task || task.deleted_at) throw new Error(t('This task is no longer there.'))
     const ids = orderOf(dossier)
     if (ids.includes(taskId)) return null
-    if (task.completed_at) throw new Error(t('A completed task cannot be added to a dossier.'))
-    // The task must still be visible in the current workspace: a deleted project, a
-    // project the person left, and another workspace all remove it from this set.
-    const { here } = await visibleTaskSets()
-    if (!here.some((row) => row.id === task.id)) throw new Error(t('This task is no longer available.'))
-    const [project, memberships] = await Promise.all([
-      task.project_id ? db.projects.get(task.project_id) : Promise.resolve(undefined),
-      membershipMap(),
-    ])
-    if (task.project_id && !project) throw new Error(t('This task is no longer available.'))
-    if (project?.archived) throw new Error(t('This task is in an archived project.'))
-    if (!canEditTasks(roleOf(task.project_id, memberships))) throw new Error(t('This task is read-only.'))
-    if (ids.length >= DOSSIER_TASK_MAX) throw new Error(t('A dossier holds at most {n} tasks.', { n: DOSSIER_TASK_MAX }))
+    await checkAttachable(task, ids)
     return applyBatch([{ entity: 'dossier', entityId: dossierId, patch: { task_ids: [...ids, taskId] } }],
-      { ...ACTION, label: t('{task} added to {dossier}', { task: task.title, dossier: dossier.title }) })
+      { ...ACTION, label: t('{task} added to {dossier}', { task: task!.title, dossier: dossier.title }) })
+  })
+}
+
+/**
+ * Creates a dossier whose only step is an existing task, in one undoable batch:
+ * the task is checked as attachTaskToDossier checks it, and is not written.
+ */
+export async function createDossierWithTask(title: string, taskId: string): Promise<{ id: string; entry: Awaited<ReturnType<typeof applyBatch>> }> {
+  const name = title.trim()
+  if (!name) throw new Error(t('Please enter a name'))
+  const id = uuid()
+  const now = Date.now()
+  const ws = await workspaceFields()
+  return dossierWrite(async () => {
+    const task = await db.tasks.get(taskId)
+    await checkAttachable(task, [])
+    const change: ProposedChange = {
+      entity: 'dossier', entityId: id, create: true,
+      patch: { title: name, note: '', task_ids: [taskId], waiting: false, waiting_for: '', follow_up: null, ...ws, position: now, created_at: now, deleted_at: null },
+    }
+    const entry = await applyBatch([change], { ...ACTION, label: t('{task} added to {dossier}', { task: task!.title, dossier: name }) })
+    return { id, entry }
   })
 }
 

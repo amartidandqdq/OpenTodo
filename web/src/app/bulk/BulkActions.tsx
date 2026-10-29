@@ -7,20 +7,22 @@ import { Kbd } from '../shortcuts/Kbd'
 import { useMemo, useRef, useState, type RefObject } from 'react'
 import { useBelowStickyHeader } from './useBelowStickyHeader'
 import { allCompleted, applyBulk, commonSharedProject, readTicked, reviewAssign, reviewMove, type BulkAction, type ReviewPlan, useTickedTasks } from '../../lib/bulk'
-import { useAllLabels, useLiveSections, useProjects, useMembershipMap, useReviewRow } from '../../lib/localData'
+import { useAllLabels, useDossiersLoaded, useLiveSections, useProjects, useMembershipMap, useReviewRow } from '../../lib/localData'
+import { attachTaskToDossier, createDossierWithTask } from '../../lib/dossiers'
 import { useLiveTasks } from '../../lib/liveTasks'
 import { itemKeywords, projectSource, sectionSource, type PickerItem } from '../../lib/pickerSources'
-import { roleOf } from '../../lib/sharing'
+import { canEditTasks, roleOf } from '../../lib/sharing'
 import { toggleTracking, useRunningEntry } from '../../lib/timeEntries'
 import { act } from '../actionError'
-import type { Label, Membership, Priority, Project, Section, Task } from '../../lib/types'
+import type { Dossier, Label, Membership, Priority, Project, Section, Task } from '../../lib/types'
 import { Icon, Dialog, useFinePointer } from '../../ui'
 import { Tooltip } from '../../ui'
 import { DateField } from '../datetime/DateField'
 import { ActionMenu, type ActionGroup, type ActionItem } from '../menus/ActionMenu'
 import { openRowSchedule } from '../task-list/RowSwipe'
 import { BulkReview } from './BulkReview'
-import { showBulkToast } from './toastStore'
+import { showBulkToast, showUndoToast } from './toastStore'
+import { dossierText } from '../resume/DossierCard'
 import { t } from '../../lib/i18n'
 import { withListTransition } from '../motion'
 import { useToday } from '../useViews'
@@ -40,7 +42,33 @@ const itemKey = (i: PickerItem) => i.key
 const itemLabel = (i: PickerItem) => i.label
 const itemPath = (i: PickerItem) => i.path
 
-interface Data { tasks: Task[]; labels: Label[]; projects: Project[]; sections: Section[]; memberships: Map<string, Membership>; runningTask?: string | null }
+interface Data { tasks: Task[]; labels: Label[]; projects: Project[]; sections: Section[]; memberships: Map<string, Membership>; runningTask?: string | null; dossiers?: Dossier[] }
+
+/**
+ * "Add to a dossier…" for one open task the person may edit: a picker over the live
+ * dossiers, and a typed name that matches none creates one. Nothing for a completed,
+ * deleted or read-only task.
+ */
+export function dossierMenuItem(task: Task | undefined, d: Pick<Data, 'dossiers' | 'memberships'>): ActionItem | undefined {
+  if (!task || task.completed_at || task.deleted_at || !canEditTasks(roleOf(task.project_id, d.memberships))) return undefined
+  return { kind: 'picker', id: 'dossier', label: t('Add to a dossier'), icon: 'compass', picker: {
+    title: t('Add to a dossier'), placeholder: t('Find a dossier…'), source: d.dossiers ?? [], rankContext: 'dossier',
+    getKey: (x: Dossier) => x.id, getLabel: (x: Dossier) => dossierText(x.title) || t('Untitled dossier'),
+    onPick: (x: Dossier) => act(addTaskToDossierFromMenu(task, { dossier: x })),
+    onCreate: (name: string) => act(addTaskToDossierFromMenu(task, { name })),
+  } }
+}
+
+/** Attaches the task to the chosen dossier, or creates the named one with it: one undoable batch. */
+async function addTaskToDossierFromMenu(task: Task, target: { dossier: Dossier } | { name: string }): Promise<void> {
+  if ('name' in target) {
+    const { entry } = await createDossierWithTask(target.name, task.id)
+    showUndoToast(t('{task} added to {dossier}', { task: task.title, dossier: target.name }), entry?.id ?? null)
+    return
+  }
+  const entry = await attachTaskToDossier(target.dossier.id, task.id)
+  if (entry) showUndoToast(t('{task} added to {dossier}', { task: task.title, dossier: dossierText(target.dossier.title) }), entry.id)
+}
 
 /**
  * Start or Stop tracking for one task (time-tracking D5): Stop while its entry runs,
@@ -65,6 +93,7 @@ export function bulkMenuGroups(ids: readonly string[], d: Data, a: { review: (ti
   const shared = commonSharedProject(d.tasks, d.memberships)
   const members = shared ? d.memberships.get(shared)?.members ?? [] : []
   const run = (action: BulkAction) => () => runBulk(ids, action)
+  const dossier = n === 1 ? dossierMenuItem(d.tasks[0], d) : undefined
   const complete: ActionItem = { kind: 'action', id: 'complete', label: reopen ? t('Reopen') : t('Complete'), icon: 'check', shortcut: keysOf('list.complete'), onSelect: run({ kind: 'complete' }) }
   // On touch, one task's menu starts with the two swipe actions (phone-v2 D3, WCAG 2.2 2.5.7).
   const swipeTwins = n === 1 && a.schedule
@@ -85,6 +114,7 @@ export function bulkMenuGroups(ids: readonly string[], d: Data, a: { review: (ti
         onPick: (l: Label) => { void labelToggle(ids, l.id) },
       } },
     ] },
+    ...(dossier ? [{ items: [dossier] }] : []),
     ...(besideRow ? [] : [{ label: t('Date'), items: [
       { kind: 'action', id: 'today', label: t('Today'), icon: 'calendar-check', onSelect: run({ kind: 'due', pick: 'today' }) },
       { kind: 'action', id: 'tomorrow', label: t('Tomorrow'), icon: 'calendar-days', onSelect: run({ kind: 'due', pick: 'tomorrow' }) },
@@ -132,7 +162,8 @@ function useBulkData(ids: readonly string[]): Data {
   const sections = useLiveSections()
   const memberships = useMembershipMap()
   const runningTask = useRunningEntry()?.task_id ?? null
-  return { tasks, labels, projects, sections, memberships, runningTask }
+  const dossiers = useDossiersLoaded()
+  return { tasks, labels, projects, sections, memberships, runningTask, dossiers }
 }
 
 /**

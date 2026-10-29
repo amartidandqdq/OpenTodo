@@ -974,6 +974,9 @@
   "Add to OpenTodo": [
     "web/src/app/CaptureSettings.tsx"
   ],
+  "Add to a dossier": [
+    "web/src/app/bulk/BulkActions.tsx"
+  ],
   "Add to all, or remove from all…": [
     "web/src/app/bulk/BulkActions.tsx"
   ],
@@ -4922,6 +4925,7 @@
     "web/src/app/menus/stylePickers.tsx"
   ],
   "Find a dossier…": [
+    "web/src/app/bulk/BulkActions.tsx",
     "web/src/app/resume/DossierLinkCard.tsx"
   ],
   "Find a label…": [
@@ -15176,6 +15180,7 @@
     "web/src/page/TaskPageScreen.tsx"
   ],
   "Untitled dossier": [
+    "web/src/app/bulk/BulkActions.tsx",
     "web/src/app/resume/DossierCard.tsx",
     "web/src/app/resume/DossierLinkCard.tsx",
     "web/src/app/resume/DossierView.tsx",
@@ -18698,6 +18703,7 @@
     "web/src/app/ProjectHeader.tsx"
   ],
   "{task} added to {dossier}": [
+    "web/src/app/bulk/BulkActions.tsx",
     "web/src/app/resume/DossierLinkCard.tsx",
     "web/src/lib/dossiers.ts"
   ],

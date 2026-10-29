@@ -195,6 +195,7 @@ func (r *Registry) planUpdateDossier(ctx context.Context, c Caller, a args, over
 	if err := snap.dossierPatch(c, a, patch, false); err != nil {
 		return Plan{}, err
 	}
+	d = withDossierDefaults(d)
 	if len(patch) == 0 {
 		return Plan{}, argErr("nothing to change: give at least one field besides id")
 	}
@@ -211,4 +212,19 @@ func (r *Registry) planUpdateDossier(ctx context.Context, c Caller, a args, over
 	}
 	cs := ChangeSet{{Entity: "dossier", EntityID: id, Patch: patch, Base: base(d, patch)}}
 	return Plan{Result: result("update_dossier", []map[string]any{{"id": id, "status": "updated"}}, 1), Changes: cs, Count: 1}, nil
+}
+
+// withDossierDefaults fills the fields a dossier never wrote with their schema
+// defaults, the value every device reads for them. Without it the proposal's
+// base for a never-set waiting or waiting_for would be null while the device
+// holds false or "", and the review would mark the change as stale.
+func withDossierDefaults(d opsync.Entity) opsync.Entity {
+	out := opsync.Entity{}
+	for f, spec := range opsync.Schema["dossier"] {
+		out[f] = json.RawMessage(spec.Default)
+	}
+	for f, v := range d {
+		out[f] = v
+	}
+	return out
 }

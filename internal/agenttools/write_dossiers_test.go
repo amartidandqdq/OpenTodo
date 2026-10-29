@@ -1,8 +1,11 @@
 package agenttools
 
 import (
+	"encoding/json"
 	"strings"
 	"testing"
+
+	opsync "github.com/OpenTodoApp/opentodo/internal/sync"
 )
 
 // Dossier tools (OpenSpec change assistant-resume-dossiers): the Reprendre le
@@ -56,5 +59,18 @@ func TestDossierTools(t *testing.T) {
 	}
 	if _, err := f.call(c, "create_dossier", map[string]any{"title": "x", "task_ids": []string{"nope"}}); err == nil || !strings.Contains(err.Error(), "no such task") {
 		t.Fatalf("create with unknown task: %v", err)
+	}
+}
+
+// A never-written hold reads as its schema default, so a proposal's base matches
+// what the device holds (a null base marked every hold change stale).
+func TestDossierBaseUsesSchemaDefaults(t *testing.T) {
+	d := withDossierDefaults(opsync.Entity{"id": json.RawMessage(`"d1"`), "waiting_for": json.RawMessage(`"x"`)})
+	b := base(d, map[string]json.RawMessage{"waiting": nil, "waiting_for": nil, "follow_up": nil})
+	if string(b["waiting"]) != "false" || string(b["waiting_for"]) != `"x"` || string(b["follow_up"]) != "null" {
+		t.Fatalf("base = %s", b)
+	}
+	if string(withDossierDefaults(opsync.Entity{})["waiting_for"]) != `""` {
+		t.Fatal("waiting_for default is not an empty string")
 	}
 }

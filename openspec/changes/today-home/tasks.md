@@ -8,9 +8,8 @@
 
 ## 2. Counts on Inbox and Today only
 
-- [ ] 2.1 `Sidebar.tsx` and `FavouritesGroup.tsx`: project, label and view rows show no count; the Inbox and Today rows keep theirs; `sidebar.test.tsx` updated for the new rule (Inbox and Today keep their counts, project rows none)
-- [ ] 2.2 Other tests asserting project or label counts in the sidebar updated (`sidebar.test.tsx`, `favouritesMenus.test.tsx`, `deadlineViews.test.tsx`, `inboxRule.test.tsx`)
-- [ ] 2.3 `sidebar.stories.tsx` and the `Sidebar` pattern stories show no project count when the count is not passed
+- [x] 2.1 `Sidebar.tsx` and `FavouritesGroup.tsx`: project, label and view rows show no count; the Inbox and Today rows keep theirs; `sidebar.test.tsx` updated for the new rule (Inbox and Today keep their counts, project rows none)
+- [x] 2.2 Other tests asserting project or label counts in the sidebar updated (`sidebar.test.tsx`, `favouritesMenus.test.tsx`, `deadlineViews.test.tsx`, `inboxRule.test.tsx`)
 
 ## 3. Resume the thread on Today
 

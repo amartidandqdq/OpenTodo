@@ -9148,7 +9148,6 @@
     "web/src/lib/settingsCopy.ts"
   ],
   "Open tasks including sub-projects": [
-    "web/src/app/Sidebar.tsx",
     "web/src/app/SubProjects.tsx"
   ],
   "Open the Inbox": [

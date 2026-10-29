@@ -461,21 +461,21 @@ describe('collapsible groups (sidebar-groups 1.2)', () => {
 })
 
 describe('tree defaults and bulk toggles (sidebar-groups 2.2)', () => {
-  it('a new device shows the roots only with subtree counts; Collapse all and Expand all; navigation reveals only the ancestors', async () => {
+  it('a new device shows the roots only, no project counts; Collapse all and Expand all; navigation reveals only the ancestors', async () => {
     const ids = await seedTree()
     await createTask({ title: 'Mock-ups', project_id: ids.Designer })
     await createTask({ title: 'Plan', project_id: ids.Work })
     const r = await render(<Sidebar route={{ view: 'inbox' }} user={user} />)
     await waitFor(() => r.container.querySelectorAll('[data-project-id]').length === 9)
     expect(projectRows(r.container)).toEqual(['Work', 'Home', 'Health', 'Finances', 'Reading list', 'Side project', 'Travel', 'Family', 'Someday maybe'])
-    // "Work" counts its whole subtree while collapsed (the counts follow the tasks, read on their own).
-    await waitFor(() => r.container.querySelector(`[data-project-id="${ids.Work}"] [data-count]`)?.textContent === '2')
+    // Project rows carry no count, collapsed or not (today-home).
+    expect(r.container.querySelector(`[data-project-id="${ids.Work}"] [data-count]`)).toBeNull()
     // Expand all, then Collapse all, from the Projects header menu.
     await click(groupOf(r.container, 'Projects').querySelector('button[aria-label="Add or fold projects"]')!)
     await waitFor(() => !!menuItem('Expand all'))
     await click(menuItem('Expand all'))
     await waitFor(() => r.container.querySelectorAll('[data-project-id]').length === 30)
-    expect(r.container.querySelector(`[data-project-id="${ids.Work}"] [data-count]`)?.textContent).toBe('1')
+    expect(r.container.querySelector(`[data-project-id="${ids.Work}"] [data-count]`)).toBeNull()
     await click(groupOf(r.container, 'Projects').querySelector('button[aria-label="Add or fold projects"]')!)
     await waitFor(() => !!menuItem('Collapse all'))
     await click(menuItem('Collapse all'))
@@ -651,7 +651,7 @@ describe('favourites (sidebar-favourites 2.2, 2.3, 3.2)', () => {
   })
   const groups = (root: ParentNode) => [...root.querySelectorAll('[data-sidebar-group]')].map((g) => g.getAttribute('data-sidebar-group'))
 
-  it('Mixed kinds in order: each with its own count, Move up from the menu, and each row opens its view', async () => {
+  it('Mixed kinds in order: no counts on favourites, Move up from the menu, and each row opens its view', async () => {
     const { pin } = await import('../lib/favourites')
     const site = await createProject({ name: 'Website launch' })
     const design = await createProject({ name: 'Design', parent_id: site })
@@ -665,15 +665,14 @@ describe('favourites (sidebar-favourites 2.2, 2.3, 3.2)', () => {
     await pin('label', errand)
     const r = await render(<Sidebar route={{ view: 'inbox' }} user={user} />)
     await waitFor(() => favRows(r.container).length === 3)
-    // The Website launch count is its whole subtree's (5), whatever the tree's fold state.
-    await waitFor(() => favRows(r.container).join('|') === 'Website launch 5|Deep work 4|errand 3')
+    await waitFor(() => favRows(r.container).join('|') === 'Website launch|Deep work|errand')
     expect(groups(r.container)).toEqual(['Favourites', 'Projects', 'Labels', 'Views'])
     // Move "Deep work" to the top from its menu in the Favourites group.
     const deepRow = r.container.querySelector(`[data-favourite-row="view:${deep}"]`)!
     await click(deepRow.querySelector('button[aria-label="Menu for view Deep work"]')!)
     await waitFor(() => !!menuItem('Move up'))
     await click(menuItem('Move up'))
-    await waitFor(() => favRows(r.container).join('|') === 'Deep work 4|Website launch 5|errand 3')
+    await waitFor(() => favRows(r.container).join('|') === 'Deep work|Website launch|errand')
     // Its position among the saved filters is unchanged: only the preference was written.
     expect((await db.outbox.toArray()).filter((o) => o.entity === 'view' && o.field === 'position')).toHaveLength(1)
     await click(r.container.querySelector(`[data-favourite="label:${errand}"]`)!)
@@ -686,7 +685,7 @@ describe('favourites (sidebar-favourites 2.2, 2.3, 3.2)', () => {
     const row = r.container.querySelector<HTMLElement>(`[data-favourite="view:${deep}"]`)!
     row.focus()
     await key(row, 'ArrowDown', { altKey: true })
-    await waitFor(() => favRows(r.container)[1] === 'Deep work 4')
+    await waitFor(() => favRows(r.container)[1] === 'Deep work')
     await waitFor(() => document.activeElement?.getAttribute('data-favourite') === `view:${deep}`)
     await r.unmount()
   })
@@ -780,7 +779,8 @@ describe('quiet sidebar (quiet-sidebar 1.2-1.4, 2.1)', () => {
     const { site } = await seedAccount()
     const r = await render(<Sidebar route={{ view: 'inbox' }} user={user} />)
     await waitFor(() => r.container.querySelector('[data-destination="today"] [data-count]')?.textContent === '2')
-    await waitFor(() => r.container.querySelector(`[data-project-id="${site}"] [data-count]`)?.textContent === '7')
+    await waitFor(() => r.container.querySelector('[data-destination="today"] [data-count]')?.textContent === '2')
+    expect(r.container.querySelector(`[data-project-id="${site}"] [data-count]`)).toBeNull()
     expect(headingOf(r.container, 'Projects').getAttribute('aria-expanded')).toBe('true')
     expect(headingOf(r.container, 'Labels').getAttribute('aria-expanded')).toBe('false')
     expect(headingOf(r.container, 'Views').getAttribute('aria-expanded')).toBe('false')
@@ -792,56 +792,44 @@ describe('quiet sidebar (quiet-sidebar 1.2-1.4, 2.1)', () => {
     await r.unmount()
   })
 
-  it('Count on hover: a project count is quiet until hover or focus, and always in the name; nothing visible at rest', async () => {
+  it('Projects show no count, hovered or focused; the name is read alone', async () => {
     const { site } = await seedAccount()
     const r = await render(<Sidebar route={{ view: 'inbox' }} user={user} />)
-    await waitFor(() => r.container.querySelector(`[data-project-id="${site}"] [data-count]`)?.textContent === '7')
+    await waitFor(() => r.container.querySelector('[data-destination="today"] [data-count]')?.textContent === '2')
     const row = r.container.querySelector(`[data-project-id="${site}"]`)!
-    expect(row.querySelector('[data-count]')!.classList.contains('ui-reveal')).toBe(true)
-    expect(row.querySelector('[data-open-count]')!.getAttribute('data-open-count')).toBe('7')
-    expect(spokenText(row)).toBe('Website launch, 7 open tasks')
-    // Focus does not change what is read; the reveal is styling only (no re-render, no layout change).
+    expect(row.querySelector('[data-count], [data-open-count]')).toBeNull()
+    expect(spokenText(row)).toBe('Website launch')
     ;(row as HTMLElement).focus()
     await flush()
-    expect(spokenText(row)).toBe('Website launch, 7 open tasks')
+    expect(row.querySelector('[data-count]')).toBeNull()
+    expect(spokenText(row)).toBe('Website launch')
     await r.unmount()
   })
 
-  it('Rolled-up count when collapsed: the description names the sub-projects', async () => {
-    const home = await createProject({ name: 'Home' })
-    const garden = await createProject({ name: 'Garden', parent_id: home })
-    for (let i = 0; i < 2; i++) await createTask({ title: `H${i}`, project_id: home })
-    for (let i = 0; i < 3; i++) await createTask({ title: `G${i}`, project_id: garden })
-    const r = await render(<Sidebar route={{ view: 'inbox' }} user={user} />)
-    await waitFor(() => r.container.querySelector(`[data-project-id="${home}"] [data-open-count]`)?.getAttribute('data-open-count') === '5')
-    const row = r.container.querySelector(`[data-project-id="${home}"]`)!
-    expect(row.getAttribute('aria-description')).toBe('Open tasks including sub-projects')
-    expect(spokenText(row)).toBe('Home, 5 open tasks')
-    await r.unmount()
-  })
-
-  it('Touch screen: every project shows its count at all times', async () => {
+  it('Touch screen: projects show no count either, only Inbox and Today do', async () => {
     touchScreen()
     const { site } = await seedAccount()
     const r = await render(<Sidebar route={{ view: 'inbox' }} user={user} />)
-    await waitFor(() => r.container.querySelector(`[data-project-id="${site}"] [data-count]`)?.textContent === '7')
-    expect(r.container.querySelector(`[data-project-id="${site}"] [data-count]`)!.classList.contains('ui-reveal')).toBe(false)
+    await waitFor(() => r.container.querySelector('[data-destination="today"] [data-count]')?.textContent === '2')
+    expect(r.container.querySelector(`[data-project-id="${site}"] [data-count]`)).toBeNull()
     await r.unmount()
   })
 
-  it('filter and label rows show no number; their names carry it; a broken query keeps its error mark', async () => {
+  it('filter and label rows show no number; a broken query keeps its error mark', async () => {
     const { errand } = await seedAccount()
     await applyOps([{ id: 'bad', entity: 'view', entityId: (await db.views.toArray()).find((v) => v.name === 'Work tomorrow')!.id, field: 'query', value: '((', ts: Date.now() + 1000, device: 'laptop' } as Op])
     openGroups('labels', 'filters')
     const r = await render(<Sidebar route={{ view: 'inbox' }} user={user} />)
     const waiting = () => [...r.container.querySelectorAll('[data-view-id]')].find((b) => b.textContent?.startsWith('Waiting'))
-    await waitFor(() => !!waiting()?.querySelector('[data-open-count="3"]'))
+    await waitFor(() => !!waiting())
+    expect(waiting()!.querySelector('[data-open-count]')).toBeNull()
     expect(visibleText(waiting()!)).toBe('Waiting')
-    expect(spokenText(waiting()!)).toBe('Waiting, 3 open tasks')
+    expect(spokenText(waiting()!)).toBe('Waiting')
     const label = r.container.querySelector(`[data-label-row="${errand}"] [data-label-open]`)!
-    await waitFor(() => !!label.querySelector('[data-open-count="3"]'))
+    await waitFor(() => !!label)
+    expect(label.querySelector('[data-open-count]')).toBeNull()
     expect(visibleText(label)).toBe('errand')
-    expect(spokenText(label)).toBe('errand, 3 open tasks')
+    expect(spokenText(label)).toBe('errand')
     const broken = [...r.container.querySelectorAll('[data-view-id]')].find((b) => b.textContent?.startsWith('Work tomorrow'))!
     expect(visibleText(broken)).toBe('Work tomorrow!')
     expect(broken.querySelector('[data-open-count]')).toBeNull()
@@ -861,7 +849,7 @@ describe('quiet sidebar (quiet-sidebar 1.2-1.4, 2.1)', () => {
     await r.unmount()
   })
 
-  it('Favourites first: a pinned project counts on hover, a pinned label and filter show no number', async () => {
+  it('Favourites first: pinned projects, labels and filters show no number', async () => {
     const { pin } = await import('../lib/favourites')
     const { site, errand } = await seedAccount()
     const view = (await db.views.toArray()).find((v) => v.name === 'Waiting')!.id
@@ -869,22 +857,23 @@ describe('quiet sidebar (quiet-sidebar 1.2-1.4, 2.1)', () => {
     await pin('label', errand)
     await pin('view', view)
     const r = await render(<Sidebar route={{ view: 'inbox' }} user={user} />)
-    await waitFor(() => r.container.querySelectorAll('[data-favourite-row] [data-open-count]').length === 3)
+    await waitFor(() => r.container.querySelectorAll('[data-favourite-row]').length === 3)
     const fav = (k: string) => r.container.querySelector(`[data-favourite="${k}"]`)!
-    expect(fav(`project:${site}`).querySelector('[data-count]')!.classList.contains('ui-reveal')).toBe(true)
+    expect(r.container.querySelector('[data-favourite-row] [data-count], [data-favourite-row] [data-open-count]')).toBeNull()
     expect(visibleText(fav(`label:${errand}`))).toBe('errand')
     expect(visibleText(fav(`view:${view}`))).toBe('Waiting')
-    expect(spokenText(fav(`label:${errand}`))).toBe('errand, 3 open tasks')
+    expect(spokenText(fav(`label:${errand}`))).toBe('errand')
+    expect(spokenText(fav(`project:${site}`))).toBe('Website launch')
     await r.unmount()
   })
 
-  it('Touch keeps its targets: inline More, counts without hover, one footer row of touch-size controls', async () => {
+  it('Touch keeps its targets: inline More, no project counts, one footer row of touch-size controls', async () => {
     touchScreen()
     const { site } = await seedAccount()
     const r = await render(<Sidebar route={{ view: 'inbox' }} user={user} onAssistant={() => {}} />)
-    await waitFor(() => r.container.querySelector(`[data-project-id="${site}"] [data-count]`)?.textContent === '7')
+    await waitFor(() => r.container.querySelector('[data-destination="today"] [data-count]')?.textContent === '2')
     expect(r.container.querySelector('[data-testid="sidebar-more"]')).not.toBeNull()
-    expect(r.container.querySelector(`[data-project-id="${site}"] [data-count]`)!.classList.contains('ui-reveal')).toBe(false)
+    expect(r.container.querySelector(`[data-project-id="${site}"] [data-count]`)).toBeNull()
     const row = r.container.querySelectorAll('[data-sidebar-footer] [data-footer-icons]')
     expect(row).toHaveLength(1)
     for (const b of [row[0].querySelector('[data-account-menu]')!, row[0].querySelector('[data-assistant-launcher]')!, row[0].querySelector('[data-notifications]')!]) {

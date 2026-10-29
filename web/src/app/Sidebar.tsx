@@ -19,7 +19,7 @@ import { readMethodMode, type MethodMode } from '../lib/method/mode'
 import { SidebarFooter } from './SidebarFooter'
 import { WorkspaceControl } from './WorkspaceControl'
 import { InstanceMark, useInstanceName } from './InstanceBrand'
-import { buildProjectTree, collapseAllProjects, expandAllProjects, expandAncestorsOf, openCountsByProject, projectPath, siblingEdges, toggleCollapsedProject, visibleProjects, type ProjectNode, useCollapsedProjects } from '../lib/projects'
+import { buildProjectTree, collapseAllProjects, expandAllProjects, expandAncestorsOf, projectPath, siblingEdges, toggleCollapsedProject, visibleProjects, type ProjectNode, useCollapsedProjects } from '../lib/projects'
 import { flattenTree } from '../lib/tree'
 import type { Label, Project, Review, Task, User, View } from '../lib/types'
 import { useTrackedTotals } from '../lib/timeEntries'
@@ -142,7 +142,6 @@ export function Sidebar({ route, user, onSearch, onShortcuts, onAssistant, onSig
   const moreAsMenu = useMediaQuery(MORE_MENU_QUERY)
   // Below 768 px the sidebar is the phone drawer, under a tab bar with Today, Inbox and Upcoming (phone-v2 D7).
   const drawer = !useMediaQuery('(min-width: 48rem)')
-  const projectCountMode = useMediaQuery('(pointer: coarse)') ? 'always' : 'hover'
   const scroller = useRef<HTMLDivElement>(null)
   useScrollEdges(scroller)
   // Promoted destinations (appearance preferences, synced): read with the rest of the row.
@@ -206,7 +205,7 @@ export function Sidebar({ route, user, onSearch, onShortcuts, onAssistant, onSig
       if (task.assignee_id === user.id) assigned++
     }
     for (const item of openTasks) if (inToday(item, today)) due++
-    return { inbox: countInbox(openTasks, liveTasks ?? openTasks), today: due, assigned, byProject: openCountsByProject(active, tree, collapsed_) }
+    return { inbox: countInbox(openTasks, liveTasks ?? openTasks), today: due, assigned }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- zone: a zone change re-groups zoned dues (absolute-datetimes)
   }, [openTasks, liveTasks, tree, collapsed_, user.id, zone, today])
 
@@ -224,7 +223,7 @@ export function Sidebar({ route, user, onSearch, onShortcuts, onAssistant, onSig
 
   const [adding, setAdding] = useState(false)
   const [name, setName] = useState('')
-  const { labels, counts: labelCounts, duplicates } = useLabelData()
+  const { labels, duplicates } = useLabelData()
   const labelDrag = useLabelDrag()
 
   // Every saved view with its live open-task count (the Filters group lists them all,
@@ -438,8 +437,7 @@ export function Sidebar({ route, user, onSearch, onShortcuts, onAssistant, onSig
       </SidebarGroup>}
       {/* Favourites first (sidebar-favourites D5); while finding, the matches show in their own groups. */}
       {groupsReady && !found && favourites.length > 0 && (
-        <FavouritesGroup favourites={favourites} route={route} collapsed={collapsed} projects={projects}
-          tree={tree} openTasks={openTasks} today={today} labelCounts={labelCounts} viewCounts={viewCounts} projectCountMode={projectCountMode} />
+        <FavouritesGroup favourites={favourites} route={route} collapsed={collapsed} projects={projects} viewCounts={viewCounts} />
       )}
       {/* Projects stays while finding: its header holds the field's opener. */}
       {groupsReady && (finding || groupShown(shownRows.length)) && <SidebarGroup title={t('Projects')} collapsible open={isOpen('projects')} onToggle={() => toggleGroup('projects')} count={projects.length} collapsed={collapsed} actions={(<>
@@ -460,7 +458,6 @@ export function Sidebar({ route, user, onSearch, onShortcuts, onAssistant, onSig
             const levels = collapsed ? 0 : Math.min(n.depth, MAX_INDENT)
             const has = n.children.length > 0
             const isCollapsed = collapsed_.has(n.id)
-            const count = counts.byProject.get(n.id)
             const drop = dropAt?.id === n.id ? dropAt.zone : null
             return (
               <li key={n.id} role="treeitem" aria-level={n.depth + 1} aria-expanded={has ? !isCollapsed : undefined}
@@ -500,8 +497,6 @@ export function Sidebar({ route, user, onSearch, onShortcuts, onAssistant, onSig
                     {sharedIds.has(n.id) && <span className="text-faint"><Icon name="users" size={14} /><span className="sr-only">{t('Shared project')}</span></span>}
                     {unread.byProject.get(n.id) ? <UnreadBadge n={unread.byProject.get(n.id) as number} label={t('unread changes')} /> : null}
                   </>}
-                  count={count} countMode={projectCountMode} countLabel={openTasksLabel(count)}
-                  aria-description={count && isCollapsed && has ? t('Open tasks including sub-projects') : undefined}
                 />
                 {!collapsed && <ProjectRowMenu project={p} movable={movable(n.id)} edges={siblingEdges(tree, n)} className="hover-reveal" />}
               </li>
@@ -527,7 +522,7 @@ export function Sidebar({ route, user, onSearch, onShortcuts, onAssistant, onSig
           <SidebarGroupAction active={route.view === 'labels'} onClick={() => navigate({ view: 'labels' })} aria-label={t('All labels')}>{t('All')}</SidebarGroupAction>
           <SidebarGroupAction onClick={() => { setGroupOpen('labels', true); setAddingLabel(true) }} aria-label={t('New label')}><Icon name="plus" size="xs" /></SidebarGroupAction>
         </>}>
-        {!collapsed && shownLabels.map((l) => <LabelRow key={l.id} quiet label={l} labels={labels} count={labelCounts.get(l.id)} duplicate={duplicates.has(l.id)} route={route} drop={labelDrag.drop} onDragStart={labelDrag.start} findActive={isActiveMatch('label', l.id)} />)}
+        {!collapsed && shownLabels.map((l) => <LabelRow key={l.id} quiet label={l} labels={labels} duplicate={duplicates.has(l.id)} route={route} drop={labelDrag.drop} onDragStart={labelDrag.start} findActive={isActiveMatch('label', l.id)} />)}
         {addingLabel && !collapsed && <NewLabelForm onDone={() => setAddingLabel(false)} className="px-1 pt-1" />}
       </SidebarGroup>}
       {groupsReady && filtersShown && <SidebarGroup title={t('Views')} collapsible open={isOpen('filters')} onToggle={() => toggleGroup('filters')} count={views.length} collapsed={collapsed}
@@ -540,7 +535,6 @@ export function Sidebar({ route, user, onSearch, onShortcuts, onAssistant, onSig
               <SidebarItem data-view-id={v.id} active={active} collapsed={collapsed} onClick={() => navigate({ view: 'view', id: v.id })} label={v.name}
                 data-find-active={isActiveMatch('view', v.id) || undefined} className={isActiveMatch('view', v.id) ? 'ring-2 ring-focus' : undefined}
                 leading={<span style={{ color: v.color }}><Icon name={viewIcon(v)} /></span>}
-                count={!isDashboard(v) && c && c.ok ? c.count : undefined} countMode="hidden" countLabel={openTasksLabel(c && c.ok ? c.count : undefined)}
                 badge={!isDashboard(v) && c && !c.ok ? <span className="text-meta text-danger"><ReadAs label={c.error}>!</ReadAs></span> : undefined} />
               {!collapsed && <ViewMenu view={v} className="hover-reveal" />}
             </div>

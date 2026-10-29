@@ -116,7 +116,7 @@ export function AssistantPanelBody(p: PanelViewProps) {
               {p.messages.map((m, i) => <MessageItem key={i} m={m} />)}
               {p.streaming && (
                 <AnswerItem busy>
-                  {p.streaming.status.length > 0 && <p className="text-meta text-muted">{p.streaming.status[p.streaming.status.length - 1]}</p>}
+                  {p.streaming.status.length > 0 && <p className="text-meta text-muted">{statusLabel(p.streaming.status[p.streaming.status.length - 1])}</p>}
                   {p.streaming.text ? <Markdown source={p.streaming.text} /> : <p className="text-muted">{t('Thinking…')}</p>}
                   <span className="assistant-working" aria-hidden="true"><i /><i /><i /></span>
                 </AnswerItem>
@@ -138,6 +138,22 @@ export function AssistantPanelBody(p: PanelViewProps) {
 }
 
 /** An answer: the assistant's mark at the left, the text beside it (assistant-surface D2). */
+/** The progress lines the server and the device send (statusFor), in the user's language. */
+function statusLabel(line: string): string {
+  const known: Record<string, string> = {
+    'Looking at Today…': t('Looking at Today…'),
+    'Looking at the Inbox…': t('Looking at the Inbox…'),
+    'Looking at Upcoming…': t('Looking at Upcoming…'),
+    'Looking at your projects…': t('Looking at your projects…'),
+    'Looking at your dossiers…': t('Looking at your dossiers…'),
+    'Looking at tasks…': t('Looking at tasks…'),
+    'Reading a task…': t('Reading a task…'),
+    'Searching tasks…': t('Searching tasks…'),
+    'Preparing changes…': t('Preparing changes…'),
+  }
+  return known[line] ?? line
+}
+
 function AnswerItem({ busy, children }: { busy?: boolean; children: ReactNode }) {
   return (
     <li className="flex gap-3 text-body" aria-busy={busy || undefined}>

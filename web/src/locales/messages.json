@@ -7005,6 +7005,24 @@
   "Look over the whole system on a rhythm, so you can trust it.": [
     "web/src/lib/method/vocabulary.json"
   ],
+  "Looking at Today…": [
+    "web/src/app/assistant/AssistantPanelBody.tsx"
+  ],
+  "Looking at Upcoming…": [
+    "web/src/app/assistant/AssistantPanelBody.tsx"
+  ],
+  "Looking at tasks…": [
+    "web/src/app/assistant/AssistantPanelBody.tsx"
+  ],
+  "Looking at the Inbox…": [
+    "web/src/app/assistant/AssistantPanelBody.tsx"
+  ],
+  "Looking at your dossiers…": [
+    "web/src/app/assistant/AssistantPanelBody.tsx"
+  ],
+  "Looking at your projects…": [
+    "web/src/app/assistant/AssistantPanelBody.tsx"
+  ],
   "Looks good": [
     "web/src/app/review/ProjectWalk.tsx"
   ],
@@ -9769,6 +9787,9 @@
   "Prefix": [
     "web/src/app/BackupsPanel.tsx"
   ],
+  "Preparing changes…": [
+    "web/src/app/assistant/AssistantPanelBody.tsx"
+  ],
   "Preparing the changes…": [
     "web/src/app/bulk/BulkReview.tsx"
   ],
@@ -10276,6 +10297,9 @@
   ],
   "Read-only: you are a viewer of this shared project. You can still comment.": [
     "web/src/app/task-detail/TaskHead.tsx"
+  ],
+  "Reading a task…": [
+    "web/src/app/assistant/AssistantPanelBody.tsx"
   ],
   "Reads everything you can; every change is refused.": [
     "web/src/app/TokensSection.tsx"
@@ -11344,6 +11368,9 @@
   ],
   "Search templates…": [
     "web/src/app/templates/TemplateLibrary.tsx"
+  ],
+  "Searching tasks…": [
+    "web/src/app/assistant/AssistantPanelBody.tsx"
   ],
   "Second factor disabled": [
     "web/src/app/auditFormat.ts"

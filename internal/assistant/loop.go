@@ -232,6 +232,8 @@ func statusFor(name string, args json.RawMessage) string {
 			return "Looking at Upcoming…"
 		}
 		return "Looking at tasks…"
+	case "list_dossiers":
+		return "Looking at your dossiers…"
 	case "get_task":
 		return "Reading a task…"
 	case "search_tasks":

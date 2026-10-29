@@ -4708,6 +4708,12 @@
     "web/src/app/ImportScreen.tsx",
     "web/src/app/task-detail/AttachmentsRow.tsx"
   ],
+  "File it": [
+    "web/src/app/ClassifyCard.tsx"
+  ],
+  "File “{title}” in a list?": [
+    "web/src/app/ClassifyCard.tsx"
+  ],
   "Files": [
     "web/src/app/ShareCapture.tsx"
   ],
@@ -6443,6 +6449,7 @@
     "web/src/app/ProjectsTable.tsx"
   ],
   "Later": [
+    "web/src/app/ClassifyCard.tsx",
     "web/src/app/display/DisplayScreen.tsx",
     "web/src/lib/listGroups.ts"
   ],
@@ -6587,6 +6594,7 @@
     "web/src/lib/attachments.ts"
   ],
   "List": [
+    "web/src/app/ClassifyCard.tsx",
     "web/src/app/task-list/ListChrome.tsx",
     "web/src/app/views/DisplayPanel.tsx"
   ],
@@ -7975,6 +7983,7 @@
     "web/src/app/TriageView.tsx"
   ],
   "None": [
+    "web/src/app/ClassifyCard.tsx",
     "web/src/app/ProjectPickerField.tsx",
     "web/src/app/review/ProjectWalk.tsx",
     "web/src/app/rules/RuleFields.tsx",
@@ -9735,6 +9744,12 @@
   ],
   "Proposal discarded. Nothing was changed.": [
     "web/src/app/assistant/ChangeSetReview.tsx"
+  ],
+  "Propose a list": [
+    "web/src/lib/settingsCopy.ts"
+  ],
+  "Propose a list (this device)": [
+    "web/src/app/assistant/AssistantSettings.tsx"
   ],
   "Proposed changes": [
     "web/src/app/assistant/ChangeSetReview.tsx"
@@ -11498,6 +11513,7 @@
   ],
   "Shown as free": [
     "web/src/app/CalendarEvents.tsx",
+    "web/src/app/calendar/SidebarSchedule.tsx",
     "web/src/app/calendar/TodayAgenda.tsx"
   ],
   "Shown as {current}, the nearest palette colour. Pick one to store it.": [
@@ -12132,6 +12148,15 @@
   ],
   "Success": [
     "web/src/app/AuditPanel.tsx"
+  ],
+  "Suggest after adding": [
+    "web/src/lib/settingsCopy.ts"
+  ],
+  "Suggest after adding (this device)": [
+    "web/src/app/assistant/AssistantSettings.tsx"
+  ],
+  "Suggested list": [
+    "web/src/app/ClassifyCard.tsx"
   ],
   "Suggests projects or labels; Enter or Tab picks, #Home/Docs picks a sub-project": [
     "web/src/lib/shortcuts.ts"
@@ -13419,6 +13444,12 @@
   ],
   "This device now opens on the Loop home.": [
     "web/src/app/method/MethodModeChooser.tsx"
+  ],
+  "This device: after an add, a card proposes a list for the task. You confirm or choose.": [
+    "web/src/lib/settingsCopy.ts"
+  ],
+  "This device: after an add, the assistant proposes a title, project, subtasks. You review.": [
+    "web/src/lib/settingsCopy.ts"
   ],
   "This device: up to 3 existing tasks, done, dates, priority or labels. Undo appears.": [
     "web/src/lib/settingsCopy.ts"
@@ -16790,6 +16821,9 @@
   ],
   "the labels": [
     "web/src/lib/activity.ts"
+  ],
+  "the list": [
+    "web/src/app/ClassifyCard.tsx"
   ],
   "the model name your server serves": [
     "web/src/app/assistant/AssistantDevice.tsx",

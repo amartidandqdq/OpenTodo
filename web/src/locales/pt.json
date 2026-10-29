@@ -5461,5 +5461,15 @@
   "Now": "Agora",
   "Nothing else scheduled today.": "Nada mais agendado para hoje.",
   "{n} more today": "Mais {n} hoje",
-  "Open the calendar": "Abrir o calendário"
+  "Open the calendar": "Abrir o calendário",
+  "Suggest after adding": "Sugerir após adicionar",
+  "This device: after an add, the assistant proposes a title, project, subtasks. You review.": "Este dispositivo: após adicionar, o assistente propõe título, projeto, subtarefas. Você revê.",
+  "Suggest after adding (this device)": "Sugerir após adicionar (este dispositivo)",
+  "Propose a list": "Propor uma lista",
+  "This device: after an add, a card proposes a list for the task. You confirm or choose.": "Este dispositivo: após adicionar, um cartão propõe uma lista. Você confirma ou escolhe.",
+  "Propose a list (this device)": "Propor uma lista (este dispositivo)",
+  "File “{title}” in a list?": "Arquivar “{title}” numa lista?",
+  "Suggested list": "Lista sugerida",
+  "File it": "Arquivar",
+  "the list": "a lista"
 }

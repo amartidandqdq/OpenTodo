@@ -34,6 +34,8 @@ const (
 	RefusalMessage    = "The model declined this request."
 	CutOffMessage     = "The answer was cut off because it reached the length limit. No changes were proposed from it."
 	RoundLimitMessage = "The assistant needed too many steps for this request and stopped. No changes were proposed; try a smaller request."
+	// RoundLimitPartialMessage goes with the changes drafted before the limit.
+	RoundLimitPartialMessage = "The assistant ran out of steps before finishing. Review what it prepared so far, then ask again to continue with the rest."
 )
 
 // callerTokenID names the in-app assistant in the registry's caller. Its
@@ -324,6 +326,15 @@ func (l *Loop) Run(ctx context.Context, prov Provider, in TurnInput, ev Events) 
 		}
 	}
 	res.Stop, res.Message = StopRoundLimit, RoundLimitMessage
+	// What was drafted before the limit is still worth a review (same gate as at the end of a turn).
+	changes, err := l.finalise(ctx, in.UserID, draft)
+	if err != nil {
+		res.Err = err
+		return res
+	}
+	if len(changes) > 0 {
+		res.Changes, res.Message = changes, RoundLimitPartialMessage
+	}
 	return res
 }
 

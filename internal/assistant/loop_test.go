@@ -279,8 +279,9 @@ func TestLoopCapsChangeSetAt50(t *testing.T) {
 	}
 }
 
-// TestLoopRoundLimit: a model that keeps calling tools stops after 8 model
-// calls with no change set.
+// TestLoopRoundLimit: a model that keeps calling tools stops after the round
+// limit; what it drafted is proposed as a partial change set, and with nothing
+// drafted the message says no changes were proposed.
 func TestLoopRoundLimit(t *testing.T) {
 	f := newFixture(t)
 	f.task("u1", "a", "A", nil)
@@ -288,8 +289,14 @@ func TestLoopRoundLimit(t *testing.T) {
 		{calls: []ToolCall{call("x", "complete_tasks", map[string]any{"ids": []string{"a"}})}, stop: StopToolUse},
 	}}
 	res, _, _ := run(f, p, "loop")
-	if res.Stop != StopRoundLimit || len(res.Changes) != 0 || p.calls != MaxRounds || res.Message != RoundLimitMessage {
-		t.Fatalf("stop %q, %d changes, %d calls", res.Stop, len(res.Changes), p.calls)
+	if res.Stop != StopRoundLimit || len(res.Changes) != 1 || p.calls != MaxRounds || res.Message != RoundLimitPartialMessage {
+		t.Fatalf("stop %q, %d changes, %d calls, message %q", res.Stop, len(res.Changes), p.calls, res.Message)
+	}
+	p0 := &scripted{rounds: []scriptRound{
+		{calls: []ToolCall{call("x", "list_tasks", map[string]any{})}, stop: StopToolUse},
+	}}
+	if res0, _, _ := run(f, p0, "loop"); res0.Stop != StopRoundLimit || len(res0.Changes) != 0 || res0.Message != RoundLimitMessage {
+		t.Fatalf("nothing drafted: stop %q, %d changes, message %q", res0.Stop, len(res0.Changes), res0.Message)
 	}
 	if len(p.results) != MaxRounds-1 {
 		t.Fatalf("tools ran %d times", len(p.results))

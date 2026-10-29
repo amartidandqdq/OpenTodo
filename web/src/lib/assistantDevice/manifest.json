@@ -23,7 +23,8 @@
   "messages": {
     "cut_off": "The answer was cut off because it reached the length limit. No changes were proposed from it.",
     "refusal": "The model declined this request.",
-    "round_limit": "The assistant needed too many steps for this request and stopped. No changes were proposed; try a smaller request."
+    "round_limit": "The assistant needed too many steps for this request and stopped. No changes were proposed; try a smaller request.",
+    "round_limit_partial": "The assistant ran out of steps before finishing. Review what it prepared so far, then ask again to continue with the rest."
   },
   "limits": {
     "max_entities": 50,

@@ -311,7 +311,7 @@ export function useAssistantConversation({ context, onApplied, userName = '' }: 
     entry = { ...entry, messages: [...entry.messages, answer], updated_at: Date.now(),
       usage: { input: entry.usage.input + (answer.usage?.input ?? 0), output: entry.usage.output + (answer.usage?.output ?? 0) } }
     await persist(entry)
-    const items = answer.stop === 'end_turn' ? streamed.proposal : null
+    const items = answer.stop === 'end_turn' || answer.stop === 'round_limit' ? streamed.proposal : null
     if (items && items.length) await offer(entry, items)
   }
 

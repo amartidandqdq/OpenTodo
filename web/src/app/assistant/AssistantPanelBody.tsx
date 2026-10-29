@@ -154,6 +154,17 @@ function statusLabel(line: string): string {
   return known[line] ?? line
 }
 
+/** The fixed messages the server and the device end a turn with (assistant loop), in the user's language. */
+function messageLabel(text: string): string {
+  const known: Record<string, string> = {
+    'The model declined this request.': t('The model declined this request.'),
+    'The answer was cut off because it reached the length limit. No changes were proposed from it.': t('The answer was cut off because it reached the length limit. No changes were proposed from it.'),
+    'The assistant needed too many steps for this request and stopped. No changes were proposed; try a smaller request.': t('The assistant needed too many steps for this request and stopped. No changes were proposed; try a smaller request.'),
+    'The assistant ran out of steps before finishing. Review what it prepared so far, then ask again to continue with the rest.': t('The assistant ran out of steps before finishing. Review what it prepared so far, then ask again to continue with the rest.'),
+  }
+  return known[text] ?? text
+}
+
 function AnswerItem({ busy, children }: { busy?: boolean; children: ReactNode }) {
   return (
     <li className="flex gap-3 text-body" aria-busy={busy || undefined}>
@@ -179,7 +190,7 @@ function MessageItem({ m }: { m: AssistantMessage }) {
       <span className="sr-only">{t('Assistant:')}{' '}</span>
       {m.text && <Markdown source={m.text} />}
       {m.stop === 'max_tokens' && <p className="text-meta font-medium text-on-warning-soft">{t('Cut off: the answer reached its length limit.')}</p>}
-      {m.error && <p className="text-danger">{m.error}</p>}
+      {m.error && <p className="text-danger">{messageLabel(m.error)}</p>}
       {m.note && <p className="text-meta text-muted">{m.note}</p>}
       {m.usage && <p className="text-meta text-faint">{usageLine(m.usage)}</p>}
     </AnswerItem>

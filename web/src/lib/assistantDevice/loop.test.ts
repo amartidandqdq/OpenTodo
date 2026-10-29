@@ -112,6 +112,13 @@ describe('device loop', () => {
     expect((await run(loop)).events.at(-1)).toEqual({ type: 'done', stop_reason: 'round_limit', message: manifest.messages.round_limit })
   })
 
+  it('proposes what was drafted when the steps run out', async () => {
+    const loop = Array.from({ length: manifest.limits.max_rounds }, (_, i) => ({ stop: 'tool_use', toolCalls: [{ id: `c${i}`, name: 'create_tasks', args: JSON.stringify({ items: [{ title: `T${i}` }] }) }] }))
+    const { events } = await run(loop)
+    expect(events.filter((e) => e.type === 'changeset')).toHaveLength(1)
+    expect(events.at(-1)).toEqual({ type: 'done', stop_reason: 'round_limit', message: manifest.messages.round_limit_partial })
+  })
+
   it('caps one proposal at the entity limit', async () => {
     const items = Array.from({ length: 50 }, (_, i) => ({ title: `T${i}` }))
     const { seen } = await run([

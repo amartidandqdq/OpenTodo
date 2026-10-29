@@ -12964,6 +12964,9 @@
   "The answer took too long and was stopped.": [
     "web/src/lib/assistant.ts"
   ],
+  "The answer was cut off because it reached the length limit. No changes were proposed from it.": [
+    "web/src/app/assistant/AssistantPanelBody.tsx"
+  ],
   "The app could not show a notification. Allow notifications for OpenTodo in Android's settings.": [
     "web/src/app/ShellNotifications.tsx"
   ],
@@ -13003,11 +13006,17 @@
   "The assistant is not turned on on this server.": [
     "web/src/app/assistant/AskEntry.tsx"
   ],
+  "The assistant needed too many steps for this request and stopped. No changes were proposed; try a smaller request.": [
+    "web/src/app/assistant/AssistantPanelBody.tsx"
+  ],
   "The assistant needs a connection.": [
     "web/src/app/assistant/AssistantPanelBody.tsx"
   ],
   "The assistant on the person’s own device, with their own key.": [
     "web/src/lib/settingsCopy.ts"
+  ],
+  "The assistant ran out of steps before finishing. Review what it prepared so far, then ask again to continue with the rest.": [
+    "web/src/app/assistant/AssistantPanelBody.tsx"
   ],
   "The assistant reads your tasks on this device, and they are encrypted until you unlock it with your passphrase.": [
     "web/src/app/assistant/AssistantDevice.tsx"
@@ -13225,6 +13234,9 @@
   ],
   "The microphone is used only while you dictate; the browser asks for permission the first time.": [
     "web/src/app/VoiceSettings.tsx"
+  ],
+  "The model declined this request.": [
+    "web/src/app/assistant/AssistantPanelBody.tsx"
   ],
   "The model provider changed.": [
     "web/src/app/assistant/AssistantConsent.tsx"

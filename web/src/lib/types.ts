@@ -1,10 +1,10 @@
 // Shared data types. Field names mirror the server op schema exactly
 // (internal/sync/ops.go); never rename a field without a migration plan.
 
-import type { AttachmentFields, CommentFields, FieldDefFields, LabelFields, PlaceFields, ProjectFields, ProjectPrefsFields, ReminderFields, ReviewFields, RuleFields, SectionFields, TaskFields, TimeEntryFields, UserPrefsFields, ViewFields } from '../generated/opSchema'
+import type { AttachmentFields, CommentFields, DossierFields, FieldDefFields, LabelFields, PlaceFields, ProjectFields, ProjectPrefsFields, ReminderFields, ReviewFields, RuleFields, SectionFields, TaskFields, TimeEntryFields, UserPrefsFields, ViewFields } from '../generated/opSchema'
 
-export type Entity = 'project' | 'task' | 'label' | 'view' | 'reminder' | 'section' | 'comment' | 'project_prefs' | 'user_prefs' | 'attachment' | 'field' | 'review' | 'time_entry' | 'place' | 'rule'
-export const ENTITIES: readonly Entity[] = ['project', 'task', 'label', 'view', 'reminder', 'section', 'comment', 'project_prefs', 'user_prefs', 'attachment', 'field', 'review', 'time_entry', 'place', 'rule']
+export type Entity = 'project' | 'task' | 'label' | 'view' | 'reminder' | 'section' | 'comment' | 'project_prefs' | 'user_prefs' | 'attachment' | 'field' | 'review' | 'time_entry' | 'place' | 'rule' | 'dossier'
+export const ENTITIES: readonly Entity[] = ['project', 'task', 'label', 'view', 'reminder', 'section', 'comment', 'project_prefs', 'user_prefs', 'attachment', 'field', 'review', 'time_entry', 'place', 'rule', 'dossier']
 
 export interface Op {
   id: string
@@ -597,7 +597,7 @@ export interface ProjectPrefs extends ProjectPrefsFields {
 /** Date and time preference values (OpenSpec `date-time-preferences`); unknown values read as 'system'. */
 export type DateFormatPref = 'system' | 'day-month' | 'month-day' | 'iso'
 /** Interface language preference (app-localization D1): 'system' or a shipped language code. */
-export type LanguagePref = 'system' | 'en' | 'de' | 'fr' | 'es' | 'it' | 'pt'
+export type LanguagePref = 'system' | 'en' | 'fr'
 export type TimeFormatPref = 'system' | '12h' | '24h'
 export type WeekStartPref = 'system' | 'mon' | 'sun' | 'sat'
 
@@ -684,7 +684,36 @@ export interface Review extends ReviewFields {
   tomorrow_note: string
   /** The latest carry-over as JSON (ux-feedback-2 D1), "" = none: what Reopen the day puts back. Not content. */
   carry_over: string
+  /** The dossiers chosen for today (resume-dossiers), up to three ids; dated by the same focus_date as the task focus. */
+  focus_dossiers?: string[]
   _clock: Clock
+}
+
+/**
+ * A personal, ordered thread of existing tasks (OpenSpec change resume-dossiers,
+ * design D1). It never changes a task's list, due date, labels or completion;
+ * `task_ids` is the order and the next step and progress derive from those live
+ * tasks. `waiting`/`waiting_for`/`follow_up` are the thread's own hold, never a
+ * task due date. title, note and waiting_for are content (encrypted for an
+ * encrypted account).
+ */
+export interface Dossier extends DossierFields {
+  id: string
+  title: string
+  note: string
+  /** Ordered member task ids; unknown or deleted ids stay here and are shown as unavailable. */
+  task_ids: string[]
+  waiting: boolean
+  waiting_for: string
+  /** YYYY-MM-DD or null; never written to a task's due. */
+  follow_up: string | null
+  /** Workspace id, null for the default workspace (like a label). */
+  workspace_id?: string | null
+  position: number
+  created_at: number
+  deleted_at: number | null
+  _clock: Clock
+  _e2ee?: RowEncryption
 }
 
 export type ActivityKind =
@@ -1620,6 +1649,9 @@ export interface ImportTotals {
   timeEntries?: number
   /** Created custom field definitions (more-importers); absent on older jobs. */
   fields?: number
+  /** Personal dossiers preserved by own-export import; absent on older jobs. */
+  dossiers?: number
+  places?: number
   entities: number
   written: number
   ops: number

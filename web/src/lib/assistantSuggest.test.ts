@@ -2,7 +2,11 @@ import 'fake-indexeddb/auto'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { useDatabase } from './db'
 import * as status from './assistantStatus'
+import { api } from './api'
+import { classifyOffer, hideClassifyOffer } from './classifyAfterAdd'
+import { createDossier, dossierLinkOffer } from './dossiers'
 import { getTask } from './localData'
+import { createProject } from './ops'
 import { createTaskThenSuggest, getSuggestAfterAdd, setSuggestAfterAdd, suggestAfterAdd, suggestionPrompt } from './assistantSuggest'
 
 let n = 0
@@ -72,5 +76,57 @@ describe('suggest after adding', () => {
     const id = await createTaskThenSuggest({ title: 'Buy milk', project_id: null, labels: [] })
     expect(typeof id).toBe('string')
     expect(open).not.toHaveBeenCalled()
+  })
+
+  it('a list card replaces the suggestion panel for the same add, and the panel still follows when no card is offered', async () => {
+    vi.spyOn(status, 'assistantStatus').mockReturnValue(ready)
+    const open = vi.spyOn(status, 'openAssistantWith').mockImplementation(() => {})
+    await setSuggestAfterAdd(true)
+    const car = await createProject({ name: 'Voiture' })
+    const ask = vi.spyOn(api, 'assistantClassify').mockResolvedValue({ project_id: car, confidence: 0.9 })
+    await createTaskThenSuggest({ title: 'Appeler le garage', project_id: null, labels: [] })
+    await vi.waitFor(() => expect(ask).toHaveBeenCalledTimes(1))
+    await vi.waitFor(() => expect(classifyOffer()).not.toBeNull())
+    expect(open).not.toHaveBeenCalled()
+    hideClassifyOffer()
+    ask.mockResolvedValue({ project_id: null, confidence: 0 })
+    const id = await createTaskThenSuggest({ title: 'Idée', project_id: null, labels: [] })
+    await vi.waitFor(() => expect(open).toHaveBeenCalledWith(expect.objectContaining({ selected: [id] })))
+  })
+
+  it('a local dossier match is offered first, with no model call and no list card', async () => {
+    vi.spyOn(status, 'assistantStatus').mockReturnValue(ready)
+    const open = vi.spyOn(status, 'openAssistantWith').mockImplementation(() => {})
+    const classify = vi.spyOn(api, 'assistantClassify')
+    await setSuggestAfterAdd(true)
+    const dossier = await createDossier('Pneus avant')
+    const id = await createTaskThenSuggest({ title: 'Commander les pneus avant', project_id: null, labels: [] })
+    await vi.waitFor(() => expect(dossierLinkOffer()).not.toBeNull())
+    expect(dossierLinkOffer()).toMatchObject({ taskId: id, title: 'Commander les pneus avant', candidateIds: [dossier.id] })
+    expect(classify).not.toHaveBeenCalled()
+    expect(open).not.toHaveBeenCalled()
+    expect(classifyOffer()).toBeNull()
+  })
+
+  it('offers the local dossier with no assistant available at all', async () => {
+    vi.spyOn(status, 'assistantStatus').mockReturnValue(null)
+    const open = vi.spyOn(status, 'openAssistantWith').mockImplementation(() => {})
+    const dossier = await createDossier('Voiture')
+    const id = await createTaskThenSuggest({ title: 'Contrôle technique de la voiture', project_id: null, labels: [] })
+    await vi.waitFor(() => expect(dossierLinkOffer()).not.toBeNull())
+    expect(dossierLinkOffer()).toMatchObject({ taskId: id, candidateIds: [dossier.id] })
+    expect(open).not.toHaveBeenCalled()
+  })
+
+  it('keeps the list card when no dossier matches', async () => {
+    vi.spyOn(status, 'assistantStatus').mockReturnValue(ready)
+    await setSuggestAfterAdd(true)
+    const car = await createProject({ name: 'Voiture' })
+    const ask = vi.spyOn(api, 'assistantClassify').mockResolvedValue({ project_id: car, confidence: 0.9 })
+    await createDossier('Maison')
+    await createTaskThenSuggest({ title: 'Appeler le garage', project_id: null, labels: [] })
+    await vi.waitFor(() => expect(ask).toHaveBeenCalledTimes(1))
+    await vi.waitFor(() => expect(classifyOffer()).not.toBeNull())
+    expect(dossierLinkOffer()).toBeNull()
   })
 })

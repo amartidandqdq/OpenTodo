@@ -7,7 +7,8 @@ import { Kbd } from '../shortcuts/Kbd'
 import { useMemo, useRef, useState, type RefObject } from 'react'
 import { useBelowStickyHeader } from './useBelowStickyHeader'
 import { allCompleted, applyBulk, commonSharedProject, readTicked, reviewAssign, reviewMove, type BulkAction, type ReviewPlan, useTickedTasks } from '../../lib/bulk'
-import { useAllLabels, useLiveSections, useProjects, useMembershipMap } from '../../lib/localData'
+import { useAllLabels, useLiveSections, useProjects, useMembershipMap, useReviewRow } from '../../lib/localData'
+import { useLiveTasks } from '../../lib/liveTasks'
 import { itemKeywords, projectSource, sectionSource, type PickerItem } from '../../lib/pickerSources'
 import { roleOf } from '../../lib/sharing'
 import { toggleTracking, useRunningEntry } from '../../lib/timeEntries'
@@ -22,6 +23,9 @@ import { BulkReview } from './BulkReview'
 import { showBulkToast } from './toastStore'
 import { t } from '../../lib/i18n'
 import { withListTransition } from '../motion'
+import { useToday } from '../useViews'
+import { storedFocus } from '../../lib/review'
+import { toggleTodayFocus } from '../todayFocusAction'
 
 /** Apply a bulk action and offer its undo. */
 export async function runBulk(ids: readonly string[], action: BulkAction): Promise<void> {
@@ -51,7 +55,7 @@ export function trackingItem(task: Task | undefined, runningTask: string | null 
 }
 
 /** The menu's groups for the given tasks (exported for the palette and tests). */
-export function bulkMenuGroups(ids: readonly string[], d: Data, a: { review: (title: string, plan: Promise<ReviewPlan>) => void; pickDate: () => void; schedule?: () => void }, besideRow = false): ActionGroup[] {
+export function bulkMenuGroups(ids: readonly string[], d: Data, a: { review: (title: string, plan: Promise<ReviewPlan>) => void; pickDate: () => void; schedule?: () => void; focus?: { inFocus: boolean; toggle: () => void } }, besideRow = false): ActionGroup[] {
   const n = d.tasks.length
   const reopen = allCompleted(d.tasks)
   const live = d.labels.filter((l) => !l.deleted_at)
@@ -67,6 +71,7 @@ export function bulkMenuGroups(ids: readonly string[], d: Data, a: { review: (ti
   return [
     ...(swipeTwins ? [{ items: [complete, { kind: 'action', id: 'schedule', label: t('Schedule…'), icon: 'calendar-days', onSelect: a.schedule } as ActionItem] }] : []),
     ...(n === 1 ? [{ items: trackingItem(d.tasks[0], d.runningTask, d.memberships) }] : []),
+    ...(a.focus ? [{ items: [{ kind: 'action' as const, id: 'focus', label: a.focus.inFocus ? t('Remove from today’s focus') : t('Add to today’s focus'), icon: 'sun' as const, onSelect: a.focus.toggle }] }] : []),
     ...(swipeTwins ? [] : [{ items: [complete] }]),
     // Beside a row its own Priority and Schedule buttons already offer these.
     ...(besideRow ? [] : [{ label: t('Priority'), items: ([1, 2, 3, 4] as Priority[]).map((p) => ({ kind: 'action' as const, id: `p${p}`, label: t('Priority {p}', { p }), icon: 'flag' as const, shortcut: String(p), onSelect: run({ kind: 'priority', priority: p }) })) }]),
@@ -146,15 +151,33 @@ export function BulkActionsMenu({ ids, open, onOpenChange, trigger, triggerClass
   anchor?: RefObject<HTMLElement | null>
 }) {
   const data = useBulkData(ids)
+  const reviewRow = useReviewRow()
+  const today = useToday()
+  // The focus is read and written against every live task: the menu's own read holds
+  // only the ticked selection, and writing from it would drop the tasks already chosen.
+  const liveTasks = useLiveTasks()
   const [review, setReview] = useState<{ title: string; plan: ReviewPlan } | null>(null)
   const [dating, setDating] = useState(false)
   const besideRow = !!anchor?.current
   const touch = !useFinePointer()
+  // "Ma journée" (fork change `my-day-sun`): one open task, added to or taken out of the
+  // focus of the day. The focus is the method's own row, synced like any other edit; the
+  // menu only offers the gesture, and a toast says what changed.
+  const focus = useMemo(() => {
+    const task = ids.length === 1 ? data.tasks.find((x) => x.id === ids[0]) : undefined
+    if (!task || task.completed_at || task.deleted_at || !liveTasks) return undefined
+    const inFocus = storedFocus(reviewRow, today).includes(task.id)
+    return {
+      inFocus,
+      toggle: () => act(toggleTodayFocus(reviewRow, today, liveTasks, task)),
+    }
+  }, [ids, data.tasks, reviewRow, today, liveTasks])
   const groups = useMemo(() => bulkMenuGroups(ids, data, {
     review: (title, plan) => { void plan.then((p) => setReview({ title, plan: p })) },
     pickDate: () => setDating(true),
     schedule: touch && ids.length === 1 ? () => openRowSchedule(ids[0]) : undefined,
-  }, besideRow), [ids, data, besideRow, touch])
+    focus,
+  }, besideRow), [ids, data, besideRow, touch, focus])
   const n = data.tasks.length || ids.length
   return (
     <>

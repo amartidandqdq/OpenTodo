@@ -14,14 +14,11 @@
 // the project, the counts and the origin form the trailing group, in whose place the
 // revealed actions (RowActionCluster) appear on a fine pointer.
 //
-// Precision rows (OpenSpec change precision-rows, design D1 to D5): a list row is one
-// line from 40 rem of row width. The title leads, with the repeat mark and the counts
-// beside it; the properties stand in a right-hand column of fixed cells (date, project,
-// labels or deadline or sub-task progress, estimate, assignee) that drops cells from
-// the end as the row narrows; the facts the column does not hold take a second line
-// only when there are any. Narrower rows keep the title and one run of text under it.
-// The row is its own size container (`@container/row`), so every host gets the layout
-// its width allows; the rules are in index.css, "The property column".
+// Approved mockup A (original-mockup-a): list rows keep the title above the metadata
+// at every width, separated by hairlines. These rows no longer opt into the upstream
+// property-column size container. The existing metadata and operation paths remain;
+// presentation and density are in task-list/mockupRows.css. Board cards keep their
+// existing layout.
 import { isSample } from '../lib/sampleTasks'
 import { hueFor, Icon, LabelChips, ReadAs, ToneText, TruncatedText, type IconName, type Tone } from '../ui'
 import { lazy, memo, type ReactNode, Suspense, useLayoutEffect, useRef } from 'react'
@@ -639,7 +636,7 @@ function FullRow({ task, project, labels = [], assignee, assignedToMe = false, s
       style={depth ? { paddingLeft: `${Math.min(depth, MAX_INDENT) * 1.5 + 0.5}rem` } : undefined}
       data-expanded={showDetails || undefined}
       data-row-layout={detailed ? 'detailed' : undefined}
-      className={`group relative flex items-start gap-2 rounded-control px-2 ${showDetails ? 'flex-wrap' : ''} ${card ? '' : '@container/row'} ${swipe ? 'touch-pan-y' : ''} transition-[opacity,transform] duration-(--duration-emphasis) ease-calm ${card ? 'py-2.5 border border-default bg-surface shadow-1 dark:bg-raised' : 'row-pad'} ${dropIndicator === 'inside' ? feedback.inside : ''} ${ticked ? 'bg-accent-soft' : selected ? (card ? 'ring-1 ring-accent/50' : 'row-selected') : card ? '' : 'row-hover'} ${lift}`}
+      className={`group relative flex items-start ${card ? 'gap-2 rounded-control px-2' : 'mockup-task'} ${showDetails ? 'flex-wrap' : ''} ${swipe ? 'touch-pan-y' : ''} transition-[opacity,transform] duration-(--duration-emphasis) ease-calm ${card ? 'py-2.5 border border-default bg-surface shadow-1 dark:bg-raised' : ''} ${dropIndicator === 'inside' ? feedback.inside : ''} ${ticked ? 'bg-accent-soft' : selected ? (card ? 'ring-1 ring-accent/50' : 'row-selected') : card ? '' : 'row-hover'} ${lift}`}
     >
       {(dropIndicator === 'before' || dropIndicator === 'after') && (
         // The drop position: a line with a dot at its start (task-list-presentation "Drag feedback").
@@ -647,8 +644,8 @@ function FullRow({ task, project, labels = [], assignee, assignedToMe = false, s
           className={`${feedback.line} ${dropIndicator === 'before' ? '-top-px' : '-bottom-px'}`} />
       )}
       {!card && (
-        // Every list reserves the same leading slot ("One row anatomy"), so checkboxes line
-        // up across tree and flat views; the chevron appears only on rows with children.
+        // The disclosure precedes the checkbox/title column. Mockup A positions it
+        // in the gutter, so an empty slot does not indent every task.
         <span className="mt-0.5 flex h-5 w-4 shrink-0 items-center justify-center" data-leading-slot>
           {onToggleCollapse && hasChildren && (
             <button
@@ -676,7 +673,7 @@ function FullRow({ task, project, labels = [], assignee, assignedToMe = false, s
           disabled={readOnly}
           className={`group/check touch-target inline-flex items-center justify-center rounded-full pointer-fine:-m-0.5 pointer-fine:size-6 pointer-coarse:-m-3 ${onTick && !readOnly && (showCheckbox || ticked) ? 'invisible' : ''}`}
         >
-          <span data-check-mark className={`flex h-5 w-5 items-center justify-center rounded-full border-2 transition-colors duration-(--duration-ui) ${checked ? 'bg-faint border-input text-on-accent' : `${PRIORITY_RING[task.priority]} group-hover/check:bg-success-soft`}`}>
+          <span data-check-mark className={`flex items-center justify-center rounded-full ${card ? 'h-5 w-5 border-2' : 'mockup-check'} transition-colors duration-(--duration-ui) ${checked ? 'bg-faint border-input text-on-accent' : `${PRIORITY_RING[task.priority]} group-hover/check:bg-success-soft`}`}>
             {checked && <Icon name="check" size="xs" />}
           </span>
         </button>
@@ -696,7 +693,7 @@ function FullRow({ task, project, labels = [], assignee, assignedToMe = false, s
           onOpen(e)
         }}>
         <div className={card ? '' : 'flex min-w-0 items-center gap-2'} data-row-head>
-        <div className={`user-text text-body ${card || detailed ? 'line-clamp-2' : 'min-w-0 truncate'} ${checked ? 'text-faint line-through' : blockedBy > 0 ? 'text-muted' : ''}`} data-row-title>
+        <div className={`user-text ${card ? 'text-body' : 'mockup-task-title'} line-clamp-2 min-w-0 ${checked ? 'text-faint line-through' : blockedBy > 0 ? 'text-muted' : ''}`} data-row-title>
           {undecryptable ? <span className="italic text-faint"><ReadAs label={t('This title could not be decrypted with this device\'s key')}>{task.title}</ReadAs></span>
             : task.title || <span className="italic text-faint">{t('Untitled')}</span>}
           {unencrypted && (

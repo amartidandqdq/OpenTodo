@@ -52,6 +52,9 @@ func (opentodoProfile) Read(r io.Reader, opts Options) (*Parsed, error) {
 		// Places are the exporting account's saved places (task-locations D1);
 		// tasks link to them by id in location.place_id.
 		Places []map[string]json.RawMessage `json:"places"`
+		// Dossiers are the exporting account's personal threads of existing tasks
+		// (OpenSpec change resume-dossiers); task_ids name tasks in this export.
+		Dossiers []map[string]json.RawMessage `json:"dossiers"`
 		// UserID is the exporting account.
 		UserID string `json:"userId"`
 		// UserPrefs is the exporting account's date and time preferences row
@@ -128,6 +131,7 @@ func (opentodoProfile) Read(r io.Reader, opts Options) (*Parsed, error) {
 	add(KindSection, "name", doc.Sections)
 	add(KindField, "name", doc.Fields)
 	add(KindTask, "title", doc.Tasks)
+	add(KindDossier, "title", doc.Dossiers)
 	add(KindReminder, "", doc.Reminders)
 	add(KindView, "name", doc.Views)
 	add(KindRule, "name", doc.Rules)

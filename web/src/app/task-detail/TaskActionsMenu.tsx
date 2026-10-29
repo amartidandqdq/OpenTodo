@@ -6,18 +6,27 @@ import { keysOf } from '../../lib/shortcuts'
 import { openHelp } from '../../lib/helpRequest'
 import { duplicateTask } from '../../lib/templates'
 import { updateTask } from '../../lib/ops'
+import { logicalToday } from '../../lib/dates'
+import { useReviewRow } from '../../lib/localData'
+import { useLiveTasks } from '../../lib/liveTasks'
+import { storedFocus } from '../../lib/review'
 import { t } from '../../lib/i18n'
 import { Icon, Menu, MenuItem, MenuSeparator } from '../../ui'
 import { act } from '../actionError'
 import { navigate } from '../router'
 import { requestAttach } from './attachRequest'
 import { TrackMenuItem } from './TimeTab'
+import { toggleTodayFocus } from '../todayFocusAction'
 import type { TaskDetailModel } from './useTaskDetail'
 
 export function TaskActionsMenu({ m, page, readOnly, onOpen }: { m: TaskDetailModel; page: boolean; readOnly: boolean; onOpen?: (id: string) => void }) {
   const { task, parent, series } = m
+  const review = useReviewRow()
+  const tasks = useLiveTasks()
+  const today = logicalToday()
   if (!task) return null
   const done = !!task.completed_at
+  const inFocus = storedFocus(review, today).includes(task.id)
   return (
     <Menu kind="menu" label={t('Task actions')} trigger={<Icon name="ellipsis" size="md" />} triggerClassName="ui-btn ui-btn--ghost ui-btn--sm touch-target px-2 py-1.5" width="sm:w-60">
       <MenuItem label={t('Copy link')} icon="link" onSelect={m.copyLink} />
@@ -26,6 +35,10 @@ export function TaskActionsMenu({ m, page, readOnly, onOpen }: { m: TaskDetailMo
       {parent && <MenuItem label={t('Open parent task')} icon="corner-down-right" onSelect={() => onOpen?.(parent.id)} />}
       {series && <MenuItem label={t('Open recurring task')} icon="repeat" onSelect={() => onOpen?.(series.id)} />}
       {!readOnly && <TrackMenuItem task={task} />}
+      {!readOnly && !done && (
+        <MenuItem label={inFocus ? t('Remove from today’s focus') : t('Add to today’s focus')} icon="sun"
+          onSelect={() => { if (tasks) act(toggleTodayFocus(review, today, tasks, task)) }} />
+      )}
       {!readOnly && !done && <MenuItem label={t('Focus on this task')} icon="clock" description={t('One task, a timer, a break when you need one')} onSelect={() => navigate({ view: 'focus', id: task.id })} />}
       {m.canPublish && <MenuItem label={m.pageStatus ? t('Task page…') : t('Publish task page…')} icon="globe"
         description={m.online ? t('A page anyone with the link can open, reply to and tick') : t('Task pages need a connection')}

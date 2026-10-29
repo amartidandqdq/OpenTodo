@@ -2,12 +2,13 @@
 // method-views): derived lists of ordinary task rows with the list keys. A task
 // can be in several Next groups, so a row's key is "<group>:<task>", as in a
 // saved view.
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { blockedMap } from '../../lib/dependencies'
+import { waitingDossiers } from '../../lib/dossierModel'
 import { t } from '../../lib/i18n'
 import { resolveLabels } from '../../lib/labels'
 import { hasTimeColumn } from '../../lib/rowTime'
-import { useAllLabels } from '../../lib/localData'
+import { useAllLabels, useDossiers } from '../../lib/localData'
 import { nextGroups, waitingGroups, type MethodGroup } from '../../lib/method/groups'
 import { setTaskCompleted } from '../../lib/ops'
 import { Dialog, EmptyState, type EmptyStateAction, PageBody, PageHeader, Skeleton, type IconName } from '../../ui'
@@ -20,6 +21,7 @@ import { openFromRow } from '../sidePanel'
 import { keysOf } from '../../lib/shortcuts'
 import { navigate } from '../router'
 import { TaskRow } from '../TaskRow'
+import { WaitingDossiers } from '../resume/WaitingDossiers'
 import { useListKeys } from '../useListKeys'
 import { useMethodInput } from './useMethodInput'
 
@@ -31,6 +33,10 @@ interface Props {
   groups: MethodGroup[] | null
   /** The empty view (task-list-presentation "Empty views"): one sentence, one action. */
   empty: EmptyStateAction & { title: string }
+  /** Dossiers on hold, shown above the task groups (resume-dossiers). */
+  above?: ReactNode
+  /** Whether `above` has rows: then the task groups' empty state stays away. */
+  hasAbove?: boolean
 }
 
 /** Next (`/next`): the next action of every project, by context. */
@@ -48,13 +54,18 @@ export function NextView() {
 export function WaitingView() {
   const input = useMethodInput()
   const groups = useMemo(() => (input ? waitingGroups(input) : null), [input])
+  // A wait is not a late task (resume-dossiers): the dossiers on hold come first,
+  // and a view that holds only dossiers never says nothing is waiting on anyone.
+  const dossiers = useDossiers()
+  const holds = useMemo(() => waitingDossiers(dossiers).length, [dossiers])
   return (
     <MethodList title={t('Waiting', { context: 'method' })} icon="hourglass" move="place" help="waiting" groups={groups}
+      above={<WaitingDossiers />} hasAbove={holds > 0}
       empty={{ title: t('Nothing is waiting on anyone.'), label: t('Open Next'), onClick: () => navigate({ view: 'next' }), shortcut: keysOf('go.next') }} />
   )
 }
 
-function MethodList({ title, icon, move, help, groups, empty }: Props) {
+function MethodList({ title, icon, move, help, groups, empty, above, hasAbove = false }: Props) {
   const labels = useAllLabels()
   const input = useMethodInput()
   const labelMap = useMemo(() => new Map(labels.map((l) => [l.id, l])), [labels])
@@ -77,10 +88,13 @@ function MethodList({ title, icon, move, help, groups, empty }: Props) {
   return (
     <PageBody width="list">
       <PageHeader title={title} icon={icon} help={help} meta={meta} subtitle={subtitle} />
+      {above}
       {!groups ? <Skeleton shape="row" count={4} /> : rows.length === 0 ? (
+        hasAbove ? null : (
         <div data-empty-state={move === 'do' ? 'next' : 'waiting'}>
           <EmptyState title={empty.title} action={{ label: empty.label, onClick: empty.onClick, shortcut: empty.shortcut }} />
         </div>
+        )
       ) : (
         <>
           {bulk.render(rows.find((r) => r.key === selected)?.task.id ?? null)}

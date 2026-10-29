@@ -1,0 +1,71 @@
+/* Approved mockup A (openspec/changes/original-mockup-a): the task-list page's
+   composition pieces - the bordered quick capture and the view bar under it.
+   Imported from web/src/index.css (the shell owns that file); every rule lives in
+   @layer components so Tailwind utilities can override it. Colours, radii and type
+   come from the same --ot-* tokens index.css defines, so dark theme and density
+   follow automatically. */
+@layer components {
+  .mockup-list { padding: 1.5625rem 1rem; }
+  @media (min-width: 48rem) { .mockup-list { padding: 1.8125rem 1.875rem; } }
+  @media (min-width: 78.125rem) { .mockup-list { padding-inline: 2.8125rem; } }
+  /* The bordered quick capture around the list's quick add line (mockup .quickadd). */
+  .mockup-capture {
+    margin-top: 0.875rem;
+    border: 1px solid var(--ot-border);
+    border-radius: var(--radius-control);
+    background: var(--ot-surface);
+    box-shadow: 0 2px 3px 0 oklch(0 0 0 / 0.01);
+    padding: 0.6875rem 0.8125rem;
+  }
+  .mockup-capture:focus-within {
+    border-color: var(--ot-accent);
+  }
+  /* The view bar (mockup .viewbar): tabs with counts, then density and view controls,
+     separated from the list by one hairline. */
+  .mockup-viewbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 1.125rem;
+    margin-top: 1.375rem;
+    padding-bottom: 0.25rem;
+    border-bottom: 1px solid var(--ot-border-soft);
+  }
+  .mockup-tabs {
+    display: flex;
+    align-items: baseline;
+    gap: 1.125rem;
+  }
+  .mockup-tab {
+    color: var(--ot-muted);
+    padding: 0 0 0.6875rem;
+    border-bottom: 2px solid transparent;
+    font-size: var(--text-meta);
+    position: relative;
+    top: 1px;
+  }
+  .mockup-tab:hover {
+    color: var(--ot-text);
+  }
+  .mockup-tab--active {
+    color: var(--ot-text-strong);
+    font-weight: 600;
+    border-bottom-color: var(--ot-accent);
+  }
+  .mockup-count {
+    margin-left: 0.25rem;
+    font-size: var(--text-hint);
+    background: var(--ot-canvas);
+    color: var(--ot-muted);
+    padding: 0 0.3125rem;
+    border-radius: var(--radius-chip);
+  }
+  /* The quiet empty line of a view without rows (mockup .empty), used by the
+     Completed tab when nothing completed yet. */
+  .mockup-empty {
+    padding: 2.8125rem 0.625rem;
+    text-align: center;
+    color: var(--ot-muted);
+    font-size: var(--text-body);
+  }
+}

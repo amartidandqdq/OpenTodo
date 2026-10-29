@@ -7,7 +7,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { db, useDatabase } from '../../lib/db'
 import { setDateTime } from '../../lib/dates'
 import { createLabel } from '../../lib/labels'
-import { createProject, createTask, resetDeviceId, updateTask } from '../../lib/ops'
+import { createProject, createTask, mutate, resetDeviceId, updateTask } from '../../lib/ops'
 import { key, render, waitFor } from '../../ui/test-utils'
 import { PanelHost } from '../PanelHost'
 import { resetPanel } from '../panel'
@@ -159,6 +159,45 @@ describe('actions (2.5, 3.3, 4.2)', () => {
     await act(async () => { ([...document.querySelectorAll('[role="menuitem"]')].find((m) => m.textContent?.startsWith('Tomorrow')) as HTMLElement).click() })
     await waitFor(() => !!document.querySelector('[data-bulk-toast]'))
     for (const id of ids) expect((await db.tasks.get(id))!.due).toEqual({ date: '2026-10-15' })
+  })
+
+  it('the Actions menu puts one task in My day and takes it back out', async () => {
+    const { ids } = await inbox('Pay rent')
+    const item = (label: string) => [...document.querySelectorAll<HTMLElement>('[role="menuitem"]')].find((m) => m.textContent?.startsWith(label))
+    await key(document.body, 'j')
+    await key(document.body, '.')
+    await waitFor(() => !!item('Add to today’s focus'), 'the focus action')
+    await act(async () => { item('Add to today’s focus')!.click() })
+    await waitFor(async () => (await db.review.get('me'))?.focus === ids[0], 'the task in today’s focus')
+    expect((await db.review.get('me'))?.focus_date).toBe('2026-10-14')
+    await key(document.body, '.')
+    await waitFor(() => !!item('Remove from today’s focus'), 'the remove action')
+    await act(async () => { item('Remove from today’s focus')!.click() })
+    await waitFor(async () => (await db.review.get('me'))?.focus === '', 'the empty focus')
+  })
+
+  it('the sun on a row puts it in My day without giving it a date', async () => {
+    const { ids } = await inbox('Pay rent')
+    const sun = document.querySelector<HTMLButtonElement>('[data-task-id] [data-row-action="focus"]')!
+    expect(sun.getAttribute('aria-pressed')).toBe('false')
+    await act(async () => { sun.click() })
+    await waitFor(async () => (await db.review.get('me'))?.focus === ids[0], 'the task in today’s focus')
+    await waitFor(() => sun.getAttribute('aria-pressed') === 'true', 'the sun marked pressed')
+    expect((await db.tasks.get(ids[0]))?.due).toBeNull()
+  })
+
+  it('adding one task to the focus from a one-task menu keeps the tasks already chosen', async () => {
+    const { ids } = await inbox('Pay rent', 'Call the bank')
+    await act(async () => { await mutate('review', 'me', { focus_date: '2026-10-14', focus: ids[0] }) })
+    await waitFor(async () => (await db.review.get('me'))?.focus === ids[0], 'the first task in the focus')
+    const item = (label: string) => [...document.querySelectorAll<HTMLElement>('[role="menuitem"]')].find((m) => m.textContent?.startsWith(label))
+    await key(document.body, 'j')
+    await key(document.body, 'j')
+    await key(document.body, '.')
+    await waitFor(() => !!item('Add to today’s focus'), 'the focus action for the second task')
+    await act(async () => { item('Add to today’s focus')!.click() })
+    // The menu read held only the second task; the write must keep the first (review-full-tasks).
+    await waitFor(async () => (await db.review.get('me'))?.focus === `${ids[0]},${ids[1]}`, 'both tasks in the focus')
   })
 
   it('L then "errand" adds it to the tasks lacking it and the picker stays open', async () => {

@@ -1,4 +1,18 @@
 @import "tailwindcss";
+@import "./app/task-list/mockupRows.css";
+@import "./app/mockupShell.css";
+@import "./app/task-list/mockupList.css";
+
+/* Mockup A uses one paper surface across the application. Scope the canvas
+   alias to the signed-in shell; public pages retain their existing canvas. */
+@layer components {
+  [data-mockup-shell] {
+    --ot-canvas: var(--ot-surface);
+    --ot-sidebar: var(--ot-surface);
+    --color-canvas: var(--ot-surface);
+    --color-sidebar: var(--ot-surface);
+  }
+}
 
 /* OpenSpec design-language: design tokens (docs/design-system.md).
    Raw values live in --ot-* custom properties: light on :root, dark under the system

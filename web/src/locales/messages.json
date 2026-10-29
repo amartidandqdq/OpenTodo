@@ -248,11 +248,23 @@
   "A code from your phone on top of your password, and recovery codes": [
     "web/src/app/settingsIndex.ts"
   ],
+  "A completed task cannot be added to a dossier.": [
+    "web/src/lib/dossiers.ts"
+  ],
   "A dashboard cannot be shown in display mode. Open one of its views instead.": [
     "web/src/app/display/DisplayScreen.tsx"
   ],
   "A day of the week": [
     "web/src/app/filter/ConditionEditor.tsx"
+  ],
+  "A dossier holds at most {n} tasks.": [
+    "web/src/lib/dossiers.ts"
+  ],
+  "A dossier links existing tasks without moving them.": [
+    "web/src/app/resume/DossierCard.tsx"
+  ],
+  "A dossier links the steps of one thread.": [
+    "web/src/app/resume/ResumeView.tsx"
   ],
   "A field": [
     "web/src/lib/assistant.ts"
@@ -262,6 +274,12 @@
   ],
   "A file with “{name}”, its sections and open tasks, to start new projects from later or share.": [
     "web/src/app/TemplateDialogs.tsx"
+  ],
+  "A finished thread": [
+    "web/src/app/resume/ResumeView.tsx"
+  ],
+  "A first step": [
+    "web/src/app/resume/DossierView.tsx"
   ],
   "A forgotten passphrase cannot be recovered.": [
     "web/src/app/BackupsPanel.tsx"
@@ -464,6 +482,18 @@
   "A task’s date passes": [
     "web/src/app/rules/RuleFields.tsx"
   ],
+  "A thought, a task…": [
+    "web/src/app/resume/ResumeView.tsx"
+  ],
+  "A thread of your own": [
+    "web/src/app/resume/ResumeView.tsx"
+  ],
+  "A thread on hold": [
+    "web/src/app/resume/ResumeView.tsx"
+  ],
+  "A thread to advance": [
+    "web/src/app/resume/ResumeView.tsx"
+  ],
   "A token is shown once, when you create it.": [
     "web/src/lib/settingsCopy.ts"
   ],
@@ -478,6 +508,9 @@
   ],
   "A view needs a name": [
     "web/src/lib/views.ts"
+  ],
+  "A wait is not a late task. The follow-up brings you back to the thread; it never takes a place in My day.": [
+    "web/src/app/resume/WaitingDossiers.tsx"
   ],
   "A workspace has its own projects, labels and views, and its own people. Projects stay private until you share them.": [
     "web/src/app/NewWorkspaceDialog.tsx"
@@ -586,6 +619,7 @@
     "web/src/app/auditFormat.ts"
   ],
   "Account menu for {name}": [
+    "web/src/app/MockupTopBar.tsx",
     "web/src/app/SidebarFooter.tsx"
   ],
   "Account reactivated": [
@@ -639,6 +673,9 @@
   "Actions for {tasks}": [
     "web/src/app/bulk/BulkActions.tsx"
   ],
+  "Actions for {title}": [
+    "web/src/app/resume/DossierView.tsx"
+  ],
   "Active": [
     "web/src/app/ProjectsView.tsx",
     "web/src/app/UsersPanel.tsx",
@@ -667,6 +704,7 @@
     "web/src/app/palette/CommandPalette.tsx",
     "web/src/app/palette/modes.ts",
     "web/src/app/quickadd/FieldRows.tsx",
+    "web/src/app/resume/ResumeView.tsx",
     "web/src/app/task-detail/AttachmentsRow.tsx",
     "web/src/app/task-detail/Facets.tsx"
   ],
@@ -676,8 +714,15 @@
   "Add a field": [
     "web/src/app/FieldsDialog.tsx"
   ],
+  "Add a first task": [
+    "web/src/app/resume/DossierCard.tsx",
+    "web/src/app/resume/DossierView.tsx"
+  ],
   "Add a first task, choose how you work, install the app.": [
     "web/src/lib/settingsCopy.ts"
+  ],
+  "Add a label": [
+    "web/src/app/resume/ResumeView.tsx"
   ],
   "Add a link": [
     "web/src/app/LinkDialog.tsx"
@@ -746,7 +791,12 @@
     "web/src/app/TabBar.tsx",
     "web/src/app/calendar/PlanAgenda.tsx",
     "web/src/app/calendar/WeekAgenda.tsx",
-    "web/src/app/palette/BarParts.tsx"
+    "web/src/app/palette/BarParts.tsx",
+    "web/src/app/resume/ResumeView.tsx"
+  ],
+  "Add a task above, then give it a label.": [
+    "web/src/app/resume/ContextLabelsDialog.tsx",
+    "web/src/app/resume/ResumeView.tsx"
   ],
   "Add a task assigned to you…": [
     "web/src/app/task-list/ListChrome.tsx"
@@ -812,6 +862,12 @@
   ],
   "Add an estimate": [
     "web/src/app/task-detail/TaskFacts.tsx"
+  ],
+  "Add an existing task": [
+    "web/src/app/resume/DossierView.tsx"
+  ],
+  "Add an existing task above, or create the first one here.": [
+    "web/src/app/resume/DossierView.tsx"
   ],
   "Add and open": [
     "web/src/app/quickadd/FieldRows.tsx"
@@ -902,7 +958,8 @@
     "web/src/app/task-detail/Subtasks.tsx"
   ],
   "Add task": [
-    "web/src/app/quickadd/SheetBar.tsx"
+    "web/src/app/quickadd/SheetBar.tsx",
+    "web/src/app/resume/DossierView.tsx"
   ],
   "Add tasks to": [
     "web/src/app/IssueEditor.tsx"
@@ -916,6 +973,15 @@
   ],
   "Add to all, or remove from all…": [
     "web/src/app/bulk/BulkActions.tsx"
+  ],
+  "Add to dossier": [
+    "web/src/app/resume/DossierLinkCard.tsx"
+  ],
+  "Add to today’s focus": [
+    "web/src/app/bulk/BulkActions.tsx",
+    "web/src/app/resume/DossierCard.tsx",
+    "web/src/app/task-detail/TaskActionsMenu.tsx",
+    "web/src/app/task-list/RowActionCluster.tsx"
   ],
   "Add to {app}": [
     "web/src/app/ShareCapture.tsx"
@@ -1021,6 +1087,7 @@
   ],
   "All": [
     "web/src/app/Sidebar.tsx",
+    "web/src/app/resume/ResumeView.tsx",
     "web/src/ui/Combobox/useCombobox.ts"
   ],
   "All changes": [
@@ -1543,6 +1610,7 @@
   ],
   "Assistant": [
     "web/src/app/AssistantsPanel.tsx",
+    "web/src/app/MockupTopBar.tsx",
     "web/src/app/Sidebar.tsx",
     "web/src/app/SidebarFooter.tsx",
     "web/src/app/TokensSection.tsx",
@@ -2057,6 +2125,7 @@
     "web/src/app/locations/LocationEditor.tsx",
     "web/src/app/locations/PlacesView.tsx",
     "web/src/app/profile/ProfileSection.tsx",
+    "web/src/app/resume/DossierView.tsx",
     "web/src/app/rules/RuleDialog.tsx",
     "web/src/app/shortcuts/Spotlight.tsx",
     "web/src/app/task-detail/AttachmentsRow.tsx",
@@ -2137,6 +2206,9 @@
   ],
   "Change task": [
     "web/src/app/focus/FocusView.tsx"
+  ],
+  "Change the hold": [
+    "web/src/app/resume/DossierView.tsx"
   ],
   "Change who recognises speech?": [
     "web/src/app/VoiceSettings.tsx"
@@ -2256,7 +2328,8 @@
     "web/src/lib/fields.ts"
   ],
   "Choose": [
-    "web/src/app/palette/BarParts.tsx"
+    "web/src/app/palette/BarParts.tsx",
+    "web/src/app/task-list/TodayFocus.tsx"
   ],
   "Choose a PNG or JPEG image.": [
     "web/src/app/BrandingPanel.tsx"
@@ -2305,6 +2378,9 @@
   ],
   "Choose a type.": [
     "web/src/lib/fields.ts"
+  ],
+  "Choose a valid follow-up date.": [
+    "web/src/lib/dossiers.ts"
   ],
   "Choose a workspace": [
     "web/src/app/filter/ConditionEditor.tsx"
@@ -2402,7 +2478,7 @@
     "web/src/app/EstimateField.tsx"
   ],
   "Clear filter": [
-    "web/src/app/task-list/ListChrome.tsx"
+    "web/src/app/task-list/MockupViewBar.tsx"
   ],
   "Clear the dashboard selection": [
     "web/src/lib/shortcuts.ts"
@@ -2561,7 +2637,7 @@
     "web/src/app/BoardView.tsx"
   ],
   "Columns": [
-    "web/src/app/TaskListView.tsx"
+    "web/src/app/task-list/MockupViewBar.tsx"
   ],
   "Columns used:": [
     "web/src/app/ImportScreen.tsx"
@@ -2570,7 +2646,8 @@
     "web/src/app/filter/FilterBuilder.tsx"
   ],
   "Comfortable": [
-    "web/src/app/AppearanceSection.tsx"
+    "web/src/app/AppearanceSection.tsx",
+    "web/src/app/task-list/MockupViewBar.tsx"
   ],
   "Comfortable or compact rows": [
     "web/src/app/settingsIndex.ts"
@@ -2637,7 +2714,8 @@
     "web/src/lib/settingsCopy.ts"
   ],
   "Compact": [
-    "web/src/app/AppearanceSection.tsx"
+    "web/src/app/AppearanceSection.tsx",
+    "web/src/app/task-list/MockupViewBar.tsx"
   ],
   "Compact tightens rows, headers and the sidebar; touch targets stay full size.": [
     "web/src/lib/settingsCopy.ts"
@@ -2695,6 +2773,7 @@
     "web/src/app/display/DisplayColumn.tsx",
     "web/src/app/focus/FocusParts.tsx",
     "web/src/app/palette/registry.ts",
+    "web/src/app/resume/DossierView.tsx",
     "web/src/app/task-detail/Subtasks.tsx"
   ],
   "Complete, then the next task": [
@@ -2709,6 +2788,7 @@
     "web/src/app/review/MonthlyLook.tsx",
     "web/src/app/review/StatsView.tsx",
     "web/src/app/task-list/ListGroups.tsx",
+    "web/src/app/task-list/MockupViewBar.tsx",
     "web/src/lib/assistant.ts",
     "web/src/lib/feed.ts",
     "web/src/lib/shortcuts.ts"
@@ -2861,8 +2941,14 @@
   "Contains": [
     "web/src/app/RestoreSection.tsx"
   ],
+  "Context for this thread, not a task.": [
+    "web/src/app/resume/DossierView.tsx"
+  ],
   "Context: {name}": [
     "web/src/app/assistant/AssistantComposer.tsx"
+  ],
+  "Contexts are the labels already on your open tasks.": [
+    "web/src/app/resume/ResumeView.tsx"
   ],
   "Continue": [
     "web/src/app/FirstRun.tsx",
@@ -3001,7 +3087,11 @@
     "web/src/app/Sidebar.tsx",
     "web/src/app/TemplateDialogs.tsx",
     "web/src/app/WorkspaceGroups.tsx",
+    "web/src/app/resume/ResumeView.tsx",
     "web/src/app/templates/TemplateLibrary.tsx"
+  ],
+  "Create a dossier": [
+    "web/src/app/resume/ResumeView.tsx"
   ],
   "Create a link…": [
     "web/src/app/InviteLinksSection.tsx"
@@ -3063,6 +3153,9 @@
   ],
   "Create new recovery codes?": [
     "web/src/app/TwoFactorPanel.tsx"
+  ],
+  "Create one from existing tasks. Nothing moves, and no date changes.": [
+    "web/src/app/resume/ResumeView.tsx"
   ],
   "Create owner account": [
     "web/src/app/AuthScreen.tsx"
@@ -3410,6 +3503,7 @@
     "web/src/app/RestoreSection.tsx",
     "web/src/app/WebhooksPanel.tsx",
     "web/src/app/WorkspaceGeneral.tsx",
+    "web/src/app/resume/DossierView.tsx",
     "web/src/app/task-detail/CommentsTab.tsx",
     "web/src/app/task-detail/TaskActionsMenu.tsx",
     "web/src/app/task-detail/TimeTab.tsx"
@@ -3422,6 +3516,9 @@
   ],
   "Delete comment": [
     "web/src/app/task-detail/CommentsTab.tsx"
+  ],
+  "Delete dossier": [
+    "web/src/app/resume/DossierView.tsx"
   ],
   "Delete field": [
     "web/src/app/FieldsDialog.tsx"
@@ -3521,6 +3618,7 @@
   "Delete “{name}”?": [
     "web/src/app/ProjectHeader.tsx",
     "web/src/app/locations/PlacesView.tsx",
+    "web/src/app/resume/DossierView.tsx",
     "web/src/app/rules/RulesView.tsx"
   ],
   "Deleted / restored": [
@@ -3789,6 +3887,7 @@
     "web/src/app/WebhooksPanel.tsx",
     "web/src/app/bulk/BulkActions.tsx",
     "web/src/app/focus/FocusParts.tsx",
+    "web/src/app/resume/DossierView.tsx",
     "web/src/app/review/ReviewView.tsx",
     "web/src/app/review/StatsView.tsx",
     "web/src/app/task-detail/FacetEditor.tsx",
@@ -3811,6 +3910,37 @@
   ],
   "Done today, {instant}": [
     "web/src/app/review/DailyCheck.tsx"
+  ],
+  "Dossier": [
+    "web/src/app/resume/DossierLinkCard.tsx",
+    "web/src/app/resume/DossierView.tsx"
+  ],
+  "Dossier created": [
+    "web/src/app/resume/ResumeView.tsx",
+    "web/src/lib/dossiers.ts"
+  ],
+  "Dossier deleted": [
+    "web/src/app/resume/DossierView.tsx",
+    "web/src/lib/dossiers.ts"
+  ],
+  "Dossier on hold": [
+    "web/src/app/resume/DossierView.tsx"
+  ],
+  "Dossier order changed": [
+    "web/src/app/resume/DossierView.tsx",
+    "web/src/lib/dossiers.ts"
+  ],
+  "Dossier resumed": [
+    "web/src/app/resume/DossierView.tsx",
+    "web/src/app/resume/ResumeView.tsx",
+    "web/src/app/resume/WaitingDossiers.tsx"
+  ],
+  "Dossier updated": [
+    "web/src/app/resume/DossierView.tsx",
+    "web/src/lib/dossiers.ts"
+  ],
+  "Dossier: {name}": [
+    "web/src/app/resume/DossierLinkCard.tsx"
   ],
   "Down": [
     "web/src/app/palette/BarParts.tsx"
@@ -3994,6 +4124,7 @@
     "web/src/app/NotificationChannels.tsx",
     "web/src/app/RemindersField.tsx",
     "web/src/app/WebhooksPanel.tsx",
+    "web/src/app/resume/DossierView.tsx",
     "web/src/app/task-detail/CommentsTab.tsx",
     "web/src/app/task-detail/TimeTab.tsx"
   ],
@@ -4012,6 +4143,9 @@
   "Edit delivery channel": [
     "web/src/app/NotificationChannelEditor.tsx"
   ],
+  "Edit dossier": [
+    "web/src/app/resume/DossierView.tsx"
+  ],
   "Edit in place": [
     "web/src/app/PreferencesPanels.tsx",
     "web/src/lib/shortcuts.ts"
@@ -4026,6 +4160,7 @@
     "web/src/app/LabelsView.tsx"
   ],
   "Edit labels": [
+    "web/src/app/resume/ResumeView.tsx",
     "web/src/app/task-detail/TaskFacts.tsx"
   ],
   "Edit link": [
@@ -4314,6 +4449,7 @@
   ],
   "Enter toggles or creates · Esc closes": [
     "web/src/app/FilterView.tsx",
+    "web/src/app/resume/ContextLabelsDialog.tsx",
     "web/src/app/task-list/ListChrome.tsx"
   ],
   "Enter your API key for {provider}.": [
@@ -4420,6 +4556,9 @@
   "Every month on day {day}": [
     "web/src/app/task-detail/WhenControl.tsx"
   ],
+  "Every open task you can edit is already here, or there is none.": [
+    "web/src/app/resume/DossierView.tsx"
+  ],
   "Every project always shows its very next action.": [
     "web/src/lib/method/vocabulary.json"
   ],
@@ -4428,6 +4567,9 @@
   ],
   "Every project walked": [
     "web/src/app/review/ProjectWalk.tsx"
+  ],
+  "Every step is complete": [
+    "web/src/app/resume/DossierCard.tsx"
   ],
   "Every step is done. Finish the review to record it on all your devices.": [
     "web/src/app/review/ReviewView.tsx"
@@ -4708,6 +4850,12 @@
     "web/src/app/ImportScreen.tsx",
     "web/src/app/task-detail/AttachmentsRow.tsx"
   ],
+  "File it": [
+    "web/src/app/ClassifyCard.tsx"
+  ],
+  "File “{title}” in a list?": [
+    "web/src/app/ClassifyCard.tsx"
+  ],
   "Files": [
     "web/src/app/ShareCapture.tsx"
   ],
@@ -4724,7 +4872,7 @@
     "web/src/app/task-detail/Composer.tsx"
   ],
   "Filter": [
-    "web/src/app/task-list/ListChrome.tsx",
+    "web/src/app/task-list/MockupViewBar.tsx",
     "web/src/app/views/FilterChips.tsx",
     "web/src/app/views/ViewToolbar.tsx"
   ],
@@ -4735,7 +4883,7 @@
     "web/src/app/ProjectActivity.tsx"
   ],
   "Filter by duration": [
-    "web/src/app/task-list/ListChrome.tsx"
+    "web/src/app/task-list/MockupViewBar.tsx"
   ],
   "Filter feed by kind": [
     "web/src/app/FeedView.tsx"
@@ -4763,6 +4911,9 @@
   ],
   "Find a colour…": [
     "web/src/app/menus/stylePickers.tsx"
+  ],
+  "Find a dossier…": [
+    "web/src/app/resume/DossierLinkCard.tsx"
   ],
   "Find a label…": [
     "web/src/app/LabelsView.tsx",
@@ -4807,6 +4958,10 @@
   "Find a workspace…": [
     "web/src/app/ProjectHeader.tsx"
   ],
+  "Find an open task…": [
+    "web/src/app/resume/ContextLabelsDialog.tsx",
+    "web/src/app/resume/DossierView.tsx"
+  ],
   "Find an option…": [
     "web/src/app/task-detail/FieldsGroup.tsx"
   ],
@@ -4831,6 +4986,10 @@
   ],
   "Finish review": [
     "web/src/app/review/ReviewView.tsx"
+  ],
+  "Finish the step": [
+    "web/src/app/resume/DossierView.tsx",
+    "web/src/app/resume/ResumeView.tsx"
   ],
   "Finished": [
     "web/src/app/method/HowYouWorkSection.tsx"
@@ -4916,6 +5075,19 @@
   "Follow quick add ({language})": [
     "web/src/app/VoiceSettings.tsx"
   ],
+  "Follow-up date": [
+    "web/src/app/resume/DossierCard.tsx"
+  ],
+  "Follow-up date (optional)": [
+    "web/src/app/resume/DossierView.tsx"
+  ],
+  "Follow-up date changed": [
+    "web/src/app/resume/DossierCard.tsx",
+    "web/src/lib/dossiers.ts"
+  ],
+  "Follow-up date, no due date on the task.": [
+    "web/src/app/resume/DossierCard.tsx"
+  ],
   "Food|icon category": [
     "web/src/ui/icons/catalogue.ts"
   ],
@@ -4942,6 +5114,9 @@
   ],
   "For example: OpenTodo <todo@example.com>. Your mail provider may require an address it owns.": [
     "web/src/app/OutgoingEmailPanel.tsx"
+  ],
+  "For example: the delivery, an answer, a quote.": [
+    "web/src/app/resume/DossierView.tsx"
   ],
   "For scripts, the ot command and AI assistants. Sent as {header}.": [
     "web/src/lib/settingsCopy.ts"
@@ -5153,6 +5328,9 @@
   ],
   "Go to Next: the next action of every project, by context": [
     "web/src/lib/shortcuts.ts"
+  ],
+  "Go to Pick up the thread": [
+    "web/src/app/palette/registry.ts"
   ],
   "Go to Projects": [
     "web/src/app/palette/registry.ts"
@@ -5473,6 +5651,7 @@
     "web/src/app/PlanView.tsx"
   ],
   "Hide sidebar": [
+    "web/src/app/MockupTopBar.tsx",
     "web/src/ui/patterns/PageHeader.tsx"
   ],
   "Hide table": [
@@ -5868,8 +6047,14 @@
   "In {breadcrumb}": [
     "web/src/app/TaskRow.tsx"
   ],
+  "In {list}": [
+    "web/src/app/resume/DossierCard.tsx"
+  ],
   "In {name}": [
     "web/src/app/ArchivedProjects.tsx"
+  ],
+  "In {n} lists": [
+    "web/src/app/resume/DossierCard.tsx"
   ],
   "Inbox": [
     "web/src/app/FeedView.tsx",
@@ -5884,6 +6069,9 @@
     "web/src/app/assistant/AssistantPanel.tsx",
     "web/src/app/calendar/planSource.ts",
     "web/src/app/palette/index.ts",
+    "web/src/app/resume/ContextLabelsDialog.tsx",
+    "web/src/app/resume/DossierCard.tsx",
+    "web/src/app/resume/DossierView.tsx",
     "web/src/app/review/StatsView.tsx",
     "web/src/app/task-detail/ActivityTab.tsx",
     "web/src/app/task-detail/Facets.tsx",
@@ -6067,8 +6255,17 @@
   "It has no open tasks.": [
     "web/src/app/Sections.tsx"
   ],
+  "It is created in your Inbox and only joins this dossier; it does not change any other task.": [
+    "web/src/app/resume/DossierView.tsx"
+  ],
+  "It is done": [
+    "web/src/app/resume/DossierCard.tsx"
+  ],
   "It is never shown again.": [
     "web/src/app/NotificationChannelEditor.tsx"
+  ],
+  "It may have been deleted. Pick up the thread to see your other dossiers.": [
+    "web/src/app/resume/DossierView.tsx"
   ],
   "It may have been revoked or have expired. Ask whoever shared it for a new one.": [
     "web/src/app/PublicListScreen.tsx"
@@ -6159,6 +6356,9 @@
   "Keep": [
     "web/src/app/RuleEditor.tsx",
     "web/src/app/rules/RuleFields.tsx"
+  ],
+  "Keep as a separate task": [
+    "web/src/app/resume/DossierLinkCard.tsx"
   ],
   "Keep as sections": [
     "web/src/app/ImportScreen.tsx"
@@ -6311,6 +6511,7 @@
     "web/src/app/calendar/PlanPanel.tsx",
     "web/src/app/method/MethodListView.tsx",
     "web/src/app/palette/entries.ts",
+    "web/src/app/resume/ContextLabelsDialog.tsx",
     "web/src/app/review/DailyCheck.tsx",
     "web/src/app/review/MonthlyLook.tsx",
     "web/src/app/review/ReviewView.tsx",
@@ -6343,6 +6544,12 @@
   ],
   "Labels of the selected task, or of the ticked tasks (type to find, Enter adds or creates); or drag the task onto a label in the sidebar": [
     "web/src/lib/shortcuts.ts"
+  ],
+  "Labels on a task": [
+    "web/src/app/resume/ContextLabelsDialog.tsx"
+  ],
+  "Labels on tasks in read-only projects are changed where the task lives.": [
+    "web/src/app/resume/ResumeView.tsx"
   ],
   "Labels: {labels}": [
     "web/src/lib/assistant.ts"
@@ -6443,7 +6650,9 @@
     "web/src/app/ProjectsTable.tsx"
   ],
   "Later": [
+    "web/src/app/ClassifyCard.tsx",
     "web/src/app/display/DisplayScreen.tsx",
+    "web/src/app/resume/DossierLinkCard.tsx",
     "web/src/lib/listGroups.ts"
   ],
   "Later|method": [
@@ -6572,6 +6781,9 @@
   "Link {name}": [
     "web/src/app/SsoPanel.tsx"
   ],
+  "Link “{title}” to a dossier?": [
+    "web/src/app/resume/DossierLinkCard.tsx"
+  ],
   "Linked accounts": [
     "web/src/app/settingsIndex.ts",
     "web/src/lib/settingsCopy.ts"
@@ -6587,6 +6799,7 @@
     "web/src/lib/attachments.ts"
   ],
   "List": [
+    "web/src/app/ClassifyCard.tsx",
     "web/src/app/task-list/ListChrome.tsx",
     "web/src/app/views/DisplayPanel.tsx"
   ],
@@ -6598,6 +6811,11 @@
   ],
   "List at most {n} repositories or projects.": [
     "web/src/app/IssueEditor.tsx"
+  ],
+  "List removed": [
+    "web/src/app/resume/ContextLabelsDialog.tsx",
+    "web/src/app/resume/DossierCard.tsx",
+    "web/src/app/resume/DossierView.tsx"
   ],
   "Listed in the evening group of Today": [
     "web/src/app/task-detail/WhenControl.tsx"
@@ -6720,6 +6938,9 @@
   "Local notification: this browser may show notifications.": [
     "web/src/lib/push.ts"
   ],
+  "Local suggestion, no model.": [
+    "web/src/app/resume/DossierLinkCard.tsx"
+  ],
   "Location": [
     "web/src/app/TaskListView.tsx",
     "web/src/app/locations/LocationEditor.tsx",
@@ -6758,6 +6979,18 @@
   ],
   "Long break after": [
     "web/src/lib/settingsCopy.ts"
+  ],
+  "Look again on": [
+    "web/src/app/resume/DossierCard.tsx"
+  ],
+  "Look again on {date}": [
+    "web/src/app/resume/DossierCard.tsx"
+  ],
+  "Look again since {date}": [
+    "web/src/app/resume/DossierCard.tsx"
+  ],
+  "Look again today": [
+    "web/src/app/resume/DossierCard.tsx"
   ],
   "Look ahead": [
     "web/src/lib/review.ts"
@@ -7104,6 +7337,7 @@
     "web/src/app/Sections.tsx",
     "web/src/app/ViewsView.tsx",
     "web/src/app/locations/PlacesView.tsx",
+    "web/src/app/resume/DossierView.tsx",
     "web/src/app/rules/RulesView.tsx"
   ],
   "Move earlier tasks to today": [
@@ -7205,6 +7439,7 @@
     "web/src/app/Sections.tsx",
     "web/src/app/ViewsView.tsx",
     "web/src/app/locations/PlacesView.tsx",
+    "web/src/app/resume/DossierView.tsx",
     "web/src/app/rules/RulesView.tsx"
   ],
   "Move {nameOf} earlier": [
@@ -7279,6 +7514,9 @@
   "Must include openid; email is needed to match existing accounts.": [
     "web/src/app/SsoPanel.tsx"
   ],
+  "My day": [
+    "web/src/app/task-list/TodayFocus.tsx"
+  ],
   "My day starts at": [
     "web/src/app/settingsIndex.ts",
     "web/src/lib/settingsCopy.ts"
@@ -7303,6 +7541,8 @@
     "web/src/app/WorkspaceInviteScreen.tsx",
     "web/src/app/locations/PlacesView.tsx",
     "web/src/app/profile/ProfileSection.tsx",
+    "web/src/app/resume/DossierView.tsx",
+    "web/src/app/resume/ResumeView.tsx",
     "web/src/app/rules/RuleDialog.tsx",
     "web/src/lib/settingsCopy.ts"
   ],
@@ -7384,6 +7624,9 @@
   "New dashboard": [
     "web/src/app/palette/registry.ts"
   ],
+  "New dossier": [
+    "web/src/app/resume/ResumeView.tsx"
+  ],
   "New email": [
     "web/src/app/profile/ProfileSection.tsx"
   ],
@@ -7454,6 +7697,12 @@
   "New signing secret": [
     "web/src/app/NotificationChannels.tsx"
   ],
+  "New task": [
+    "web/src/app/resume/DossierView.tsx"
+  ],
+  "New task in {dossier}": [
+    "web/src/app/resume/DossierView.tsx"
+  ],
   "New task in {project}: {title}": [
     "web/src/lib/assistant.ts"
   ],
@@ -7487,6 +7736,7 @@
     "web/src/app/NewBoardDialog.tsx"
   ],
   "Next action": [
+    "web/src/app/resume/DossierCard.tsx",
     "web/src/app/review/ProjectWalk.tsx"
   ],
   "Next action for {name}": [
@@ -7684,6 +7934,9 @@
   "No focus chosen today.": [
     "web/src/app/method/LoopHome.tsx"
   ],
+  "No follow-up date": [
+    "web/src/app/resume/DossierCard.tsx"
+  ],
   "No further occurrences: the next completion ends the series.": [
     "web/src/app/RecurrenceField.tsx"
   ],
@@ -7734,6 +7987,10 @@
   ],
   "No labels yet. Type a name and press Enter.": [
     "web/src/app/LabelPicker.tsx"
+  ],
+  "No list": [
+    "web/src/app/resume/DossierCard.tsx",
+    "web/src/app/resume/DossierView.tsx"
   ],
   "No longer a subtask": [
     "web/src/lib/assistant.ts"
@@ -7791,6 +8048,8 @@
   ],
   "No open task matches.": [
     "web/src/app/focus/FocusParts.tsx",
+    "web/src/app/resume/ContextLabelsDialog.tsx",
+    "web/src/app/resume/DossierView.tsx",
     "web/src/app/task-detail/Facets.tsx"
   ],
   "No open task was moved later three times or more in the last 90 days, on this device.": [
@@ -7807,6 +8066,15 @@
   ],
   "No other calendars.": [
     "web/src/app/CalendarSyncDialogs.tsx"
+  ],
+  "No other open task carries this label.": [
+    "web/src/app/resume/ResumeView.tsx"
+  ],
+  "No other open task has a label yet.": [
+    "web/src/app/resume/ResumeView.tsx"
+  ],
+  "No other open task now.": [
+    "web/src/app/resume/ResumeView.tsx"
   ],
   "No other project can hold this one": [
     "web/src/app/ProjectHeader.tsx"
@@ -7934,6 +8202,15 @@
     "web/src/app/InboxEmptyPane.tsx",
     "web/src/app/sidePanel.tsx"
   ],
+  "No task yet": [
+    "web/src/app/resume/DossierCard.tsx",
+    "web/src/app/resume/DossierLinkCard.tsx",
+    "web/src/app/resume/DossierView.tsx",
+    "web/src/app/resume/ResumeView.tsx"
+  ],
+  "No task yet.": [
+    "web/src/app/resume/DossierView.tsx"
+  ],
   "No tasks match this panel.": [
     "web/src/app/DashboardView.tsx"
   ],
@@ -7975,6 +8252,7 @@
     "web/src/app/TriageView.tsx"
   ],
   "None": [
+    "web/src/app/ClassifyCard.tsx",
     "web/src/app/ProjectPickerField.tsx",
     "web/src/app/review/ProjectWalk.tsx",
     "web/src/app/rules/RuleFields.tsx",
@@ -8147,6 +8425,7 @@
   ],
   "Note": [
     "web/src/app/RelayConfirm.tsx",
+    "web/src/app/resume/DossierView.tsx",
     "web/src/app/task-detail/TimeTab.tsx"
   ],
   "Note (optional)": [
@@ -8169,6 +8448,7 @@
     "web/src/app/review/StatsView.tsx"
   ],
   "Nothing completed yet.": [
+    "web/src/app/TaskListView.tsx",
     "web/src/app/task-list/ListChrome.tsx"
   ],
   "Nothing delivered yet": [
@@ -8276,6 +8556,9 @@
   ],
   "Nothing stands out today.": [
     "web/src/app/Briefing.tsx"
+  ],
+  "Nothing to plan until the wait resolves.": [
+    "web/src/app/resume/DossierCard.tsx"
   ],
   "Nothing waiting for a free moment.": [
     "web/src/app/task-list/ListChrome.tsx"
@@ -8550,6 +8833,10 @@
   "On for your account, from your own device": [
     "web/src/app/assistant/AssistantSettings.tsx"
   ],
+  "On hold": [
+    "web/src/app/resume/DossierCard.tsx",
+    "web/src/app/resume/DossierView.tsx"
+  ],
   "On iPhone and iPad, push works only in the app installed to the Home Screen: check Settings → Notifications → OpenTodo, and Focus.": [
     "web/src/lib/push.ts"
   ],
@@ -8599,6 +8886,9 @@
   ],
   "One address per line. Leave empty to accept any sender. Sender addresses can be forged, so this filters mistakes and casual spam; the secret address is the real protection.": [
     "web/src/app/EmailInboxPanel.tsx"
+  ],
+  "One clear next action. Everything else stays where it is.": [
+    "web/src/app/resume/ResumeView.tsx"
   ],
   "One line": [
     "web/src/app/views/DisplayPanel.tsx"
@@ -8651,6 +8941,9 @@
   ],
   "Only items in the Trash can be deleted permanently. Delete it first.": [
     "web/src/lib/i18n/errors.ts"
+  ],
+  "Only open tasks you can edit, from this workspace.": [
+    "web/src/app/resume/DossierView.tsx"
   ],
   "Only people who already have an account on this server can use it. The server owner can let members invite new people in Settings → People.": [
     "web/src/app/InviteLinksSection.tsx"
@@ -8849,6 +9142,13 @@
   ],
   "Open the task’s panel to edit anything else": [
     "web/src/lib/shortcuts.ts"
+  ],
+  "Open the thread": [
+    "web/src/app/resume/ResumeView.tsx",
+    "web/src/app/resume/WaitingDossiers.tsx"
+  ],
+  "Open the thread to see the completed steps.": [
+    "web/src/app/resume/DossierCard.tsx"
   ],
   "Open the tracked task": [
     "web/src/app/TrackingIndicator.tsx"
@@ -9282,7 +9582,9 @@
     "web/src/app/auditFormat.ts"
   ],
   "Personal": [
+    "web/src/app/MockupTopBar.tsx",
     "web/src/app/WorkspaceControl.tsx",
+    "web/src/app/resume/ResumeView.tsx",
     "web/src/app/workspaceNav.ts",
     "web/src/lib/templateLibrary.ts"
   ],
@@ -9311,6 +9613,11 @@
   ],
   "Pick one of the options.": [
     "web/src/lib/fields.ts"
+  ],
+  "Pick up the thread": [
+    "web/src/app/Sidebar.tsx",
+    "web/src/app/resume/DossierView.tsx",
+    "web/src/app/resume/ResumeView.tsx"
   ],
   "Pick up to three in the Daily check": [
     "web/src/app/method/LoopHome.tsx"
@@ -9392,7 +9699,12 @@
   "Please enter a name": [
     "web/src/app/NamePrompt.tsx",
     "web/src/app/NewWorkspaceDialog.tsx",
-    "web/src/app/views/SaveViewCard.tsx"
+    "web/src/app/views/SaveViewCard.tsx",
+    "web/src/lib/dossiers.ts"
+  ],
+  "Please enter a title": [
+    "web/src/app/resume/DossierView.tsx",
+    "web/src/lib/dossiers.ts"
   ],
   "Please wait…": [
     "web/src/app/App.tsx",
@@ -9702,6 +10014,7 @@
     "web/src/app/ProjectsTable.tsx",
     "web/src/app/ProjectsView.tsx",
     "web/src/app/Sidebar.tsx",
+    "web/src/app/TaskListView.tsx",
     "web/src/app/TokenSuggest.tsx",
     "web/src/app/calendar/PlanPanel.tsx",
     "web/src/app/palette/entries.ts",
@@ -9735,6 +10048,12 @@
   ],
   "Proposal discarded. Nothing was changed.": [
     "web/src/app/assistant/ChangeSetReview.tsx"
+  ],
+  "Propose a list": [
+    "web/src/lib/settingsCopy.ts"
+  ],
+  "Propose a list (this device)": [
+    "web/src/app/assistant/AssistantSettings.tsx"
   ],
   "Proposed changes": [
     "web/src/app/assistant/ChangeSetReview.tsx"
@@ -9825,6 +10144,12 @@
   ],
   "Push notifications for reminders on this device, delivery channels and the weekly digest": [
     "web/src/app/settingsSections.ts"
+  ],
+  "Put on hold": [
+    "web/src/app/resume/DossierView.tsx"
+  ],
+  "Put the thread on hold": [
+    "web/src/app/resume/DossierView.tsx"
   ],
   "Puts the whole server back to the state in an archive: every account, project, task and the sync log. The server restarts, and everything is checked before anything changes. On a stopped server you can also use the <a>command line</a>.": [
     "web/src/app/RestoreSection.tsx"
@@ -10110,8 +10435,17 @@
   "Remove filter: {name}": [
     "web/src/app/AuditPanel.tsx"
   ],
+  "Remove from the dossier": [
+    "web/src/app/resume/DossierView.tsx"
+  ],
   "Remove from this device": [
     "web/src/app/assistant/AssistantDevice.tsx"
+  ],
+  "Remove from today’s focus": [
+    "web/src/app/bulk/BulkActions.tsx",
+    "web/src/app/resume/DossierCard.tsx",
+    "web/src/app/task-detail/TaskActionsMenu.tsx",
+    "web/src/app/task-list/RowActionCluster.tsx"
   ],
   "Remove label {name}": [
     "web/src/ui/Chips.tsx"
@@ -10166,6 +10500,9 @@
   ],
   "Remove the skill {name}": [
     "web/src/app/assistant/AssistantComposer.tsx"
+  ],
+  "Remove them": [
+    "web/src/app/resume/DossierView.tsx"
   ],
   "Remove this group": [
     "web/src/app/filter/FilterBuilder.tsx"
@@ -10267,12 +10604,16 @@
     "web/src/app/review/CloseDay.tsx",
     "web/src/app/review/DoneForToday.tsx"
   ],
+  "Reopen the last step": [
+    "web/src/app/resume/DossierView.tsx"
+  ],
   "Reopen {title}": [
     "web/src/app/PublicListScreen.tsx",
     "web/src/app/TaskRow.tsx",
     "web/src/app/display/DisplayColumn.tsx",
     "web/src/app/focus/FocusParts.tsx",
     "web/src/app/palette/registry.ts",
+    "web/src/app/resume/DossierView.tsx",
     "web/src/app/task-detail/Subtasks.tsx"
   ],
   "Reopened": [
@@ -10756,6 +11097,7 @@
     "web/src/app/filter/ConditionEditor.tsx",
     "web/src/app/locations/LocationEditor.tsx",
     "web/src/app/profile/ProfileSection.tsx",
+    "web/src/app/resume/DossierView.tsx",
     "web/src/app/rules/RuleDialog.tsx",
     "web/src/app/task-detail/CommentsTab.tsx",
     "web/src/app/task-detail/TimeTab.tsx"
@@ -10859,6 +11201,9 @@
     "web/src/app/ResetScreen.tsx",
     "web/src/app/ShareCapture.tsx"
   ],
+  "Say what you are waiting for": [
+    "web/src/lib/dossiers.ts"
+  ],
   "Scan this QR code, or enter the key by hand.": [
     "web/src/app/TwoFactorPanel.tsx"
   ],
@@ -10927,6 +11272,7 @@
     "web/src/app/locations/LocationEditor.tsx"
   ],
   "Search and commands": [
+    "web/src/app/MockupTopBar.tsx",
     "web/src/app/Sidebar.tsx",
     "web/src/app/SidebarFooter.tsx",
     "web/src/app/palette/BarParts.tsx",
@@ -11453,6 +11799,7 @@
     "web/src/app/PreferencesPanels.tsx"
   ],
   "Show sidebar": [
+    "web/src/app/MockupTopBar.tsx",
     "web/src/ui/patterns/PageHeader.tsx"
   ],
   "Show text": [
@@ -11793,6 +12140,12 @@
   "Some items changed since they were proposed and were unchecked. Review and apply again.": [
     "web/src/app/assistant/useAssistantConversation.ts"
   ],
+  "Some words in this dossier cannot be decrypted on this device.": [
+    "web/src/app/resume/DossierCard.tsx"
+  ],
+  "Some words in this dossier cannot be decrypted on this device. Renaming, the note and the hold are paused here; its steps are unchanged.": [
+    "web/src/app/resume/DossierView.tsx"
+  ],
   "Someday": [
     "web/src/app/AppearanceSection.tsx",
     "web/src/app/ParseChips.tsx",
@@ -12027,6 +12380,9 @@
     "web/src/app/rules/RuleFields.tsx",
     "web/src/lib/settingsCopy.ts"
   ],
+  "Step": [
+    "web/src/app/resume/DossierView.tsx"
+  ],
   "Step {n} of {count}": [
     "web/src/app/FirstRun.tsx"
   ],
@@ -12139,6 +12495,9 @@
   ],
   "Suggest after adding (this device)": [
     "web/src/app/assistant/AssistantSettings.tsx"
+  ],
+  "Suggested list": [
+    "web/src/app/ClassifyCard.tsx"
   ],
   "Suggests projects or labels; Enter or Tab picks, #Home/Docs picks a sub-project": [
     "web/src/lib/shortcuts.ts"
@@ -12259,10 +12618,15 @@
   ],
   "Task": [
     "web/src/app/FieldColumns.tsx",
-    "web/src/app/TimelineView.tsx"
+    "web/src/app/TimelineView.tsx",
+    "web/src/app/resume/ContextLabelsDialog.tsx",
+    "web/src/lib/dossiers.ts"
   ],
   "Task actions": [
     "web/src/app/task-detail/TaskActionsMenu.tsx"
+  ],
+  "Task added to the dossier": [
+    "web/src/app/resume/DossierView.tsx"
   ],
   "Task completed": [
     "web/src/app/focus/FocusView.tsx",
@@ -12304,6 +12668,9 @@
   "Task properties": [
     "web/src/app/task-list/InlineEditor.tsx"
   ],
+  "Task removed from the dossier": [
+    "web/src/app/resume/DossierView.tsx"
+  ],
   "Task reopened": [
     "web/src/lib/undoActions.ts",
     "web/src/lib/webhooks.ts"
@@ -12314,7 +12681,8 @@
     "web/src/lib/settingsCopy.ts"
   ],
   "Task title": [
-    "web/src/app/ShareCapture.tsx"
+    "web/src/app/ShareCapture.tsx",
+    "web/src/app/resume/DossierView.tsx"
   ],
   "Task to focus on": [
     "web/src/app/focus/FocusParts.tsx"
@@ -12622,6 +12990,12 @@
   "The colour of buttons, links and selection": [
     "web/src/app/settingsIndex.ts"
   ],
+  "The completed steps stay below.": [
+    "web/src/app/resume/DossierCard.tsx"
+  ],
+  "The context chips on this page are the labels already on your open tasks. Changing a label here changes only that task.": [
+    "web/src/app/resume/ContextLabelsDialog.tsx"
+  ],
   "The current address stops working at once. Calendar apps subscribed to it need the new one.": [
     "web/src/app/CalendarFeedsPanel.tsx"
   ],
@@ -12630,6 +13004,9 @@
   ],
   "The database kept before that restore is removed from the server for good: <span>{deleting}</span>.": [
     "web/src/app/RestoreSection.tsx"
+  ],
+  "The delivery": [
+    "web/src/app/resume/DossierView.tsx"
   ],
   "The demo could not be reached. Check your connection and try again.": [
     "web/src/lib/demo.ts"
@@ -13135,8 +13512,14 @@
   "The sub-project “{project}” would have more than {n} fields.": [
     "web/src/lib/fields.ts"
   ],
+  "The task is already in your list. Nothing changes before you confirm.": [
+    "web/src/app/resume/DossierLinkCard.tsx"
+  ],
   "The tasks must be in one project": [
     "web/src/app/bulk/BulkActions.tsx"
+  ],
+  "The tasks stay in their lists. The dossier disappears from your dossiers; Undo can bring it back.": [
+    "web/src/app/resume/DossierView.tsx"
   ],
   "The test failed": [
     "web/src/app/OutgoingEmailPanel.tsx"
@@ -13147,6 +13530,9 @@
   "The thank-you shown the first time you opened this server.": [
     "web/src/app/settingsIndex.ts",
     "web/src/lib/settingsCopy.ts"
+  ],
+  "The thread": [
+    "web/src/app/resume/DossierView.tsx"
   ],
   "The token is removed from the server and nothing is polled any more. The {n, plural, one {# task} other {# tasks}} it created stay as ordinary tasks.": [
     "web/src/app/IssuesPanel.tsx"
@@ -13174,6 +13560,11 @@
   ],
   "The view this device opens on. Not synced.": [
     "web/src/lib/settingsCopy.ts"
+  ],
+  "The wait is resolved": [
+    "web/src/app/resume/DossierView.tsx",
+    "web/src/app/resume/ResumeView.tsx",
+    "web/src/app/resume/WaitingDossiers.tsx"
   ],
   "The weekly digest is not available on this demo instance: it would send email.": [
     "web/src/lib/settingsCopy.ts"
@@ -13366,6 +13757,9 @@
   "This conversation is too long. Start a new conversation.": [
     "web/src/lib/assistant.ts"
   ],
+  "This date is not a task due date. It only brings the thread back into view.": [
+    "web/src/app/resume/DossierView.tsx"
+  ],
   "This demo link is not valid.": [
     "web/src/lib/i18n/errors.ts"
   ],
@@ -13427,6 +13821,9 @@
   "This device now opens on the Loop home.": [
     "web/src/app/method/MethodModeChooser.tsx"
   ],
+  "This device: after an add, a card proposes a list for the task. You confirm or choose.": [
+    "web/src/lib/settingsCopy.ts"
+  ],
   "This device: after an add, the assistant proposes a title, project, subtasks. You review.": [
     "web/src/lib/settingsCopy.ts"
   ],
@@ -13438,6 +13835,13 @@
   ],
   "This device’s sync state": [
     "web/src/app/settingsIndex.ts"
+  ],
+  "This dossier is in another workspace.": [
+    "web/src/lib/dossiers.ts"
+  ],
+  "This dossier is no longer there.": [
+    "web/src/app/resume/DossierView.tsx",
+    "web/src/lib/dossiers.ts"
   ],
   "This evening": [
     "web/src/app/TaskRow.tsx",
@@ -13777,8 +14181,24 @@
   "This task is end-to-end encrypted: the part of the link after # opens it, and the server never receives it.": [
     "web/src/app/task-detail/TaskPageDialog.tsx"
   ],
+  "This task is in an archived project.": [
+    "web/src/lib/dossiers.ts"
+  ],
+  "This task is no longer available.": [
+    "web/src/lib/dossiers.ts"
+  ],
+  "This task is no longer there.": [
+    "web/src/lib/dossiers.ts"
+  ],
   "This task is published: comments you write from now on are visible on its page.": [
     "web/src/app/task-detail/CommentsTab.tsx"
+  ],
+  "This task is read-only": [
+    "web/src/app/resume/DossierView.tsx",
+    "web/src/app/resume/ResumeView.tsx"
+  ],
+  "This task is read-only.": [
+    "web/src/lib/dossiers.ts"
   ],
   "This task is shown live on its page; it needs no snapshot.": [
     "web/src/lib/i18n/errors.ts"
@@ -13788,6 +14208,9 @@
   ],
   "This task was moved elsewhere.": [
     "web/src/lib/triage.ts"
+  ],
+  "This text cannot be decrypted on this device.": [
+    "web/src/app/resume/DossierView.tsx"
   ],
   "This title could not be decrypted with this device's key": [
     "web/src/app/TaskRow.tsx"
@@ -13829,6 +14252,13 @@
   ],
   "This year": [
     "web/src/lib/stats.ts"
+  ],
+  "Thread complete": [
+    "web/src/app/resume/DossierCard.tsx",
+    "web/src/app/resume/ResumeView.tsx"
+  ],
+  "Threads on hold": [
+    "web/src/app/resume/WaitingDossiers.tsx"
   ],
   "Thu": [
     "web/src/app/rules/RuleFields.tsx"
@@ -13964,6 +14394,9 @@
   "To": [
     "web/src/app/AuditPanel.tsx"
   ],
+  "To advance": [
+    "web/src/app/resume/DossierCard.tsx"
+  ],
   "To answer, the assistant sends what you type and the task data it needs from this server to <strong>{provider}</strong>{model}, with your own API key. You chose it in Settings → Integrations → Assistant. Nothing is sent before you accept.": [
     "web/src/app/assistant/AssistantConsent.tsx"
   ],
@@ -13973,8 +14406,17 @@
   "To answer, this device sends what you type and the task data it needs <strong>directly to {provider}</strong>{model}, with your own key. The OpenTodo server sees none of it. Nothing is sent before you accept.": [
     "web/src/app/assistant/AssistantDevice.tsx"
   ],
+  "To compose": [
+    "web/src/app/resume/DossierCard.tsx"
+  ],
+  "To do": [
+    "web/src/app/task-list/MockupViewBar.tsx"
+  ],
   "To do on {date}": [
     "web/src/page/TaskPageScreen.tsx"
+  ],
+  "To start": [
+    "web/src/app/resume/DossierCard.tsx"
   ],
   "To the bottom": [
     "web/src/app/LabelsView.tsx"
@@ -14022,8 +14464,12 @@
     "web/src/app/method/LoopHome.tsx",
     "web/src/app/review/DailyCheck.tsx"
   ],
+  "Today’s focus holds {n} dossiers. Take one out first.": [
+    "web/src/app/resume/DossierCard.tsx"
+  ],
   "Today’s focus holds {n} tasks. Take one out first.": [
-    "web/src/app/review/DailyCheck.tsx"
+    "web/src/app/review/DailyCheck.tsx",
+    "web/src/app/todayFocusAction.ts"
   ],
   "Today’s focus is done.": [
     "web/src/app/focus/FocusView.tsx"
@@ -14400,6 +14846,10 @@
   "Unavailable offline": [
     "web/src/app/rules/RuleFields.tsx"
   ],
+  "Unavailable tasks removed": [
+    "web/src/app/resume/DossierView.tsx",
+    "web/src/lib/dossiers.ts"
+  ],
   "Under 30 min": [
     "web/src/lib/filters.ts"
   ],
@@ -14588,6 +15038,9 @@
     "web/src/app/palette/CommandPalette.tsx",
     "web/src/app/palette/index.ts",
     "web/src/app/palette/registry.ts",
+    "web/src/app/resume/ContextLabelsDialog.tsx",
+    "web/src/app/resume/DossierCard.tsx",
+    "web/src/app/resume/DossierView.tsx",
     "web/src/app/review/CarryOver.tsx",
     "web/src/app/review/ProjectWalk.tsx",
     "web/src/app/task-detail/Facets.tsx",
@@ -14606,6 +15059,12 @@
     "web/src/lib/trash.ts",
     "web/src/lib/undoActions.ts",
     "web/src/page/TaskPageScreen.tsx"
+  ],
+  "Untitled dossier": [
+    "web/src/app/resume/DossierCard.tsx",
+    "web/src/app/resume/DossierLinkCard.tsx",
+    "web/src/app/resume/DossierView.tsx",
+    "web/src/app/resume/ResumeView.tsx"
   ],
   "Untitled location": [
     "web/src/app/locations/LocationEditor.tsx",
@@ -15016,6 +15475,9 @@
   "Welcome! Create the owner account for this server. Only you can do this; sign-up closes afterwards unless you open it.": [
     "web/src/app/AuthScreen.tsx"
   ],
+  "What are you waiting for?": [
+    "web/src/app/resume/DossierView.tsx"
+  ],
   "What changed in your shared projects": [
     "web/src/app/FeedView.tsx"
   ],
@@ -15027,6 +15489,9 @@
   ],
   "What happens to {title}": [
     "web/src/app/review/CarryOver.tsx"
+  ],
+  "What is possible now?": [
+    "web/src/app/resume/ResumeView.tsx"
   ],
   "What is the next step?": [
     "web/src/app/review/ReviewView.tsx"
@@ -15051,6 +15516,9 @@
   ],
   "What will happen": [
     "web/src/app/RestoreSection.tsx"
+  ],
+  "What you are waiting for": [
+    "web/src/app/resume/DossierCard.tsx"
   ],
   "What you type here is sent to the map provider through this server.": [
     "web/src/app/locations/LocationEditor.tsx"
@@ -15555,6 +16023,9 @@
   ],
   "Your new recovery codes": [
     "web/src/app/TwoFactorPanel.tsx"
+  ],
+  "Your other dossiers": [
+    "web/src/app/resume/ResumeView.tsx"
   ],
   "Your own API key": [
     "web/src/app/assistant/AssistantSettings.tsx"
@@ -16619,6 +17090,7 @@
   "read-only": [
     "web/src/app/MonthView.tsx",
     "web/src/app/TaskRow.tsx",
+    "web/src/app/resume/DossierView.tsx",
     "web/src/lib/assistants.ts"
   ],
   "read-only token": [
@@ -16800,6 +17272,9 @@
   ],
   "the labels": [
     "web/src/lib/activity.ts"
+  ],
+  "the list": [
+    "web/src/app/ClassifyCard.tsx"
   ],
   "the model name your server serves": [
     "web/src/app/assistant/AssistantDevice.tsx",
@@ -17202,8 +17677,24 @@
   "{done} of {total} done": [
     "web/src/app/method/LoopHome.tsx"
   ],
+  "{done} of {total} steps completed": [
+    "web/src/app/resume/DossierCard.tsx",
+    "web/src/app/resume/DossierView.tsx"
+  ],
   "{done} of {total} subtasks completed": [
     "web/src/app/TaskRow.tsx"
+  ],
+  "{dossier} is in today’s focus.": [
+    "web/src/lib/dossiers.ts"
+  ],
+  "{dossier} is on hold": [
+    "web/src/lib/dossiers.ts"
+  ],
+  "{dossier} left today’s focus.": [
+    "web/src/lib/dossiers.ts"
+  ],
+  "{dossier} resumed": [
+    "web/src/lib/dossiers.ts"
   ],
   "{d} d ago": [
     "web/src/app/task-detail/RelativeTime.tsx",
@@ -17419,6 +17910,10 @@
   "{n, plural, one {# done} other {# done}}": [
     "web/src/lib/listGroups.ts"
   ],
+  "{n, plural, one {# dossier} other {# dossiers}}": [
+    "web/src/app/ImportScreen.tsx",
+    "web/src/app/resume/ResumeView.tsx"
+  ],
   "{n, plural, one {# earlier version deleted.} other {# earlier versions deleted.}}": [
     "web/src/app/EncryptionPanel.tsx"
   ],
@@ -17489,6 +17984,9 @@
   ],
   "{n, plural, one {# open task and its subtasks are copied; completed work, comments and reminders are not.} other {# open tasks and their subtasks are copied; completed work, comments and reminders are not.}}": [
     "web/src/app/TemplateDialogs.tsx"
+  ],
+  "{n, plural, one {# open task can join this thread} other {# open tasks can join this thread}}": [
+    "web/src/app/resume/DossierView.tsx"
   ],
   "{n, plural, one {# open task matches now} other {# open tasks match now}}": [
     "web/src/app/rules/RuleDialog.tsx"
@@ -17589,6 +18087,12 @@
   "{n, plural, one {# task completed} other {# tasks completed}}": [
     "web/src/lib/bulk.ts"
   ],
+  "{n, plural, one {# task in one thread} other {# tasks in one thread}}": [
+    "web/src/app/resume/DossierCard.tsx"
+  ],
+  "{n, plural, one {# task in this thread is no longer available} other {# tasks in this thread are no longer available}}": [
+    "web/src/app/resume/DossierView.tsx"
+  ],
   "{n, plural, one {# task is still in Today.} other {# tasks are still in Today.}}": [
     "web/src/app/review/CloseDay.tsx"
   ],
@@ -17649,6 +18153,13 @@
   ],
   "{n, plural, one {# tracked task has no estimate} other {# tracked tasks have no estimate}}": [
     "web/src/app/review/StatsView.tsx"
+  ],
+  "{n, plural, one {# unavailable task} other {# unavailable tasks}}": [
+    "web/src/app/resume/DossierCard.tsx",
+    "web/src/app/resume/DossierView.tsx"
+  ],
+  "{n, plural, one {# unavailable task} other {# unavailable tasks}}: {names}": [
+    "web/src/app/resume/DossierCard.tsx"
   ],
   "{n, plural, one {# value read} other {# values read}}": [
     "web/src/app/RelaySettings.tsx"
@@ -17902,6 +18413,9 @@
     "web/src/app/review/ReviewProgress.tsx",
     "web/src/app/review/ReviewView.tsx"
   ],
+  "{n} lists": [
+    "web/src/app/resume/DossierCard.tsx"
+  ],
   "{n} min": [
     "web/src/app/ParseChips.tsx"
   ],
@@ -18060,8 +18574,15 @@
   "{tasks, plural, one {It leaves the sidebar with # open task} other {It leaves the sidebar with # open tasks}} {subs, plural, one {and its sub-project} other {and its # sub-projects}}. You can unarchive it from Settings → Data.": [
     "web/src/app/ProjectHeader.tsx"
   ],
+  "{task} added to {dossier}": [
+    "web/src/app/resume/DossierLinkCard.tsx",
+    "web/src/lib/dossiers.ts"
+  ],
   "{task} already matches {column}": [
     "web/src/lib/undoActions.ts"
+  ],
+  "{task} removed from {dossier}": [
+    "web/src/lib/dossiers.ts"
   ],
   "{term} cannot be used in a rule": [
     "web/src/app/rules/RuleDialog.tsx"
@@ -18100,10 +18621,14 @@
     "web/src/app/MonthView.tsx"
   ],
   "{title} is in today’s focus.": [
-    "web/src/app/review/DailyCheck.tsx"
+    "web/src/app/resume/DossierCard.tsx",
+    "web/src/app/review/DailyCheck.tsx",
+    "web/src/app/todayFocusAction.ts"
   ],
   "{title} left today’s focus.": [
-    "web/src/app/review/DailyCheck.tsx"
+    "web/src/app/resume/DossierCard.tsx",
+    "web/src/app/review/DailyCheck.tsx",
+    "web/src/app/todayFocusAction.ts"
   ],
   "{title}, open task": [
     "web/src/app/Briefing.tsx"

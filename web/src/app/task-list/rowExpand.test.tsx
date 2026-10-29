@@ -183,7 +183,7 @@ describe('expanded rows', () => {
   it('the revealed actions start with Show details on a fine pointer', async () => {
     const { r } = await today('Book the dentist')
     const actions = [...row('Book the dentist').querySelectorAll<HTMLElement>('[data-row-action]')].map((b) => b.getAttribute('data-row-action'))
-    expect(actions).toEqual(['details', 'schedule', 'priority', 'more'])
+    expect(actions).toEqual(['details', 'focus', 'schedule', 'priority', 'more'])
     const show = row('Book the dentist').querySelector<HTMLButtonElement>('[data-row-action="details"]')!
     expect(show.getAttribute('aria-label')).toBe('Show details')
     await click(show)

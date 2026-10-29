@@ -1,9 +1,13 @@
 // Suggest after adding (fork change `assistant-suggest-after-add`): right after a task is typed into a quick-add line,
 // the assistant proposes a clearer title, the right project and a few subtasks. It reuses the assistant panel, so the
 // proposal is the usual change set: every item can be unchecked, nothing changes before Apply, and Undo puts it back.
-import { getMeta, setMeta } from './db'
+import { db, getMeta, setMeta } from './db'
 import { assistantStatus, openAssistantWith } from './assistantStatus'
+import { classifyAfterAdd, hideClassifyOffer } from './classifyAfterAdd'
+import type { Dossier, Task } from './types'
+import { offerDossierLink, hideDossierLinkOffer } from './dossiers'
 import { createTask, type NewTaskInput } from './ops'
+import { Partition, readWorkspaceState } from './workspaces'
 
 const KEY = 'assistant.suggestAfterAdd'
 
@@ -42,9 +46,50 @@ export async function suggestAfterAdd(taskId: string, title: string): Promise<vo
   }
 }
 
-/** `createTask` for a line the person typed: the same task, then a suggestion about it when the device asks for one. */
+/** Dossiers of the task's workspace, for the local match; deleted ones never compete. */
+async function sameWorkspaceDossiers(task: Task): Promise<Dossier[]> {
+  const [all, state, projects, tasks] = await Promise.all([db.dossiers.toArray(), readWorkspaceState(), db.projects.toArray(), db.tasks.toArray()])
+  const partition = new Partition(state.defaultId, state.list.map((workspace) => workspace.id), projects, tasks)
+  return all.filter((dossier) => !dossier.deleted_at && partition.own(dossier.workspace_id) === partition.taskRow(task))
+}
+
+/**
+ * Offers an existing dossier to the task just added. Deterministic and local: it reads the rows on this device,
+ * needs no assistant or network, and writes nothing until the person confirms the card. Never throws.
+ */
+async function offerLocalDossier(taskId: string, title: string): Promise<boolean> {
+  try {
+    const task = await db.tasks.get(taskId)
+    if (!task || task.deleted_at) return false
+    const dossiers = await sameWorkspaceDossiers(task)
+    if (dossiers.length === 0) return false
+    return offerDossierLink(taskId, title, dossiers, await db.tasks.toArray())
+  } catch {
+    return false
+  }
+}
+
+/** The one follow-up a capture may show: a local dossier card, else the existing list card, else the assistant panel. */
+async function followUpAfterAdd(taskId: string, title: string): Promise<void> {
+  // A new capture supersedes the previous proposal, so two cards never compete for the same attention.
+  hideClassifyOffer()
+  hideDossierLinkOffer()
+  try {
+    if (await offerLocalDossier(taskId, title)) return
+    if (await classifyAfterAdd(taskId, title)) return
+    await suggestAfterAdd(taskId, title)
+  } catch {
+    // The task is already created; a proposal is a bonus.
+  }
+}
+
+/**
+ * `createTask` for a line the person typed: the same task, then one offer at a time — a local dossier that matches the
+ * title (resume-dossiers D6, no model), else, when the device asks for it, a card proposing a list (classify-after-add),
+ * else a suggestion in the assistant panel (suggest-after-add).
+ */
 export async function createTaskThenSuggest(input: NewTaskInput): Promise<string> {
   const id = await createTask(input)
-  void suggestAfterAdd(id, input.title)
+  void followUpAfterAdd(id, input.title)
   return id
 }

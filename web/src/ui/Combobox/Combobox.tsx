@@ -156,8 +156,8 @@ export function ComboboxField<T>(props: Parameters<typeof Field<T>>[0]) {
   return <Field {...props} />
 }
 
-function Field<T>({ state, label, placeholder, inputRef, onFocus, expanded, autoFocus, look = 'default', trailing }: {
-  state: ComboboxState<T>; label: string; placeholder?: string; inputRef?: React.Ref<HTMLInputElement>; onFocus?: () => void; expanded: boolean; autoFocus?: boolean
+function Field<T>({ state, label, placeholder, inputRef, onFocus, onActivate, expanded, autoFocus, look = 'default', trailing }: {
+  state: ComboboxState<T>; label: string; placeholder?: string; inputRef?: React.Ref<HTMLInputElement>; onFocus?: () => void; onActivate?: () => void; expanded: boolean; autoFocus?: boolean
   look?: ComboboxLook
   /** Shown at the field's end (the palette's selected-task chip). */
   trailing?: ReactNode
@@ -178,8 +178,9 @@ function Field<T>({ state, label, placeholder, inputRef, onFocus, expanded, auto
         placeholder={placeholder}
         autoComplete="off"
         spellCheck={false}
-        onChange={(e) => state.setQuery(e.target.value)}
-        onKeyDown={state.onKeyDown}
+        onChange={(e) => { state.setQuery(e.target.value); onActivate?.() }}
+        onKeyDown={(e) => { if (e.key === 'ArrowDown' || e.key === 'ArrowUp') onActivate?.(); state.onKeyDown(e) }}
+        onClick={onActivate}
         onFocus={onFocus}
         className={palette ? 'min-w-0 flex-1 bg-transparent py-3.5 text-prose text-strong outline-none placeholder:text-faint' : 'ui-input pl-9'}
         autoFocus={autoFocus}
@@ -228,7 +229,7 @@ export function Combobox<T>({ label, placeholder, emptyText, renderLeading, ...c
   }
   return (
     <div ref={anchor} data-combobox>
-      <Field state={state} label={label} placeholder={placeholder} expanded={open} onFocus={() => setOpen(true)} />
+      <Field state={state} label={label} placeholder={placeholder} expanded={open} onFocus={() => setOpen(true)} onActivate={() => setOpen(true)} />
       <Popover open={open} onClose={close} anchor={anchor} label={label} modal={false} align="start" width="sm:w-80" className="p-0">
         <ComboboxList state={state} renderLeading={renderLeading} emptyText={emptyText} label={label} />
       </Popover>

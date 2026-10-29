@@ -26,6 +26,40 @@ afterEach(() => {
   setDateTime({ date_format: 'system', time_format: 'system', week_start: 'system' })
 })
 
+describe('Resume the thread on Today', () => {
+  it('has no thread card without a dossier', async () => {
+    await createTask({ title: 'Plain' })
+    const r = await render(<TaskListView route={{ view: 'today' }} />)
+    await waitFor(() => r.container.querySelector('[data-today-summary]') !== null, 'the summary line')
+    expect(r.container.querySelector('[data-today-resume]')).toBeNull()
+  })
+
+  it('shows the featured thread under My day, and Not now holds it until tomorrow', async () => {
+    const id = await createTask({ title: 'Commander les pneus' })
+    const { id: dossierId } = await createDossier('BMW')
+    await attachTaskToDossier(dossierId, id)
+    const r = await render(<TaskListView route={{ view: 'today' }} />)
+    await waitFor(() => r.container.querySelector('[data-today-resume]')?.textContent?.includes('Commander les pneus') ?? false, 'the thread card')
+    await act(async () => { r.container.querySelector<HTMLButtonElement>('[data-today-resume-later]')!.click() })
+    await waitFor(() => r.container.querySelector('[data-today-resume]')?.textContent?.includes('On hold') ?? false, 'the held thread')
+    const row = await db.dossiers.get(dossierId)
+    expect(row?.waiting).toBe(true)
+    expect(row?.waiting_for).toBe('Not now')
+    expect(row?.follow_up).toBe('2026-10-15')
+    expect((await db.tasks.get(id))?.due).toBeFalsy()
+  })
+
+  it('is not repeated when the thread is already chosen for My day', async () => {
+    const id = await createTask({ title: 'Commander les pneus' })
+    const { id: dossierId } = await createDossier('BMW')
+    await attachTaskToDossier(dossierId, id)
+    await mutate('review', 'me', { focus_date: '2026-10-14', focus: '', focus_dossiers: [dossierId] })
+    const r = await render(<TaskListView route={{ view: 'today' }} />)
+    await waitFor(() => r.container.querySelector('[data-today-focus-dossiers]')?.textContent?.includes('BMW') ?? false, 'the chosen thread in My day')
+    expect(r.container.querySelector('[data-today-resume]')).toBeNull()
+  })
+})
+
 describe('Today summary line', () => {
   it('reads what is chosen, the next timed task and what is earlier under the title', async () => {
     const id = await createTask({ title: 'Appeler le garage' })
@@ -129,6 +163,8 @@ describe('Ma journée', () => {
     const r = await render(<TaskListView route={{ view: 'today' }} />)
     await waitFor(() => r.container.querySelector('[data-empty-state="today"]') !== null, 'Today rendered')
     expect(r.container.querySelector('[data-today-focus]')).toBeNull()
-    expect(r.container.querySelector(`[data-dossier-card="${dossierId}"]`)).toBeNull()
+    // Yesterday's choice is not My day, but the thread is still offered as the Pick up card (today-home).
+    expect(r.container.querySelector('[data-today-focus-dossiers]')).toBeNull()
+    expect(r.container.querySelector(`[data-today-resume] [data-dossier-card="${dossierId}"]`)).not.toBeNull()
   })
 })

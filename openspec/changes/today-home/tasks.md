@@ -13,9 +13,9 @@
 
 ## 3. Resume the thread on Today
 
-- [ ] 3.1 `app/resume/dossierPostpone.ts`: the "Not now" write shared by Pick up the thread and the Today card (`ResumeView` uses it; test in `resume.test.tsx` still passes)
-- [ ] 3.2 `app/task-list/TodayResume.tsx`: the featured dossier card below My day, actions "Open the thread" and "Not now", hidden with no dossiers; test in `todayFocus.test.tsx` covers hidden with none, shown with one, and Not now puts it on hold
-- [ ] 3.3 Messages extracted; French values in `fr.json`
+- [x] 3.1 `app/resume/dossierPostpone.ts`: the "Not now" write shared by Pick up the thread and the Today card (`ResumeView` uses it; test in `resume.test.tsx` still passes)
+- [x] 3.2 `app/task-list/TodayResume.tsx`: the featured dossier card below My day, actions "Open the thread" and "Not now", hidden with no dossiers; test in `todayFocus.test.tsx` covers hidden with none, shown with one, and Not now puts it on hold
+- [x] 3.3 Messages extracted; French values in `fr.json`
 
 ## 4. Checks
 

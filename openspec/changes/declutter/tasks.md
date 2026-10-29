@@ -26,7 +26,7 @@
 
 ## 5. Checks
 
-- [ ] 5.1 `node scripts/i18n/extract.mjs --write` and `node scripts/i18n-check.mjs` pass
-- [ ] 5.2 `cd web && node_modules/.bin/vitest run` on the touched suites; `node_modules/.bin/tsc --noEmit -p .` passes
-- [ ] 5.3 `make openspec-validate` (the pinned OpenSpec CLI 1.13.2) passes
+- [x] 5.1 `node scripts/i18n/extract.mjs --write` and `node scripts/i18n-check.mjs` pass
+- [x] 5.2 `cd web && node_modules/.bin/vitest run` on the touched suites; `node_modules/.bin/tsc --noEmit -p .` passes
+- [x] 5.3 `make openspec-validate` (the pinned OpenSpec CLI 1.13.2) passes
 - [x] 5.4 `docs/` describes the defaults and where each setting is (`docs/keyboard.md`, `docs/built-in-views.md`, `docs/review-and-statistics.md`, `docs/settings-app.md`)

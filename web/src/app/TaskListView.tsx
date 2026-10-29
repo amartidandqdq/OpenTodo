@@ -423,7 +423,8 @@ function ListHeader({ route, title, label, meta, subtitle, actions, phone, agend
       overflow={phoneItems || toggle ? <>{phoneItems}{phoneItems && toggle && <MenuSeparator />}{toggle}{agendaItem}</> : undefined}
       leading={label && <span className="h-3 w-3 rounded-full" style={{ backgroundColor: label.color }} />}
       meta={meta} subtitle={subtitle} menu={menu} kind={route.view === 'today' || route.view === 'upcoming' ? 'day' : 'tool'}
-      briefing={route.view === 'today' || briefing ? <>{route.view === 'today' && <TodaySummaryLine />}{briefing && <BriefingText briefing={briefing} />}</> : undefined} />
+      summary={route.view === 'today' ? <TodaySummaryLine /> : undefined}
+      briefing={briefing && <BriefingText briefing={briefing} />} />
   )
 }
 

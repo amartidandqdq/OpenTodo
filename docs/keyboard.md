@@ -349,7 +349,7 @@ On a Mac, use <kbd>⌘</kbd> where this page says <kbd>Ctrl</kbd>, and <kbd>Opti
 
 ## Vim keybindings
 
-If you're used to Vim, turn on **Settings → General → Keyboard → Advanced keyboard shortcuts (vim)**. It's off by default, so the cheat sheet lists only the basic shortcuts, and it applies to that device only. A device that already had Vim keybindings turned on keeps them. With it on, a small indicator shows the mode (Normal, Insert or Command), and you get:
+If you're used to Vim, turn on **Settings → General → Keyboard → Vim keybindings**. It's off by default, so the cheat sheet lists only the basic shortcuts, and it applies to that device only. A device that already had Vim keybindings turned on keeps them. With it on, a small indicator shows the mode (Normal, Insert or Command), and you get:
 
 - counts like <kbd>3</kbd><kbd>j</kbd>, <kbd>g</kbd><kbd>g</kbd> and <kbd>G</kbd> for the first and last task,
 - <kbd>d</kbd><kbd>d</kbd> to delete, <kbd>x</kbd> to complete, <kbd>o</kbd> to add a task below and <kbd>i</kbd> to edit,

@@ -55,7 +55,7 @@ describe('Preferences rows', () => {
     const { container, unmount } = await render(<KeyboardSection />)
     const sw = container.querySelector('[data-vim-switch] [role="switch"]') as HTMLButtonElement
     expect(sw.getAttribute('aria-checked')).toBe('false')
-    expect(container.textContent).toContain('Advanced keyboard shortcuts (vim)')
+    expect(container.textContent).toContain('Vim keybindings')
     await unmount()
   })
 

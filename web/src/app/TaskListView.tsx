@@ -63,6 +63,7 @@ import { noteTodayOpened } from '../lib/firstDay'
 import { InboxMenu } from './SampleNotice'
 import { TodayAgenda, useTodayAgenda } from './calendar/TodayAgenda'
 import { TodayFocus } from './task-list/TodayFocus'
+import { TodaySummaryLine } from './task-list/TodaySummaryLine'
 
 export { BLOCKED_OPEN_KEY } from '../lib/listGroups'
 
@@ -421,7 +422,7 @@ function ListHeader({ route, title, label, meta, subtitle, actions, phone, agend
       overflow={phoneItems || toggle ? <>{phoneItems}{phoneItems && toggle && <MenuSeparator />}{toggle}{agendaItem}</> : undefined}
       leading={label && <span className="h-3 w-3 rounded-full" style={{ backgroundColor: label.color }} />}
       meta={meta} subtitle={subtitle} menu={menu} kind={route.view === 'today' || route.view === 'upcoming' ? 'day' : 'tool'}
-      briefing={briefing && <BriefingText briefing={briefing} />} />
+      briefing={route.view === 'today' || briefing ? <>{route.view === 'today' && <TodaySummaryLine />}{briefing && <BriefingText briefing={briefing} />}</> : undefined} />
   )
 }
 

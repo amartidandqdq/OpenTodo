@@ -2,9 +2,9 @@
 
 ## 1. Today summary
 
-- [ ] 1.1 `lib/todaySummary.ts`: pure `todaySummary(...)` (chosen count, next timed task at or after the given time, earlier count from `earlierIds`) with unit tests in `todaySummary.test.ts`, covering empty parts, a passed appointment, archived projects and completed tasks
-- [ ] 1.2 `TaskListView` / `Briefing`: the summary line under the Today title, hidden when empty; test in `todayFocus.test.tsx` checks the line's text for a chosen task and an earlier task
-- [ ] 1.3 Messages extracted; French values in `fr.json` (no "en retard" or "overdue")
+- [x] 1.1 `lib/todaySummary.ts`: pure `todaySummary(...)` (chosen count, next timed task at or after the given time, earlier count from `earlierIds`) with unit tests in `todaySummary.test.ts`, covering empty parts, a passed appointment, archived projects and completed tasks
+- [x] 1.2 `TaskListView` / `Briefing`: the summary line under the Today title, hidden when empty; test in `todayFocus.test.tsx` checks the line's text for a chosen task and an earlier task
+- [x] 1.3 Messages extracted; French values in `fr.json` (no "en retard" or "overdue")
 
 ## 2. Counts on Inbox and Today only
 

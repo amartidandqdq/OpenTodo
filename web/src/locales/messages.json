@@ -16924,6 +16924,9 @@
   "new account": [
     "web/src/app/auditFormat.ts"
   ],
+  "next appointment {time} {title}": [
+    "web/src/app/task-list/TodaySummaryLine.tsx"
+  ],
   "next month": [
     "web/src/app/filter/conditionText.ts"
   ],
@@ -17037,6 +17040,9 @@
     "web/src/app/task-detail/HistoryTab.tsx",
     "web/src/lib/activityRuns.ts",
     "web/src/lib/history.ts"
+  ],
+  "nothing earlier": [
+    "web/src/app/task-list/TodaySummaryLine.tsx"
   ],
   "nothing tracked": [
     "web/src/lib/rules/summary.ts"
@@ -18001,6 +18007,9 @@
   "{n, plural, one {# change was not accepted} other {# changes were not accepted}}": [
     "web/src/lib/sharing.ts"
   ],
+  "{n, plural, one {# chosen for today} other {# chosen for today}}": [
+    "web/src/app/task-list/TodaySummaryLine.tsx"
+  ],
   "{n, plural, one {# comment} other {# comments}}": [
     "web/src/app/TaskRow.tsx",
     "web/src/app/task-list/RowDetails.tsx"
@@ -18048,6 +18057,9 @@
   ],
   "{n, plural, one {# earlier version deleted.} other {# earlier versions deleted.}}": [
     "web/src/app/EncryptionPanel.tsx"
+  ],
+  "{n, plural, one {# earlier} other {# earlier}}": [
+    "web/src/app/task-list/TodaySummaryLine.tsx"
   ],
   "{n, plural, one {# event} other {# events}}": [
     "web/src/app/auditFormat.ts"

@@ -191,6 +191,17 @@ export const SETTINGS_COPY = {
       arranged: msg('The full Open Loops method arranges the sidebar; these choices apply in the other modes.'),
     },
     learnMore: 'settings/appearance',
+    rows: {
+      all: { label: msg('Show all sections in More'), description: msg('Loop home and Statistics, and Next, Waiting, Anytime and Someday as separate items. This device only.') },
+    },
+  },
+  // Review reminders (declutter): this device only; off by default, so nothing nags about the review.
+  'review-reminders': {
+    title: msg('Review reminders'),
+    icon: 'clipboard-check',
+    description: msg('A dot on Review and a prompt for the Daily check when a review is due. Off by default; this device only.'),
+    learnMore: 'settings/start-view',
+    rows: { show: { label: msg('Review reminders') } },
   },
   // How a task opens from a list (task-side-panel D1): the synced user_prefs.task_open.
   'task-details': {
@@ -258,7 +269,7 @@ export const SETTINGS_COPY = {
     learnMore: 'settings/keyboard',
     rows: {
       hints: { label: msg('Show shortcut hints'), description: msg('Print the keys in the app itself, not only in tooltips. This device only.') },
-      vim: { label: msg('Vim keybindings'), description: msg('Normal, Insert and Command modes with counts, {kbd}, {kbd2} and {kbd3}. This device only.') },
+      vim: { label: msg('Advanced keyboard shortcuts (vim)'), description: msg('Normal, Insert and Command modes with counts, {kbd}, {kbd2} and {kbd3}. Off until you turn it on. This device only.') },
       rowClick: { label: msg('Click a task to'), description: msg('Edit its title in place, or open its details beside the list. This device only.') },
     },
   },

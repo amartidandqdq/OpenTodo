@@ -20,6 +20,7 @@ import { setPanelTaskId, usePanelTaskId } from '../panel'
 import { openFromRow } from '../sidePanel'
 import { keysOf } from '../../lib/shortcuts'
 import { navigate } from '../router'
+import { HorizonSwitch, type HorizonView } from '../HorizonSwitch'
 import { TaskRow } from '../TaskRow'
 import { WaitingDossiers } from '../resume/WaitingDossiers'
 import { useListKeys } from '../useListKeys'
@@ -37,6 +38,8 @@ interface Props {
   above?: ReactNode
   /** Whether `above` has rows: then the task groups' empty state stays away. */
   hasAbove?: boolean
+  /** The horizon this view is, for the switch under its title (declutter). */
+  horizon: HorizonView
 }
 
 /** Next (`/next`): the next action of every project, by context. */
@@ -45,7 +48,7 @@ export function NextView() {
   const labels = useAllLabels()
   const groups = useMemo(() => (input ? nextGroups(input, labels) : null), [input, labels])
   return (
-    <MethodList title={t('Next', { context: 'method' })} icon="arrow-right" move="do" help="next" groups={groups}
+    <MethodList title={t('Next', { context: 'method' })} icon="arrow-right" move="do" help="next" groups={groups} horizon="next"
       empty={{ title: t('Add a next step to a project.'), label: t('Walk your projects'), onClick: () => navigate({ view: 'review', step: 'projects' }) }} />
   )
 }
@@ -59,13 +62,13 @@ export function WaitingView() {
   const dossiers = useDossiers()
   const holds = useMemo(() => waitingDossiers(dossiers).length, [dossiers])
   return (
-    <MethodList title={t('Waiting', { context: 'method' })} icon="hourglass" move="place" help="waiting" groups={groups}
+    <MethodList title={t('Waiting', { context: 'method' })} icon="hourglass" move="place" help="waiting" groups={groups} horizon="waiting"
       above={<WaitingDossiers />} hasAbove={holds > 0}
       empty={{ title: t('Nothing is waiting on anyone.'), label: t('Open Next'), onClick: () => navigate({ view: 'next' }), shortcut: keysOf('go.next') }} />
   )
 }
 
-function MethodList({ title, icon, move, help, groups, empty, above, hasAbove = false }: Props) {
+function MethodList({ title, icon, move, help, groups, empty, above, hasAbove = false, horizon }: Props) {
   const labels = useAllLabels()
   const input = useMethodInput()
   const labelMap = useMemo(() => new Map(labels.map((l) => [l.id, l])), [labels])
@@ -87,7 +90,9 @@ function MethodList({ title, icon, move, help, groups, empty, above, hasAbove = 
 
   return (
     <PageBody width="list">
-      <PageHeader title={title} icon={icon} help={help} meta={meta} subtitle={subtitle} />
+      <PageHeader title={title} icon={icon} help={help} meta={meta} subtitle={subtitle}>
+        <HorizonSwitch view={horizon} />
+      </PageHeader>
       {above}
       {!groups ? <Skeleton shape="row" count={4} /> : rows.length === 0 ? (
         hasAbove ? null : (

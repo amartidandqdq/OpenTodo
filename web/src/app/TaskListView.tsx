@@ -29,6 +29,7 @@ import { offerArchiveAfterCompletion } from './ArchivePrompt'
 import { ACTION_TOAST_MS, showBulkToast } from './bulk/toastStore'
 import { offerMoveToWorkspace, useWorkspaceName } from './workspaceNav'
 import { BoardView } from './BoardView'
+import { HorizonSwitch } from './HorizonSwitch'
 import { BriefingText, useBriefing } from './Briefing'
 import { BulkActionsMenu, SelectionBar } from './bulk/BulkActions'
 import { useCollapsedGroups } from './collapsedGroups'
@@ -424,7 +425,9 @@ function ListHeader({ route, title, label, meta, subtitle, actions, phone, agend
       leading={label && <span className="h-3 w-3 rounded-full" style={{ backgroundColor: label.color }} />}
       meta={meta} subtitle={subtitle} menu={menu} kind={route.view === 'today' || route.view === 'upcoming' ? 'day' : 'tool'}
       summary={route.view === 'today' ? <TodaySummaryLine /> : undefined}
-      briefing={briefing && <BriefingText briefing={briefing} />} />
+      briefing={briefing && <BriefingText briefing={briefing} />}>
+      {route.view === 'anytime' || route.view === 'someday' ? <HorizonSwitch view={route.view} /> : null}
+    </PageHeader>
   )
 }
 

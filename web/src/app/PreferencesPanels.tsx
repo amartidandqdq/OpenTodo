@@ -12,6 +12,7 @@ import { DISPLAY_START_VIEWS, setStartView, type StartView } from '../lib/views'
 import type { View } from '../lib/types'
 import { useStartView, useViews } from './useViews'
 import { setVimEnabled, useVimEnabled } from './vim/prefs'
+import { setReviewReminders, useReviewReminders } from './reviewReminders'
 import { setShortcutHints, useShortcutHints } from './shortcuts/hints'
 import { type RowClick, setRowClick, useRowClick } from './rowClick'
 import { Kbd } from './shortcuts/Kbd'
@@ -113,6 +114,20 @@ export function BriefingView({ shown, onChange }: { shown: boolean; onChange: (o
   )
 }
 
+/** Settings → General → Start view and briefing → Review reminders (OpenSpec declutter): this device only, off by default. */
+export function ReviewRemindersSection() {
+  return <ReviewRemindersView on={useReviewReminders()} onChange={setReviewReminders} />
+}
+
+export function ReviewRemindersView({ on, onChange }: { on: boolean; onChange: (on: boolean) => void }) {
+  return (
+    <SettingsSection {...cardCopy('review-reminders')}>
+      <SettingRow {...rowCopy('review-reminders', 'show')} id="review-reminders" htmlFor="review-reminders-switch"
+        control={<span data-review-reminders-switch><Switch id="review-reminders-switch" checked={on} onChange={onChange} label={t('Review reminders (this device)')} hideLabel /></span>} />
+    </SettingsSection>
+  )
+}
+
 /** Keyboard switches: Vim keybindings (vim-keybindings) and "Show shortcut hints" (keyboard-shortcuts), both per device, applied at once. */
 export function KeyboardSection() {
   const vim = useVimEnabled()
@@ -139,7 +154,7 @@ export function KeyboardView({ vim, onVim, hints = false, onHints = () => {}, cl
         control={<span data-hints-switch><Switch checked={hints} onChange={onHints} label={t('Show shortcut hints (this device)')} hideLabel /></span>} />
       <SettingRow label={rowCopy('keyboard', 'vim').label} description={
         <>{t.rich(SETTINGS_COPY.keyboard.rows.vim.description, { kbd: <Kbd k="gg" />, kbd2: <Kbd k="dd" />, kbd3: <Kbd k=":" /> })}</>
-      } control={<span data-vim-switch><Switch checked={vim} onChange={onVim} label={t('Vim keybindings (this device)')} hideLabel /></span>} />
+      } control={<span data-vim-switch><Switch checked={vim} onChange={onVim} label={t('Advanced keyboard shortcuts (vim), this device')} hideLabel /></span>} />
     </SettingsSection>
   )
 }

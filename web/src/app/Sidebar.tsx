@@ -48,6 +48,9 @@ import { StartGuideMoreItem, StartGuideMoreMenuItems } from './FirstDay'
 import { readString, writeString } from '../lib/deviceStorage'
 import { SidebarSchedule } from './calendar/SidebarSchedule'
 import { useResetOnChange } from '../lib/useResetOnChange'
+import { HORIZON_VIEWS } from './HorizonSwitch'
+import { useShowAllSections } from './sidebarMore'
+import { useReviewReminders } from './reviewReminders'
 
 
 /**
@@ -368,11 +371,12 @@ export function Sidebar({ route, user, onSearch, onShortcuts, onAssistant, onSig
     else if (has) focusRow(n.children[0].id)
   }
 
-  const item = (r: Route, label: string, icon: IconName, count?: number, badge?: ReactNode, tip?: string) => {
+  const item = (r: Route, label: string, icon: IconName, count?: number, badge?: ReactNode, tip?: string, views?: readonly string[]) => {
     // Day, Week, Month and Plan are one Calendar destination (ux-overhaul, planner-view).
     const calendar = (v: string) => v === 'day' || v === 'week' || v === 'month' || v === 'plan'
     // A dossier page belongs to Pick up the thread (resume-dossiers): its section stays active.
-    const active = r.view === 'resume' ? route.view === 'resume' || route.view === 'dossier' : calendar(r.view) ? calendar(route.view) : JSON.stringify(r) === JSON.stringify(route)
+    // One entry for several views (the Horizons entry) is current on each of them.
+    const active = views ? views.includes(route.view) : r.view === 'resume' ? route.view === 'resume' || route.view === 'dossier' : calendar(r.view) ? calendar(route.view) : JSON.stringify(r) === JSON.stringify(route)
     // With "Show shortcut hints" on, the destination prints its `g` key (keyboard-shortcuts "Hints preference").
     const go = hints && !collapsed && badge == null ? GO_KEYS[r.view] : undefined
     const node = <SidebarItem key={label} icon={icon} label={label} count={count} countLabel={openTasksLabel(count)} badge={go ? <kbd className="ui-kbd" data-go-hint>{go}</kbd> : badge} active={active} collapsed={collapsed} onClick={() => navigate(r)} data-destination={r.view} aria-description={tip && badge == null ? tip : undefined} {...(r.view === 'inbox' ? INBOX_DROP : {})} />
@@ -389,17 +393,19 @@ export function Sidebar({ route, user, onSearch, onShortcuts, onAssistant, onSig
   // The weekly review (stats-and-review): when the last one was, and a marker once it is due.
   const method = readMethodMode(prefsRow)
   // More carries no marker (sidebar-v2 D7): the dot sits on the Review entry, the unread badge on Updates.
-  const { text: reviewText, marker: reviewDot } = reviewMarker(review, method, today)
+  const { text: reviewText, marker: reviewDot } = reviewMarker(review, method, today, useReviewReminders())
   // Each More destination once, as data: an item in the inline group, or a menu item
   // (with its badge as the item's description) in the desktop menu.
   const moreEntries = moreEntriesOf({ shared: sharedIds.size > 0, reviewDot, reviewText, unreadBadge, unreadTotal: unread.total, ask: !!assistant?.available })
   const first = method === 'first'
   const calendarMode = readCalendarMode()
   const moreList = first ? firstModeMore(moreEntries, calendarMode) : moreEntries
-  const more = moreList.map((m) => ({ ...m, node: item(m.route, m.label, m.icon, undefined, m.badge, m.tip) }))
-  const primaryExtra = first ? [] : more.filter((m) => m.id !== 'ask' && promoted.includes(m.id as Promotable))
+  const toNodes = (list: MoreEntry[]) => list.map((m) => ({ ...m, node: item(m.route, m.label, m.icon, undefined, m.badge, m.tip, m.views) }))
+  // A promoted destination stays primary whatever the More list shows (appearance preferences).
+  const promotedHere = (m: MoreEntry) => !first && m.id !== 'ask' && promoted.includes(m.id as Promotable)
+  const primaryExtra = toNodes(moreList.filter(promotedHere))
   // The phone drawer lists only what the tab bar lacks (phone-v2 D7): Calendar, or the method's destinations.
-  const rest = more.filter((m) => !primaryExtra.includes(m) && !(drawer && TAB_BAR_VIEWS.has(m.route.view)))
+  const rest = toNodes(declutteredMore(moreList, useShowAllSections(), promotedHere)).filter((m) => !(drawer && TAB_BAR_VIEWS.has(m.route.view)))
   const primary = primaryDestinations(first, calendarMode, counts, reviewDot, reviewText).filter((d) => !(drawer && TAB_BAR_VIEWS.has(d.route.view)))
 
   return (
@@ -418,7 +424,7 @@ export function Sidebar({ route, user, onSearch, onShortcuts, onAssistant, onSig
           {primaryExtra.map((m) => <Fragment key={m.id}>{m.node}</Fragment>)}
           {moreAsMenu && rest.length > 0 && (
             <MoreMenu entries={rest} collapsed={collapsed} hints={hints}
-              active={rest.some((m) => m.route.view === route.view)} extra={<StartGuideMoreMenuItems />} />
+              active={rest.some((m) => (m.views ?? [m.route.view]).includes(route.view))} extra={<StartGuideMoreMenuItems />} />
           )}
         </nav>
       </div>
@@ -568,7 +574,30 @@ function UnreadBadge({ n, label }: { n: number; label: string }) {
 
 /** More as a menu (sidebar-compact-desktop): one row after the primary destinations, its badge on the row, each destination a menu item. */
 // Each More destination once, as data: an item in the inline group, or a menu item.
-type MoreEntry = { id: Promotable | 'ask' | 'review' | 'stats' | 'upcoming' | 'calendar' | 'places' | 'rules'; route: Route; label: string; icon: IconName; badge?: ReactNode; note?: string; tip?: string }
+type MoreEntry = { id: Promotable | 'ask' | 'review' | 'stats' | 'upcoming' | 'calendar' | 'places' | 'rules' | 'horizons'; route: Route; label: string; icon: IconName; badge?: ReactNode; note?: string; tip?: string; /** The views this entry is current on, when it stands for several. */ views?: readonly string[] }
+
+/**
+ * The More entries to list, without the promoted ones (they stay primary): Loop home and Statistics
+ * only when "Show all sections in More" is on, and one Horizons entry for the four horizons unless it is on
+ * (OpenSpec declutter).
+ */
+function declutteredMore(list: MoreEntry[], showAll: boolean, isPromoted: (m: MoreEntry) => boolean): MoreEntry[] {
+  const listed = list.filter((m) => !isPromoted(m) && (showAll || (m.id !== 'loop' && m.id !== 'stats')))
+  return showAll ? listed : withHorizonEntry(listed)
+}
+
+/** The horizon views (declutter): one Horizons entry in More stands for the first of them that is listed. */
+const HORIZON_IDS: readonly string[] = ['next', 'waiting', 'anytime', 'someday']
+function withHorizonEntry(entries: MoreEntry[]): MoreEntry[] {
+  const horizons: MoreEntry = { id: 'horizons', route: { view: 'next' }, label: t('Horizons'), icon: 'layers', views: HORIZON_VIEWS }
+  let placed = false
+  return entries.flatMap((m) => {
+    if (!HORIZON_IDS.includes(m.id)) return [m]
+    if (placed) return []
+    placed = true
+    return [horizons]
+  })
+}
 
 /** The More group's destinations, each once, as data (app-shell "Sidebar structure"). */
 function moreEntriesOf(o: { shared: boolean; reviewDot: ReactNode; reviewText: string; unreadBadge: ReactNode; unreadTotal: number; ask: boolean }): MoreEntry[] {
@@ -602,14 +631,15 @@ function moreEntriesOf(o: { shared: boolean; reviewDot: ReactNode; reviewText: s
  * badge; `text` names each due rhythm (or when the last review was) for the tooltip,
  * the accessible name and the More menu's description.
  */
-function reviewMarker(review: Review | null | undefined, method: MethodMode, today: string): { due: boolean; text: string; marker: ReactNode } {
+function reviewMarker(review: Review | null | undefined, method: MethodMode, today: string, reminders: boolean): { due: boolean; text: string; marker: ReactNode } {
   // Still loading (undefined, not null): no marker yet, rather than every rhythm due for a moment.
   if (review === undefined) return { due: false, text: t('Review'), marker: null }
-  const weeklyDue = reviewDue(review?.completed_at)
+  // Review reminders (declutter): with them off no rhythm is due, so the entry carries no dot.
+  const weeklyDue = reminders && reviewDue(review?.completed_at)
   const parts = [
     ...(weeklyDue ? [review?.completed_at ? t('last weekly review {ago}', { ago: reviewAgo(review.completed_at) }) : t('no weekly review yet')] : []),
-    ...(method !== 'lists' && monthlyDue(review?.monthly_at) ? [t('the Monthly look is due')] : []),
-    ...(method === 'first' && dailyDue(review?.daily_at, today) ? [t('the Daily check is due')] : []),
+    ...(reminders && method !== 'lists' && monthlyDue(review?.monthly_at) ? [t('the Monthly look is due')] : []),
+    ...(reminders && method === 'first' && dailyDue(review?.daily_at, today) ? [t('the Daily check is due')] : []),
   ]
   const due = parts.length > 0
   // Close the day (close-the-day D7): "Day closed" for the rest of the local day; a due marker wins and its text names both.

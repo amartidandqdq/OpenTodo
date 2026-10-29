@@ -68,10 +68,10 @@ describe('Close the day is reachable', () => {
     const tasks = [...document.querySelectorAll('[data-task-id]')]
     expect(tasks[tasks.length - 1].compareDocumentPosition(row) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     expect(row.getAttribute('data-close-day')).toBe('open')
+    // The row opens the Close the day dialog over My day (OpenSpec change close-day); the stepper stays on the Review page.
     await click(row.querySelector('button')!)
-    await waitFor(() => location.pathname === '/review/close' && stepOf() === 'summary')
-    await waitFor(() => document.activeElement === titleEl())
-    expect(titleEl()!.textContent).toBe('How the day went')
+    await waitFor(() => !!document.querySelector('[data-close-today]'))
+    expect(location.pathname).toBe('/today')
     await r.unmount()
   })
 
@@ -93,7 +93,7 @@ describe('Close the day is reachable', () => {
     expect(row.textContent).toMatch(/Day closed, (18:42|6:42\sPM)/)
     expect(row.querySelector('[data-reopen-day]')).not.toBeNull()
     await click([...row.querySelectorAll('button')].find((b) => b.textContent?.includes('Close again'))!)
-    await waitFor(() => location.pathname === '/review/close')
+    await waitFor(() => !!document.querySelector('[data-close-today]'))
     await r.unmount()
   })
 })

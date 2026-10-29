@@ -1304,6 +1304,9 @@
     "web/src/lib/assistant.ts",
     "web/src/lib/i18n/errors.ts"
   ],
+  "Another day": [
+    "web/src/app/CloseTodayDialog.tsx"
+  ],
   "Another label has this name. Merge them from the menu or the banner on the labels page.": [
     "web/src/app/LabelsView.tsx"
   ],
@@ -2100,6 +2103,7 @@
     "web/src/app/CaldavPanel.tsx",
     "web/src/app/CalendarFeedsPanel.tsx",
     "web/src/app/CalendarSyncDialogs.tsx",
+    "web/src/app/CloseTodayDialog.tsx",
     "web/src/app/DigestCard.tsx",
     "web/src/app/EncryptionPanel.tsx",
     "web/src/app/FieldsDialog.tsx",
@@ -2337,6 +2341,9 @@
   "Choice": [
     "web/src/lib/fields.ts"
   ],
+  "Choice for {title}": [
+    "web/src/app/CloseTodayDialog.tsx"
+  ],
   "Choose": [
     "web/src/app/palette/BarParts.tsx",
     "web/src/app/task-list/TodayFocus.tsx"
@@ -2536,6 +2543,7 @@
   ],
   "Close": [
     "web/src/app/BackupsPanel.tsx",
+    "web/src/app/CloseTodayDialog.tsx",
     "web/src/app/PanelFrame.tsx",
     "web/src/app/ShareDialog.tsx",
     "web/src/app/SsoPanel.tsx",
@@ -2553,6 +2561,7 @@
   ],
   "Close the day": [
     "web/src/app/CloseDayRow.tsx",
+    "web/src/app/CloseTodayDialog.tsx",
     "web/src/app/method/LoopHome.tsx",
     "web/src/app/palette/registry.ts",
     "web/src/app/review/CloseDay.tsx",
@@ -3337,6 +3346,7 @@
     "web/src/app/RestoreSection.tsx"
   ],
   "Date": [
+    "web/src/app/CloseTodayDialog.tsx",
     "web/src/app/RuleEditor.tsx",
     "web/src/app/bulk/BulkActions.tsx",
     "web/src/app/editorCommands.ts",
@@ -3383,6 +3393,9 @@
   ],
   "Day calendar": [
     "web/src/app/CalendarView.tsx"
+  ],
+  "Day closed": [
+    "web/src/lib/closeToday.ts"
   ],
   "Day closed, {time}": [
     "web/src/app/CloseDayRow.tsx",
@@ -3889,6 +3902,7 @@
     "web/src/app/AssistantsPanel.tsx",
     "web/src/app/CaldavPanel.tsx",
     "web/src/app/CalendarFeedsPanel.tsx",
+    "web/src/app/CloseTodayDialog.tsx",
     "web/src/app/DashboardView.tsx",
     "web/src/app/FirstDay.tsx",
     "web/src/app/Markdown.tsx",
@@ -8411,12 +8425,16 @@
   ],
   "Not now": [
     "web/src/app/ArchivePrompt.tsx",
+    "web/src/app/CloseTodayDialog.tsx",
     "web/src/app/ProjectInviteScreen.tsx",
     "web/src/app/WorkspaceInviteScreen.tsx",
     "web/src/app/focus/BreakReminder.tsx",
     "web/src/app/resume/ResumeView.tsx",
     "web/src/app/resume/dossierPostpone.ts",
     "web/src/app/task-list/TodayResume.tsx"
+  ],
+  "Not now takes the task out of My day and keeps its due date.": [
+    "web/src/app/CloseTodayDialog.tsx"
   ],
   "Not run yet": [
     "web/src/app/rules/RulesView.tsx"
@@ -8525,6 +8543,9 @@
     "web/src/app/AssistantsPanel.tsx",
     "web/src/app/MembersPanel.tsx",
     "web/src/app/WebhooksPanel.tsx"
+  ],
+  "Nothing from My day is still open.": [
+    "web/src/app/CloseTodayDialog.tsx"
   ],
   "Nothing is assigned to you.": [
     "web/src/app/task-list/ListChrome.tsx"
@@ -9658,6 +9679,7 @@
     "web/src/app/review/CarryOver.tsx"
   ],
   "Pick a day for {title}": [
+    "web/src/app/CloseTodayDialog.tsx",
     "web/src/app/review/CloseDay.tsx"
   ],
   "Pick a day…": [
@@ -11472,6 +11494,9 @@
   "See statistics": [
     "web/src/app/review/MonthlyLook.tsx",
     "web/src/app/review/ReviewView.tsx"
+  ],
+  "See you tomorrow": [
+    "web/src/app/CloseTodayDialog.tsx"
   ],
   "See your tasks in calendar and reminder apps with an app password": [
     "web/src/app/settingsIndex.ts"
@@ -14625,6 +14650,7 @@
     "web/src/app/TokensSection.tsx"
   ],
   "Tomorrow": [
+    "web/src/app/CloseTodayDialog.tsx",
     "web/src/app/ParseChips.tsx",
     "web/src/app/RuleEditor.tsx",
     "web/src/app/bulk/BulkActions.tsx",
@@ -14648,6 +14674,12 @@
   ],
   "Tomorrow your Daily check starts with: “{note}”": [
     "web/src/app/review/CloseDay.tsx"
+  ],
+  "Tomorrow: nothing planned": [
+    "web/src/app/CloseTodayDialog.tsx"
+  ],
+  "Tomorrow: {n, plural, one {# thing} other {# things}}": [
+    "web/src/app/CloseTodayDialog.tsx"
   ],
   "Too deeply nested at position {pos}; use at most {max} levels of \"(\" and \"!\"": [
     "web/src/lib/filter/parse.ts"
@@ -16933,6 +16965,7 @@
     "web/src/app/auditFormat.ts"
   ],
   "next appointment {time} {title}": [
+    "web/src/app/CloseTodayDialog.tsx",
     "web/src/app/task-list/TodaySummaryLine.tsx"
   ],
   "next month": [
@@ -17051,6 +17084,9 @@
   ],
   "nothing earlier": [
     "web/src/app/task-list/TodaySummaryLine.tsx"
+  ],
+  "nothing planned": [
+    "web/src/app/CloseTodayDialog.tsx"
   ],
   "nothing tracked": [
     "web/src/lib/rules/summary.ts"
@@ -18238,6 +18274,9 @@
   ],
   "{n, plural, one {# task completed} other {# tasks completed}}": [
     "web/src/lib/bulk.ts"
+  ],
+  "{n, plural, one {# task from My day is still open.} other {# tasks from My day are still open.}} Choose what happens to each.": [
+    "web/src/app/CloseTodayDialog.tsx"
   ],
   "{n, plural, one {# task in one thread} other {# tasks in one thread}}": [
     "web/src/app/resume/DossierCard.tsx"

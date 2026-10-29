@@ -1,0 +1,6 @@
+{
+  "strictness": 2,
+  "commentTypes": ["logic", "syntax", "style"],
+  "ignorePatterns": "internal/web/dist/**\ndeploy/*/upstream/**\nweb/src/generated/**\nweb/src/locales/messages.json\n**/testdata/**\n**/*.golden.json",
+  "instructions": "Read AGENTS.md first: it holds this repository's non-negotiables (specs before behavior, writes through ops, route policies, additive op schema)."
+}

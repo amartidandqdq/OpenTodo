@@ -22,6 +22,7 @@ import { canVibrate } from './motion'
 import { readTaskOpen, setTaskOpen, type TaskOpenPref } from '../lib/userPrefs'
 import { accountRowLayout, ROW_LAYOUTS, setAccountRowLayout, type RowLayout } from '../lib/rowLayout'
 import { ROW_LAYOUT_LABEL } from './views/DisplayPanel'
+import { setShowAllSections, useShowAllSections } from './sidebarMore'
 
 const MODE_LABEL = translatedMap<ThemeModePref>({ system: msg('System'), light: msg('Light'), dark: msg('Dark') })
 const DENSITY_LABEL = translatedMap<Density>({ comfortable: msg('Comfortable'), compact: msg('Compact') })
@@ -128,10 +129,14 @@ export function AppearanceView({ value, onMode, onAccent, onDensity, rows, hapti
   )
 }
 
-/** The sidebar destinations (app-shell "Sidebar structure"): one switch per destination of the More group. */
-export function SidebarView({ promoted, onPromote, arranged = false }: { promoted: readonly Promotable[]; onPromote: (id: Promotable, on: boolean) => void; arranged?: boolean }) {
+/** The sidebar destinations (app-shell "Sidebar structure"): one switch per destination of the More group, and the device's "Show all sections in More" (declutter). */
+export function SidebarView({ promoted, onPromote, arranged = false, showAll }: { promoted: readonly Promotable[]; onPromote: (id: Promotable, on: boolean) => void; arranged?: boolean; showAll?: { on: boolean; onChange: (on: boolean) => void } }) {
   return (
     <SettingsSection {...cardCopy('sidebar', { variant: arranged ? 'arranged' : 'standard' })}>
+      {showAll && (
+        <SettingRow id="more-show-all" {...rowCopy('sidebar', 'all')} htmlFor="more-show-all-switch"
+          control={<span data-more-show-all><Switch id="more-show-all-switch" checked={showAll.on} onChange={showAll.onChange} label={t('Show all sections in More')} hideLabel /></span>} />
+      )}
       {PROMOTABLE.map((id) => (
         <SettingRow key={id} id={`sidebar-${id}`} label={PROMOTABLE_LABEL[id]} htmlFor={`sidebar-switch-${id}`}
           control={<Switch id={`sidebar-switch-${id}`} checked={promoted.includes(id)} disabled={arranged} onChange={(on) => onPromote(id, on)} label={t('Show {name} among the primary items', { name: PROMOTABLE_LABEL[id] })} hideLabel />} />
@@ -157,7 +162,9 @@ export function AppearanceSection() {
 export function SidebarSection() {
   const row = usePrefsRow()
   const value = readAppearance(row)
-  return <SidebarView promoted={value.sidebar ?? []} arranged={readMethodMode(row) === 'first'} onPromote={(id, on) => act(setPromoted(row, id, on))} />
+  const showAll = useShowAllSections()
+  return <SidebarView promoted={value.sidebar ?? []} arranged={readMethodMode(row) === 'first'} onPromote={(id, on) => act(setPromoted(row, id, on))}
+    showAll={{ on: showAll, onChange: setShowAllSections }} />
 }
 
 /** Settings → Appearance → Task details (task-side-panel D1): the synced choice, written through ops. */

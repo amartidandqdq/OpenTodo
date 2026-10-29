@@ -18,6 +18,7 @@ import { click, flush, key, render, spokenText, type, visibleText, waitFor } fro
 import { setMethodMode } from '../lib/method/mode'
 import { REVIEW_DEFAULTS } from '../lib/ops'
 import { resetPanel } from './panel'
+import { setShowAllSections } from './sidebarMore'
 import { navigate } from './router'
 import { sidebarFind } from './signals'
 import { Shell } from './Shell'
@@ -109,13 +110,28 @@ describe('primary destinations and More (ux-overhaul 4.1)', () => {
     expect(moreItems(r.container)).toEqual([])
     await click(moreToggle(r.container))
     // The four horizons are one entry, Horizons (data-destination next).
-    expect(moreItems(r.container)).toEqual(['loop', 'next', 'completed', 'review', 'stats', 'places', 'rules', 'trash', 'filter'])
+    // Loop home and Statistics are hidden by default (declutter); the four horizons are one entry.
+    expect(moreItems(r.container)).toEqual(['next', 'completed', 'review', 'places', 'rules', 'trash', 'filter'])
     expect(localStorage.getItem('ot.sidebar.more')).toBe('1')
     // A shared project brings Assigned to me and Updates.
     await db.memberships.put({ projectId: 'p1', role: 'editor', ownerId: 'alice', members: [] } as Membership)
     await waitFor(() => moreItems(r.container).includes('assigned'))
-    expect(moreItems(r.container)).toEqual(['loop', 'next', 'assigned', 'completed', 'review', 'stats', 'feed', 'places', 'rules', 'trash', 'filter'])
+    expect(moreItems(r.container)).toEqual(['next', 'assigned', 'completed', 'review', 'feed', 'places', 'rules', 'trash', 'filter'])
     expect(primaryOf(r.container)).toHaveLength(5)
+    await r.unmount()
+  })
+
+  it('Show all sections in More restores Loop home, Statistics and the four horizons; a promoted Loop home stays primary (declutter)', async () => {
+    setShowAllSections(true)
+    const r = await render(<Sidebar route={{ view: 'inbox' }} user={user} />)
+    await waitFor(() => !!r.container.querySelector('[data-testid="sidebar-more"] button[aria-expanded]'), 'the More group')
+    await click(moreToggle(r.container))
+    expect(moreItems(r.container)).toEqual(['loop', 'next', 'waiting', 'anytime', 'someday', 'completed', 'review', 'stats', 'places', 'rules', 'trash', 'filter'])
+    setShowAllSections(false)
+    await waitFor(() => !moreItems(r.container).includes('loop'), 'Loop home hidden again')
+    await setPromoted(null, 'loop', true)
+    await waitFor(() => primaryOf(r.container).includes('loop'), 'Loop home promoted')
+    expect(moreItems(r.container)).not.toContain('loop')
     await r.unmount()
   })
 
@@ -207,7 +223,7 @@ describe('the desktop sidebar (sidebar-compact-desktop)', () => {
     // The review state arrives on its own: wait for its marker on the Review entry.
     await waitFor(() => menuItems().length > 0 && !!document.querySelector('[data-menu-label="Review"]')?.textContent?.includes('Review due'), 'the More menu with Review due')
     // The four horizons are one Horizons entry (declutter).
-    expect(menuItems()).toEqual(['Loop home', 'Horizons', 'Completed', 'Review', 'Statistics', 'Locations', 'Rules', 'Trash', 'New view'])
+    expect(menuItems()).toEqual(['Horizons', 'Completed', 'Review', 'Locations', 'Rules', 'Trash', 'New view'])
     // Never reviewed: the dot and the words are on the Review entry.
     const reviewItem = document.querySelector('[data-menu-label="Review"]')!
     expect(reviewItem.textContent).toContain('Review due')

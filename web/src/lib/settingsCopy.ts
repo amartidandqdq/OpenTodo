@@ -191,6 +191,9 @@ export const SETTINGS_COPY = {
       arranged: msg('The full Open Loops method arranges the sidebar; these choices apply in the other modes.'),
     },
     learnMore: 'settings/appearance',
+    rows: {
+      all: { label: msg('Show all sections in More'), description: msg('Loop home and Statistics, and Next, Waiting, Anytime and Someday as separate items. This device only.') },
+    },
   },
   // How a task opens from a list (task-side-panel D1): the synced user_prefs.task_open.
   'task-details': {

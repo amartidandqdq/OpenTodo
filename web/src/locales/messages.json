@@ -7054,6 +7054,12 @@
     "web/src/app/method/LoopHome.tsx",
     "web/src/lib/shortcuts.ts"
   ],
+  "Loop home and Statistics, and Next, Waiting, Anytime and Someday as separate items. This device only.": [
+    "web/src/lib/settingsCopy.ts"
+  ],
+  "Loop home, Statistics, and Next, Waiting, Anytime and Someday as separate items. This device only.": [
+    "web/src/app/settingsIndex.ts"
+  ],
   "Loop pulse · last {n} days": [
     "web/src/app/method/LoopHome.tsx"
   ],
@@ -11838,6 +11844,11 @@
   ],
   "Show all ({n})": [
     "web/src/app/ActivityPanel.tsx"
+  ],
+  "Show all sections in More": [
+    "web/src/app/AppearanceSection.tsx",
+    "web/src/app/settingsIndex.ts",
+    "web/src/lib/settingsCopy.ts"
   ],
   "Show archived projects": [
     "web/src/app/ProjectsSettings.tsx"

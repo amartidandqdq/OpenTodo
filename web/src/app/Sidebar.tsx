@@ -49,6 +49,7 @@ import { readString, writeString } from '../lib/deviceStorage'
 import { SidebarSchedule } from './calendar/SidebarSchedule'
 import { useResetOnChange } from '../lib/useResetOnChange'
 import { HORIZON_VIEWS } from './HorizonSwitch'
+import { useShowAllSections } from './sidebarMore'
 
 
 /**
@@ -404,7 +405,7 @@ export function Sidebar({ route, user, onSearch, onShortcuts, onAssistant, onSig
   const promotedHere = (m: MoreEntry) => !first && m.id !== 'ask' && promoted.includes(m.id as Promotable)
   const primaryExtra = toNodes(moreList.filter(promotedHere))
   // The phone drawer lists only what the tab bar lacks (phone-v2 D7): Calendar, or the method's destinations.
-  const rest = toNodes(withHorizonEntry(moreList.filter((m) => !promotedHere(m)))).filter((m) => !(drawer && TAB_BAR_VIEWS.has(m.route.view)))
+  const rest = toNodes(declutteredMore(moreList, useShowAllSections(), promotedHere)).filter((m) => !(drawer && TAB_BAR_VIEWS.has(m.route.view)))
   const primary = primaryDestinations(first, calendarMode, counts, reviewDot, reviewText).filter((d) => !(drawer && TAB_BAR_VIEWS.has(d.route.view)))
 
   return (
@@ -579,6 +580,16 @@ function UnreadBadge({ n, label }: { n: number; label: string }) {
 /** More as a menu (sidebar-compact-desktop): one row after the primary destinations, its badge on the row, each destination a menu item. */
 // Each More destination once, as data: an item in the inline group, or a menu item.
 type MoreEntry = { id: Promotable | 'ask' | 'review' | 'stats' | 'upcoming' | 'calendar' | 'places' | 'rules' | 'horizons'; route: Route; label: string; icon: IconName; badge?: ReactNode; note?: string; tip?: string; /** The views this entry is current on, when it stands for several. */ views?: readonly string[] }
+
+/**
+ * The More entries to list, without the promoted ones (they stay primary): Loop home and Statistics
+ * only when "Show all sections in More" is on, and one Horizons entry for the four horizons unless it is on
+ * (OpenSpec declutter).
+ */
+function declutteredMore(list: MoreEntry[], showAll: boolean, isPromoted: (m: MoreEntry) => boolean): MoreEntry[] {
+  const listed = list.filter((m) => !isPromoted(m) && (showAll || (m.id !== 'loop' && m.id !== 'stats')))
+  return showAll ? listed : withHorizonEntry(listed)
+}
 
 /** The horizon views (declutter): one Horizons entry in More stands for the first of them that is listed. */
 const HORIZON_IDS: readonly string[] = ['next', 'waiting', 'anytime', 'someday']

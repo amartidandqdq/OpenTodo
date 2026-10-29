@@ -7120,6 +7120,9 @@
   "Make {name} the owner?": [
     "web/src/app/ShareDialog.tsx"
   ],
+  "Makes room for {title}": [
+    "web/src/app/FocusReplace.tsx"
+  ],
   "Manage the custom fields of the current project: add, rename, reorder, delete": [
     "web/src/lib/shortcuts.ts"
   ],
@@ -10728,6 +10731,9 @@
   ],
   "Replace token": [
     "web/src/app/IssueEditor.tsx"
+  ],
+  "Replace which one?": [
+    "web/src/app/FocusReplace.tsx"
   ],
   "Replies": [
     "web/src/app/task-detail/CommentsTab.tsx"
@@ -14582,8 +14588,7 @@
     "web/src/app/resume/DossierCard.tsx"
   ],
   "Today’s focus holds {n} tasks. Take one out first.": [
-    "web/src/app/review/DailyCheck.tsx",
-    "web/src/app/todayFocusAction.ts"
+    "web/src/app/review/DailyCheck.tsx"
   ],
   "Today’s focus is done.": [
     "web/src/app/focus/FocusView.tsx"
@@ -18771,6 +18776,9 @@
   "{title} is in today’s focus.": [
     "web/src/app/resume/DossierCard.tsx",
     "web/src/app/review/DailyCheck.tsx",
+    "web/src/app/todayFocusAction.ts"
+  ],
+  "{title} is in today’s focus. {outgoing} left.": [
     "web/src/app/todayFocusAction.ts"
   ],
   "{title} left today’s focus.": [

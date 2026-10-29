@@ -7,7 +7,7 @@
 // turns compact). Types come from the tokens; the composition is
 // .mockup-topbar-* in src/app/mockupShell.css.
 import { useState } from 'react'
-import { DESKTOP_HEADER_QUERY, Icon, IconButton, Menu, useMediaQuery, useSidebarToggle } from '../ui'
+import { DESKTOP_HEADER_QUERY, Icon, IconButton, Menu, initials, useMediaQuery, useSidebarToggle } from '../ui'
 import { keysOf } from '../lib/shortcuts'
 import { t } from '../lib/i18n'
 import type { User } from '../lib/types'
@@ -67,11 +67,12 @@ export function MockupTopBar({ user, onSearch, onAssistant, onShortcuts, onSignO
       )}
       {/* The account access on a desktop: the same menu items as the sidebar's
           account control (sidebar-footer data and tests keep their row). */}
-      <Menu kind="menu" label={t('Account menu for {name}', { name })} title={name}
+      {/* The name holds the initials the avatar shows: the accessible name contains the visible text (label-content-name-mismatch). */}
+      <Menu kind="menu" label={`${initials(name)} ${t('Account menu for {name}', { name })}`} title={name}
         align="end" width="sm:w-64" tip={name}
         triggerProps={{ 'data-mockup-account': true }}
         triggerClassName="flex min-h-9 min-w-9 items-center justify-center rounded-control px-1 text-left hover:bg-sunken focus-visible:bg-sunken dark:hover:bg-raised"
-        trigger={<PersonAvatar id={user.id} name={name} size="sm" />}
+        trigger={<PersonAvatar id={user.id} name={name} size="sm" decorative />}
       >
         <AccountMenuItems onShortcuts={onShortcuts} onSignOutRequested={onSignOut ? () => setSigningOut(true) : undefined} />
       </Menu>

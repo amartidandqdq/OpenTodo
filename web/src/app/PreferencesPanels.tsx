@@ -12,6 +12,7 @@ import { DISPLAY_START_VIEWS, setStartView, type StartView } from '../lib/views'
 import type { View } from '../lib/types'
 import { useStartView, useViews } from './useViews'
 import { setVimEnabled, useVimEnabled } from './vim/prefs'
+import { setReviewReminders, useReviewReminders } from './reviewReminders'
 import { setShortcutHints, useShortcutHints } from './shortcuts/hints'
 import { type RowClick, setRowClick, useRowClick } from './rowClick'
 import { Kbd } from './shortcuts/Kbd'
@@ -109,6 +110,20 @@ export function BriefingView({ shown, onChange }: { shown: boolean; onChange: (o
     <SettingsSection {...cardCopy('briefing')}>
       <SettingRow {...rowCopy('briefing', 'show')} id="briefing-show" htmlFor="briefing-show-switch"
         control={<span data-briefing-switch><Switch id="briefing-show-switch" checked={shown} onChange={onChange} label={t('Show the briefing')} hideLabel /></span>} />
+    </SettingsSection>
+  )
+}
+
+/** Settings → General → Start view and briefing → Review reminders (OpenSpec declutter): this device only, off by default. */
+export function ReviewRemindersSection() {
+  return <ReviewRemindersView on={useReviewReminders()} onChange={setReviewReminders} />
+}
+
+export function ReviewRemindersView({ on, onChange }: { on: boolean; onChange: (on: boolean) => void }) {
+  return (
+    <SettingsSection {...cardCopy('review-reminders')}>
+      <SettingRow {...rowCopy('review-reminders', 'show')} id="review-reminders" htmlFor="review-reminders-switch"
+        control={<span data-review-reminders-switch><Switch id="review-reminders-switch" checked={on} onChange={onChange} label={t('Review reminders (this device)')} hideLabel /></span>} />
     </SettingsSection>
   )
 }

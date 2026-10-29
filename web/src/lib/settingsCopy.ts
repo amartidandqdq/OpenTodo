@@ -195,6 +195,14 @@ export const SETTINGS_COPY = {
       all: { label: msg('Show all sections in More'), description: msg('Loop home and Statistics, and Next, Waiting, Anytime and Someday as separate items. This device only.') },
     },
   },
+  // Review reminders (declutter): this device only; off by default, so nothing nags about the review.
+  'review-reminders': {
+    title: msg('Review reminders'),
+    icon: 'clipboard-check',
+    description: msg('A dot on Review and a prompt for the Daily check when a review is due. Off by default; this device only.'),
+    learnMore: 'settings/start-view',
+    rows: { show: { label: msg('Review reminders') } },
+  },
   // How a task opens from a list (task-side-panel D1): the synced user_prefs.task_open.
   'task-details': {
     title: msg('Task details'),

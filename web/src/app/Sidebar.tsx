@@ -50,6 +50,7 @@ import { SidebarSchedule } from './calendar/SidebarSchedule'
 import { useResetOnChange } from '../lib/useResetOnChange'
 import { HORIZON_VIEWS } from './HorizonSwitch'
 import { useShowAllSections } from './sidebarMore'
+import { useReviewReminders } from './reviewReminders'
 
 
 /**
@@ -393,7 +394,7 @@ export function Sidebar({ route, user, onSearch, onShortcuts, onAssistant, onSig
   // The weekly review (stats-and-review): when the last one was, and a marker once it is due.
   const method = readMethodMode(prefsRow)
   // More carries no marker (sidebar-v2 D7): the dot sits on the Review entry, the unread badge on Updates.
-  const { text: reviewText, marker: reviewDot } = reviewMarker(review, method, today)
+  const { text: reviewText, marker: reviewDot } = reviewMarker(review, method, today, useReviewReminders())
   // Each More destination once, as data: an item in the inline group, or a menu item
   // (with its badge as the item's description) in the desktop menu.
   const moreEntries = moreEntriesOf({ shared: sharedIds.size > 0, reviewDot, reviewText, unreadBadge, unreadTotal: unread.total, ask: !!assistant?.available })
@@ -636,14 +637,15 @@ function moreEntriesOf(o: { shared: boolean; reviewDot: ReactNode; reviewText: s
  * badge; `text` names each due rhythm (or when the last review was) for the tooltip,
  * the accessible name and the More menu's description.
  */
-function reviewMarker(review: Review | null | undefined, method: MethodMode, today: string): { due: boolean; text: string; marker: ReactNode } {
+function reviewMarker(review: Review | null | undefined, method: MethodMode, today: string, reminders: boolean): { due: boolean; text: string; marker: ReactNode } {
   // Still loading (undefined, not null): no marker yet, rather than every rhythm due for a moment.
   if (review === undefined) return { due: false, text: t('Review'), marker: null }
-  const weeklyDue = reviewDue(review?.completed_at)
+  // Review reminders (declutter): with them off no rhythm is due, so the entry carries no dot.
+  const weeklyDue = reminders && reviewDue(review?.completed_at)
   const parts = [
     ...(weeklyDue ? [review?.completed_at ? t('last weekly review {ago}', { ago: reviewAgo(review.completed_at) }) : t('no weekly review yet')] : []),
-    ...(method !== 'lists' && monthlyDue(review?.monthly_at) ? [t('the Monthly look is due')] : []),
-    ...(method === 'first' && dailyDue(review?.daily_at, today) ? [t('the Daily check is due')] : []),
+    ...(reminders && method !== 'lists' && monthlyDue(review?.monthly_at) ? [t('the Monthly look is due')] : []),
+    ...(reminders && method === 'first' && dailyDue(review?.daily_at, today) ? [t('the Daily check is due')] : []),
   ]
   const due = parts.length > 0
   // Close the day (close-the-day D7): "Day closed" for the rest of the local day; a due marker wins and its text names both.

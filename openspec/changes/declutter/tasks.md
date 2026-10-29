@@ -20,13 +20,13 @@
 
 ## 4. Review reminders off by default
 
-- [ ] 4.1 `lib/reviewReminders.ts` device flag `opentodo.reviewReminders` (off by default); `Sidebar.tsx` `reviewMarker` ignores due rhythms unless on; `DailyCheckToast.tsx` shows nothing unless on; tests `sidebar.test.tsx` and `dailyCheckToast.test.tsx` cover off and on
-- [ ] 4.2 Settings → General → Start view and briefing: switch row "Review reminders"; test `preferencesPanels.test.tsx` checks the default off
-- [ ] 4.3 Messages extracted; French values in `fr.json`; `settingsIndex.ts` entry added
+- [x] 4.1 `app/reviewReminders.ts` device flag `opentodo.reviewReminders` (off by default); `Sidebar.tsx` `reviewMarker`, `DailyCheckToast.tsx` and `LoopHome.tsx` ignore due rhythms unless on; tests `review.test.tsx`, `loopHome.test.tsx` and `sidebar.test.tsx` cover off and on
+- [x] 4.2 Settings → General → Start view and briefing: switch row "Review reminders" (`ReviewRemindersSection`); test `preferencesPanels.test.tsx` checks the default off and the write
+- [x] 4.3 Messages extracted; French values in `fr.json`; `settingsIndex.ts` entry added
 
 ## 5. Checks
 
 - [ ] 5.1 `node scripts/i18n/extract.mjs --write` and `node scripts/i18n-check.mjs` pass
 - [ ] 5.2 `cd web && node_modules/.bin/vitest run` on the touched suites; `node_modules/.bin/tsc --noEmit -p .` passes
 - [ ] 5.3 `make openspec-validate` (the pinned OpenSpec CLI 1.13.2) passes
-- [ ] 5.4 `docs/` describes the defaults and where each setting is (`docs/language.md`, `docs/keyboard.md` if present)
+- [x] 5.4 `docs/` describes the defaults and where each setting is (`docs/keyboard.md`, `docs/built-in-views.md`, `docs/review-and-statistics.md`, `docs/settings-app.md`)

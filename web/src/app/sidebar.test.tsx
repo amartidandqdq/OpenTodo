@@ -19,6 +19,7 @@ import { setMethodMode } from '../lib/method/mode'
 import { REVIEW_DEFAULTS } from '../lib/ops'
 import { resetPanel } from './panel'
 import { setShowAllSections } from './sidebarMore'
+import { REMINDERS_KEY } from './reviewReminders'
 import { navigate } from './router'
 import { sidebarFind } from './signals'
 import { Shell } from './Shell'
@@ -160,6 +161,7 @@ describe('primary destinations and More (ux-overhaul 4.1)', () => {
   })
 
   it('Open Loops first sidebar: six destinations by the Places; Upcoming and Calendar join More; promotions are kept for later', async () => {
+    localStorage.setItem(REMINDERS_KEY, '1')
     await setPromoted(null, 'someday', true)
     await applyOps([{ id: 'm1', entity: 'user_prefs', entityId: 'me', field: 'method_mode', value: 'first', ts: Date.now() + 1000, device: 'laptop' } as Op])
     const r = await render(<Sidebar route={{ view: 'inbox' }} user={user} />)
@@ -208,6 +210,7 @@ describe('the desktop sidebar (sidebar-compact-desktop)', () => {
   const moreButton = (root: ParentNode) => root.querySelector<HTMLButtonElement>('[data-sidebar-more-menu] button[aria-haspopup="menu"]')!
 
   it('opens More as a menu from a group-style heading; a chosen item navigates; the review due marker is on Review (sidebar-v2 D7)', async () => {
+    localStorage.setItem(REMINDERS_KEY, '1')
     const r = await render(<Sidebar route={{ view: 'inbox' }} user={user} />)
     await waitFor(() => !!moreButton(r.container), 'the More menu button')
     expect(r.container.querySelector('[data-testid="sidebar-more"]')).toBeNull()
@@ -917,6 +920,8 @@ describe('quiet sidebar (quiet-sidebar 1.2-1.4, 2.1)', () => {
   })
 
   describe('rhythm markers as one dot', () => {
+    // The due markers are opt-in (declutter): these tests exercise them, so they turn Review reminders on.
+    beforeEach(() => localStorage.setItem(REMINDERS_KEY, '1'))
     const moreButton = (root: ParentNode) => root.querySelector<HTMLButtonElement>('[data-sidebar-more-menu] button[aria-haspopup="menu"]')!
 
     // sidebar-v2 D7: More carries no marker; the dot and its words are on the Review entry.

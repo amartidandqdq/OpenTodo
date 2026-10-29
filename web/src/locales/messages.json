@@ -269,6 +269,12 @@
   "A dossier links the steps of one thread.": [
     "web/src/app/resume/ResumeView.tsx"
   ],
+  "A dot on Review and a prompt for the Daily check when a review is due. Off by default; this device only.": [
+    "web/src/lib/settingsCopy.ts"
+  ],
+  "A dot on Review and a prompt for the Daily check when a review is due. This device only.": [
+    "web/src/app/settingsIndex.ts"
+  ],
   "A field": [
     "web/src/lib/assistant.ts"
   ],
@@ -10973,6 +10979,13 @@
   ],
   "Review progress": [
     "web/src/app/review/ReviewProgress.tsx"
+  ],
+  "Review reminders": [
+    "web/src/app/settingsIndex.ts",
+    "web/src/lib/settingsCopy.ts"
+  ],
+  "Review reminders (this device)": [
+    "web/src/app/PreferencesPanels.tsx"
   ],
   "Review since": [
     "web/src/app/resume/DossierCard.tsx"

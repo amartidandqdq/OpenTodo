@@ -49,6 +49,7 @@ export const SETTINGS_INDEX: readonly SettingsEntry[] = translatedList<SettingsE
   { section: 'appearance', label: msg('Open tasks'), description: msg('As a page, or in a side panel beside the list'), page: 'task-details', anchor: 'task-details-heading', keywords: 'side panel task details split pane open tasks page beside list' },
   // General
   { section: 'general', label: msg('Start view'), description: msg('The view this device opens on'), page: 'start', anchor: 'start-view-heading', keywords: 'launch open on' },
+  { section: 'general', label: msg('Review reminders'), description: msg('A dot on Review and a prompt for the Daily check when a review is due. This device only.'), page: 'start', anchor: 'review-reminders', keywords: 'review monthly daily reminder nudge due' },
   { section: 'general', label: msg('Show the briefing'), description: msg('The sentence under the title of Today and Upcoming. On all your devices.'), page: 'start', anchor: 'briefing-heading', keywords: 'briefing summary sentence today upcoming hide' },
   { section: 'general', label: msg('Show shortcut hints'), description: msg('Print the keys in the app, next to quick add and in prompts'), page: 'keyboard', anchor: 'shortcut-hints', keywords: 'keyboard shortcuts kbd badges' },
   { section: 'general', label: msg('Advanced keyboard shortcuts (vim)'), description: msg('Keyboard navigation with hjkl. Off until you turn it on.'), page: 'keyboard', anchor: 'keyboard-heading', keywords: 'keyboard shortcuts vim advanced modal hjkl' },

@@ -5,7 +5,8 @@ import { act } from 'react'
 import { describe, expect, it, vi } from 'vitest'
 import { click, render } from '../ui/test-utils'
 import { CalendarSettingsView } from './CalendarSettings'
-import { KeyboardSection, KeyboardView, StartViewView } from './PreferencesPanels'
+import { KeyboardSection, KeyboardView, ReviewRemindersSection, StartViewView } from './PreferencesPanels'
+import { REMINDERS_KEY } from './reviewReminders'
 import { AutoArchiveView } from './ProjectsSettings'
 
 async function choose(select: HTMLSelectElement, value: string) {
@@ -37,6 +38,16 @@ describe('Preferences rows', () => {
     expect(labels()).toEqual(['Display: Today', 'Display: Upcoming', 'Display pinned on this device'])
     expect(select().value).toBe('display:/display/project/p1?eink=1')
     await unmount()
+  })
+
+  it('review reminders: off on a fresh device, and the switch stores the choice on this device only (declutter)', async () => {
+    localStorage.clear()
+    const r = await render(<ReviewRemindersSection />)
+    const sw = r.container.querySelector('[data-review-reminders-switch] [role="switch"]') as HTMLButtonElement
+    expect(sw.getAttribute('aria-checked')).toBe('false')
+    await click(sw)
+    expect(localStorage.getItem(REMINDERS_KEY)).toBe('1')
+    await r.unmount()
   })
 
   it('keyboard: advanced shortcuts (vim) are off on a fresh device (declutter)', async () => {

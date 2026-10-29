@@ -5464,5 +5464,12 @@
   "Open the calendar": "Abrir el calendario",
   "Suggest after adding": "Sugerir tras añadir",
   "This device: after an add, the assistant proposes a title, project, subtasks. You review.": "Este dispositivo: tras añadir, el asistente propone título, proyecto, subtareas. Tú revisas.",
-  "Suggest after adding (this device)": "Sugerir tras añadir (este dispositivo)"
+  "Suggest after adding (this device)": "Sugerir tras añadir (este dispositivo)",
+  "Propose a list": "Proponer una lista",
+  "This device: after an add, a card proposes a list for the task. You confirm or choose.": "Este dispositivo: tras añadir, una tarjeta propone una lista. Usted confirma o elige.",
+  "Propose a list (this device)": "Proponer una lista (este dispositivo)",
+  "File “{title}” in a list?": "¿Archivar «{title}» en una lista?",
+  "Suggested list": "Lista sugerida",
+  "File it": "Archivar",
+  "the list": "la lista"
 }

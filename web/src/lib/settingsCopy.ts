@@ -563,6 +563,7 @@ export const SETTINGS_COPY = {
       usage: { label: msg('Usage') },
       auto: { label: msg('Small changes without review'), description: msg('This device: up to 3 existing tasks, done, dates, priority or labels. Undo appears.') },
       suggest: { label: msg('Suggest after adding'), description: msg('This device: after an add, the assistant proposes a title, project, subtasks. You review.') },
+      classify: { label: msg('Propose a list'), description: msg('This device: after an add, a card proposes a list for the task. You confirm or choose.') },
       conversations: { label: msg('Conversations'), description: msg('Stored only on this device, never on the server.') },
     },
     notices: {

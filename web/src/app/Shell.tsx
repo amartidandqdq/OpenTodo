@@ -39,6 +39,7 @@ import { PanelHost } from './PanelHost'
 import { TaskPage } from './TaskPage'
 import { watchViewerZone } from '../lib/dates'
 import { UndoToast } from './bulk/UndoToast'
+import { ClassifyCard } from './ClassifyCard'
 import { DailyCheckToast } from './method/DailyCheckToast'
 import { PanelBoundary } from './PanelBoundary'
 import { TemplateDialogHost } from './TemplateDialogs'
@@ -334,6 +335,7 @@ export function Shell({ user, onLogout }: { user: User; onLogout: () => void }) 
       <ReminderToasts />
       <BreakReminder />
       <UndoToast />
+      <ClassifyCard />
       <DailyCheckToast />
       <TemplateDialogHost />
       <ArchivePrompt /><WorkspaceHost route={route} panelTask={panelTaskId()} />

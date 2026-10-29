@@ -3,6 +3,7 @@
 // proposal is the usual change set: every item can be unchecked, nothing changes before Apply, and Undo puts it back.
 import { getMeta, setMeta } from './db'
 import { assistantStatus, openAssistantWith } from './assistantStatus'
+import { classifyAfterAdd } from './classifyAfterAdd'
 import { createTask, type NewTaskInput } from './ops'
 
 const KEY = 'assistant.suggestAfterAdd'
@@ -42,9 +43,12 @@ export async function suggestAfterAdd(taskId: string, title: string): Promise<vo
   }
 }
 
-/** `createTask` for a line the person typed: the same task, then a suggestion about it when the device asks for one. */
+/**
+ * `createTask` for a line the person typed: the same task, then, when the device asks for it, a card proposing a list for a
+ * task with none (classify-after-add) and otherwise a suggestion about it in the assistant panel (suggest-after-add).
+ */
 export async function createTaskThenSuggest(input: NewTaskInput): Promise<string> {
   const id = await createTask(input)
-  void suggestAfterAdd(id, input.title)
+  void classifyAfterAdd(id, input.title).then((offered) => { if (!offered) return suggestAfterAdd(id, input.title) })
   return id
 }

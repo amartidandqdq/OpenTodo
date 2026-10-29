@@ -5464,5 +5464,12 @@
   "Open the calendar": "Kalender öffnen",
   "Suggest after adding": "Nach dem Hinzufügen vorschlagen",
   "This device: after an add, the assistant proposes a title, project, subtasks. You review.": "Dieses Gerät: Nach dem Hinzufügen schlägt der Assistent Titel, Projekt, Teilaufgaben vor. Sie prüfen.",
-  "Suggest after adding (this device)": "Nach dem Hinzufügen vorschlagen (dieses Gerät)"
+  "Suggest after adding (this device)": "Nach dem Hinzufügen vorschlagen (dieses Gerät)",
+  "Propose a list": "Liste vorschlagen",
+  "This device: after an add, a card proposes a list for the task. You confirm or choose.": "Dieses Gerät: Nach dem Hinzufügen schlägt eine Karte eine Liste vor. Sie bestätigen oder wählen.",
+  "Propose a list (this device)": "Liste vorschlagen (dieses Gerät)",
+  "File “{title}” in a list?": "„{title}“ in einer Liste ablegen?",
+  "Suggested list": "Vorgeschlagene Liste",
+  "File it": "Ablegen",
+  "the list": "die Liste"
 }

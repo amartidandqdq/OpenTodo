@@ -54,7 +54,7 @@ describe('DossierView', () => {
     await waitFor(async () => !!(await db.tasks.get(quotes))?.completed_at, 'the completed step')
     await waitFor(() => r.container.querySelector('[data-dossier-next]')!.textContent!.includes('Book the fitters'), 'the next step')
     expect(r.container.querySelector(`[data-dossier-step="${fitters}"]`)?.hasAttribute('data-current')).toBe(true)
-    const reopen = r.container.querySelector(`[data-dossier-step="${quotes}"] button[aria-label^="Reopen"]`)!
+    const reopen = r.container.querySelector(`[data-dossier-step="${quotes}"] button[aria-label*="Reopen Get three quotes"]`)!
     await click(reopen)
     await waitFor(async () => !(await db.tasks.get(quotes))?.completed_at, 'the reopened step')
     await waitFor(() => r.container.querySelector('[data-dossier-next]')!.textContent!.includes('Get three quotes'), 'the earlier step back')

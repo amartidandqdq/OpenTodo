@@ -233,7 +233,7 @@ function StepRow({ task, index, total, current, readOnly, projectName, onComplet
     <li data-dossier-step={task.id} data-done={done || undefined} data-current={current || undefined}
       className={`flex min-w-0 items-start gap-2 rounded-control px-2 py-2 ${current ? 'bg-accent-soft' : 'hover:bg-sunken'}`}>
       <ReasonTip reason={readOnly ? t('This task is read-only') : undefined}>
-      <button type="button" aria-label={done ? t('Reopen {title}', { title: dossierText(task.title) }) : t('Complete {title}', { title: dossierText(task.title) })}
+      <button type="button" aria-label={`${t('Step {n} of {count}', { n: index + 1, count: total })}: ${done ? t('Reopen {title}', { title: dossierText(task.title) }) : t('Complete {title}', { title: dossierText(task.title) })}`}
         aria-pressed={done} disabled={readOnly} onClick={onComplete}
         className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border text-hint ${done ? 'border-transparent bg-sunken text-muted' : current ? 'border-accent text-on-accent-soft' : 'border-default text-muted'} disabled:opacity-50`}>
         {done ? <Icon name="check" size="xs" /> : <span aria-hidden="true">{index + 1}</span>}

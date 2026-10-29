@@ -69,14 +69,14 @@ export function DossierProgress({ done, total, label }: { done: number; total: n
   )
 }
 
-/** The follow-up date in its own tone; it never marks a task late. */
+/** The follow-up date in its own tone; it never marks a task late. A passed date asks to be reviewed. */
 export function FollowUpText({ date, today }: { date: string | null; today: string }) {
   const dt = useDateTimeFormat()
   if (!date) return <span className="text-muted">{t('No follow-up date')}</span>
   const shown = dt.formatDate(date, 'compact')
-  if (date < today) return <span className="text-warning">{t('Look again since {date}', { date: shown })}</span>
+  if (date < today) return <span className="text-warning">{t('Review since {date}', { date: shown })}</span>
   if (date === today) return <span className="text-warning">{t('Look again today')}</span>
-  return <span className="text-muted">{t('Look again on {date}', { date: shown })}</span>
+  return <span className="text-default">{t('Look again on {date}', { date: shown })}</span>
 }
 
 /**
@@ -84,6 +84,8 @@ export function FollowUpText({ date, today }: { date: string | null; today: stri
  * it never writes a task's due date, and `setDossierFollowUp` refuses a date without a hold.
  */
 export function DossierFollowUpEditor({ dossier }: { dossier: Dossier }) {
+  const today = useToday()
+  const passed = !!dossier.follow_up && dossier.follow_up < today
   const change = async (date: string | null) => {
     try {
       const entry = await setDossierFollowUp(dossier.id, date)
@@ -95,7 +97,9 @@ export function DossierFollowUpEditor({ dossier }: { dossier: Dossier }) {
   return (
     <div className="mt-2" data-dossier-follow-up>
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-meta text-muted">{t('Look again on')}</span>
+        {passed
+          ? <span className="text-meta font-medium text-warning">{t('Review since')}</span>
+          : <span className="text-meta text-default">{t('Look again on')}</span>}
         <div className="min-w-0 max-w-60 flex-1">
           <DateField label={t('Follow-up date')} hideLabel value={dossier.follow_up} onChange={(date) => act(change(date))} />
         </div>

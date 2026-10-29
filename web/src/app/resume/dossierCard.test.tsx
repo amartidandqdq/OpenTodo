@@ -88,6 +88,36 @@ describe('DossierCard', () => {
     await r.unmount()
   })
 
+  it('reads a future follow-up date in the text colour and a passed one as Review since in the attention colour', async () => {
+    const order = await createTask({ title: 'Order the tyres' })
+    const created = await createDossier('Tyres')
+    await attachTaskToDossier(created.id, order)
+    await setDossierWaiting(created.id, 'the delivery', '2026-11-02')
+    const future = (await db.dossiers.get(created.id)) as Dossier
+    const r = await render(<DossierCard dossier={future} tasks={[(await db.tasks.get(order))!]} projects={new Map()} focus={false} />)
+    await waitFor(() => r.container.textContent!.includes('the delivery'), 'the wait')
+    const futureLabel = [...r.container.querySelectorAll('span')].find((el) => el.textContent === 'Look again on')!
+    expect(futureLabel.className).toContain('text-default')
+    expect(futureLabel.className).not.toContain('text-muted')
+    await r.unmount()
+
+    await setDossierWaiting(created.id, 'the delivery', '2026-10-01')
+    const passed = (await db.dossiers.get(created.id)) as Dossier
+    const again = await render(<DossierCard dossier={passed} tasks={[(await db.tasks.get(order))!]} projects={new Map()} focus={false} />)
+    await waitFor(() => again.container.textContent!.includes('Review since'), 'the passed follow-up')
+    expect(again.container.textContent).not.toContain('Look again since')
+    expect(again.container.textContent).not.toMatch(/overdue|late/i)
+    const label = [...again.container.querySelectorAll('span')].find((el) => el.textContent === 'Review since')!
+    expect(label.className).toContain('text-warning')
+    await again.unmount()
+    // The read-only card shows the same passed date as text, in the attention colour.
+    const readOnly = await render(<DossierCard dossier={passed} tasks={[(await db.tasks.get(order))!]} projects={new Map()} focus={false} canEdit={() => false} />)
+    await waitFor(() => readOnly.container.textContent!.includes('Review since'), 'the read-only passed follow-up')
+    const text = [...readOnly.container.querySelectorAll('span')].find((el) => el.textContent?.startsWith('Review since'))!
+    expect(text.className).toContain('text-warning')
+    await readOnly.unmount()
+  })
+
   it('shows the follow-up date read-only when no step of the thread can be edited', async () => {
     const order = await createTask({ title: 'Order the tyres' })
     const created = await createDossier('Tyres')

@@ -6999,9 +6999,6 @@
     "web/src/app/resume/DossierCard.tsx",
     "web/src/lib/assistant.ts"
   ],
-  "Look again since {date}": [
-    "web/src/app/resume/DossierCard.tsx"
-  ],
   "Look again today": [
     "web/src/app/resume/DossierCard.tsx"
   ],
@@ -10947,6 +10944,12 @@
   ],
   "Review progress": [
     "web/src/app/review/ReviewProgress.tsx"
+  ],
+  "Review since": [
+    "web/src/app/resume/DossierCard.tsx"
+  ],
+  "Review since {date}": [
+    "web/src/app/resume/DossierCard.tsx"
   ],
   "Reviewed this week": [
     "web/src/app/review/ProjectWalk.tsx"

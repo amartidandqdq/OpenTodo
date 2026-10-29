@@ -201,6 +201,15 @@ export function dueWords(due: unknown): string {
 
 const clip = (s: string, n = 80) => (s.length > n ? s.slice(0, n - 1) + '…' : s)
 
+/** The part of a note that changed: skips the unchanged beginning, so an appended paragraph shows rather than the old start. */
+function noteExcerpt(before: string, after: string): string {
+  let i = 0
+  while (i < before.length && i < after.length && before[i] === after[i]) i++
+  const from = i > 0 && i < after.length ? after.lastIndexOf(' ', i) + 1 : 0
+  const tail = after.slice(from).replace(/\s+/g, ' ').trim()
+  return (from > 0 ? '… ' : '') + clip(tail, 80)
+}
+
 /** A bare date (deadline, start) in words, as dueWords. */
 const dayWords = (date: unknown) => dueWords(typeof date === 'string' ? { date } : null)
 
@@ -326,7 +335,7 @@ export function describe(c: ProposedChange, local: Record<string, unknown> | und
       case 'waiting': lines.push(v ? t('Put on hold') : t('Resumed')); break
       case 'waiting_for': lines.push(v ? t('Waiting for {reason}', { reason: clip(String(v), 80) }) : t('No waiting reason')); break
       case 'follow_up': lines.push(v ? t('Look again on {date}', { date: formatShort(String(v)) }) : t('Follow-up date removed')); break
-      case 'note': lines.push(v ? t('Note: {text}', { text: clip(String(v).replace(/\s+/g, ' ').trim(), 80) }) : t('Note removed')); break
+      case 'note': lines.push(v ? t('Note: {text}', { text: noteExcerpt(String(old ?? ''), String(v)) }) : t('Note removed')); break
       case 'position': case 'created_at': case 'notes_doc': break
       default: lines.push(t('{field} changed', { field: f.replace(/_/g, ' ') }))
     }

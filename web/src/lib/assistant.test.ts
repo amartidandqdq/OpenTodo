@@ -144,6 +144,8 @@ describe('dossiers', () => {
     expect(hold.items[0].lines).toEqual(['Put on hold', 'Waiting for the delivery', `Look again on ${formatShort('2026-11-02')}`])
     const note = await reviewChangeSet([{ entity: 'dossier', entityId: id, patch: { note: 'Call the\nsyndic before Friday' }, base: { note: '' } }])
     expect(note.items[0].lines).toEqual(['Note: Call the syndic before Friday'])
+    const added = await reviewChangeSet([{ entity: 'dossier', entityId: id, patch: { note: 'Photos done, then find a replacement. Asked the agency for a quote.' }, base: { note: 'Photos done, then find a replacement.' } }])
+    expect(added.items[0].lines).toEqual(['Note: … Asked the agency for a quote.'])
   })
 })
 

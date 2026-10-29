@@ -40,7 +40,7 @@ interface StreamedAnswer {
  */
 type TurnRunner = (req: TurnRequest, onEvent: (e: TurnEvent) => void, signal?: AbortSignal) => Promise<void>
 
-async function streamAnswer(req: TurnRequest, signal: AbortSignal, on: { text: (delta: string, all: string, status: string[]) => void; status: (line: string, all: string, lines: string[]) => void }, run: TurnRunner = streamTurn): Promise<StreamedAnswer> {
+export async function streamAnswer(req: TurnRequest, signal: AbortSignal, on: { text: (delta: string, all: string, status: string[]) => void; status: (line: string, all: string, lines: string[]) => void }, run: TurnRunner = streamTurn): Promise<StreamedAnswer> {
   let text = ''
   const statusLines: string[] = []
   let proposal: ProposedChange[] | null = null
@@ -54,6 +54,8 @@ async function streamAnswer(req: TurnRequest, signal: AbortSignal, on: { text: (
           on.text(ev.text, text, statusLines)
           break
         case 'status':
+          // A tool call ends the model's turn of text: what it says next is a new paragraph, not a glued sentence.
+          if (text && !text.endsWith('\n')) text += '\n\n'
           statusLines.push(ev.text)
           on.status(ev.text, text, [...statusLines])
           break
@@ -76,7 +78,7 @@ async function streamAnswer(req: TurnRequest, signal: AbortSignal, on: { text: (
   } catch (err) {
     failure = { err }
   }
-  answer.text = text
+  answer.text = text.trimEnd()
   return { answer, proposal, failure }
 }
 

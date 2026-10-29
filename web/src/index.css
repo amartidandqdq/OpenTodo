@@ -963,6 +963,18 @@ button.ui-column-add { @apply flex-row items-start justify-start px-3 py-2.5 hov
 }
 @keyframes row-rolled { from { background-color: var(--ot-accent-soft); } to { background-color: transparent; } }
 @keyframes row-fade-in { from { opacity: 0; } to { opacity: 1; } }
+
+/* The assistant is working: three dots rise in turn and the mark pulses. Under
+   reduced motion every animation runs once, so the dots simply sit there. */
+@keyframes assistant-dot { 0%, 80%, 100% { transform: translateY(0); opacity: 0.35; } 40% { transform: translateY(-0.3rem); opacity: 1; } }
+@keyframes assistant-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
+@layer components {
+  .assistant-working { display: inline-flex; gap: 0.25rem; padding-block: 0.25rem; }
+  .assistant-working > i { inline-size: 0.375rem; block-size: 0.375rem; border-radius: 9999px; background-color: var(--ot-muted); animation: assistant-dot 1.2s ease-in-out infinite; }
+  .assistant-working > i:nth-child(2) { animation-delay: 0.15s; }
+  .assistant-working > i:nth-child(3) { animation-delay: 0.3s; }
+  .assistant-working-mark { animation: assistant-pulse 1.6s ease-in-out infinite; }
+}
 .row-check-pop, [data-departing] [data-check-mark], [data-rolled] [data-check-mark] {
   animation: row-check-pop var(--duration-emphasis) var(--ease-spring) backwards;
 }

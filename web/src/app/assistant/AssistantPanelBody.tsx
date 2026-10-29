@@ -118,6 +118,7 @@ export function AssistantPanelBody(p: PanelViewProps) {
                 <AnswerItem busy>
                   {p.streaming.status.length > 0 && <p className="text-meta text-muted">{p.streaming.status[p.streaming.status.length - 1]}</p>}
                   {p.streaming.text ? <Markdown source={p.streaming.text} /> : <p className="text-muted">{t('Thinking…')}</p>}
+                  <span className="assistant-working" aria-hidden="true"><i /><i /><i /></span>
                 </AnswerItem>
               )}
             </ol>
@@ -140,7 +141,7 @@ export function AssistantPanelBody(p: PanelViewProps) {
 function AnswerItem({ busy, children }: { busy?: boolean; children: ReactNode }) {
   return (
     <li className="flex gap-3 text-body" aria-busy={busy || undefined}>
-      <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-control border border-default" aria-hidden="true"><BrandMark size={16} /></span>
+      <span className={`mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-control border border-default${busy ? ' assistant-working-mark' : ''}`} aria-hidden="true"><BrandMark size={16} /></span>
       <div className="min-w-0 flex-1 space-y-1">{children}</div>
     </li>
   )

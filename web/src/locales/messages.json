@@ -3928,7 +3928,8 @@
     "web/src/lib/dossiers.ts"
   ],
   "Dossier on hold": [
-    "web/src/app/resume/DossierView.tsx"
+    "web/src/app/resume/DossierView.tsx",
+    "web/src/app/resume/ResumeView.tsx"
   ],
   "Dossier order changed": [
     "web/src/app/resume/DossierView.tsx",
@@ -8400,7 +8401,8 @@
     "web/src/app/ArchivePrompt.tsx",
     "web/src/app/ProjectInviteScreen.tsx",
     "web/src/app/WorkspaceInviteScreen.tsx",
-    "web/src/app/focus/BreakReminder.tsx"
+    "web/src/app/focus/BreakReminder.tsx",
+    "web/src/app/resume/ResumeView.tsx"
   ],
   "Not run yet": [
     "web/src/app/rules/RulesView.tsx"

@@ -3,11 +3,12 @@
 // already on open tasks. Everything is read from the local rows; the page never
 // invents a dossier, a context, a date or progress.
 import { useEffect, useMemo, useState } from 'react'
+import { addDaysISO } from '../../lib/dates'
 import { compareDueThenPriority } from '../../lib/ordering'
 import { resolveLabels } from '../../lib/labels'
 import { hasTimeColumn } from '../../lib/rowTime'
 import { contextChips, contextName, dossierState, featuredDossier } from '../../lib/dossierModel'
-import { createDossier, resumeDossier } from '../../lib/dossiers'
+import { createDossier, resumeDossier, setDossierWaiting } from '../../lib/dossiers'
 import { createTaskThenSuggest } from '../../lib/assistantSuggest'
 import { t } from '../../lib/i18n'
 import type { Dossier, Task } from '../../lib/types'
@@ -93,6 +94,21 @@ export function ResumeView() {
     }
   }
 
+  // "Not now" puts the featured thread on hold until tomorrow, so the next thread
+  // takes its place; the hold is the dossier's own, nothing on a task changes.
+  const postponeFeatured = async () => {
+    if (!featured) return
+    try {
+      const entry = await setDossierWaiting(featured.id, t('Not now'), addDaysISO(data.today, 1))
+      if (entry) {
+        const locked = dossierTextLocked(featured.title)
+        showUndoToast(locked ? t('Dossier on hold') : entry.label ?? t('Dossier on hold'), entry.id)
+      }
+    } catch (err) {
+      reportActionError(err)
+    }
+  }
+
   const featuredNext = featuredState?.next ?? null
   const featuredHeading = !featuredState ? t('A thread of your own')
     : featuredState.waiting ? t('A thread on hold')
@@ -126,15 +142,16 @@ export function ResumeView() {
                       <Button size="sm" variant="primary" icon="check" onClick={() => act(resumeFeatured())} data-resume-waiting>{t('The wait is resolved')}</Button>
                       <Button size="sm" variant="secondary" onClick={() => navigate({ view: 'dossier', id: featured.id })}>{t('Open the thread')}</Button>
                     </>
-                  : featuredNext
-                    ? <>
+                  : <>
+                      {featuredNext && (
                         <ReasonTip reason={canEdit(featuredNext) ? undefined : t('This task is read-only')}>
                           <Button size="sm" variant="primary" icon="check" disabled={!canEdit(featuredNext)}
                             onClick={() => act(completeWithUndo(featuredNext.id, true))} data-resume-step>{t('Finish the step')}</Button>
                         </ReasonTip>
-                        <Button size="sm" variant="secondary" onClick={() => navigate({ view: 'dossier', id: featured.id })}>{t('Open the thread')}</Button>
-                      </>
-                    : <Button size="sm" variant="secondary" onClick={() => navigate({ view: 'dossier', id: featured.id })}>{t('Open the thread')}</Button>} />
+                      )}
+                      <Button size="sm" variant="secondary" onClick={() => navigate({ view: 'dossier', id: featured.id })}>{t('Open the thread')}</Button>
+                      <Button size="sm" variant="ghost" onClick={() => act(postponeFeatured())} data-resume-later>{t('Not now')}</Button>
+                    </>} />
             ) : (
               <div className="surface-card p-5" data-resume-empty>
                 <h2 className="text-body font-medium text-strong">{t('A dossier links the steps of one thread.')}</h2>

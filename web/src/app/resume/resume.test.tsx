@@ -115,6 +115,21 @@ describe('Pick up the thread', () => {
     await waitFor(async () => !!(await db.dossiers.get(dossier.id))?.task_ids.includes(task.id), 'the confirmed attachment')
     await r.unmount()
   })
+  it('postpones the featured thread to tomorrow with Not now, writing only the dossier', async () => {
+    const dossier = await createDossier('Pneus avant · BMW')
+    const step = await createTask({ title: 'Commander les pneus avant', due: { date: '2026-10-20' } })
+    await attachTaskToDossier(dossier.id, step)
+    const r = await render(<ResumeView />)
+    await waitFor(() => !!r.container.querySelector('[data-resume-later]'), 'the Not now action')
+    await click(r.container.querySelector('[data-resume-later]')!)
+    await waitFor(async () => (await db.dossiers.get(dossier.id))?.waiting === true, 'the postponed thread')
+    const after = (await db.dossiers.get(dossier.id))!
+    expect(after.waiting_for).toBe('Not now')
+    expect(after.follow_up).toBe('2026-10-15')
+    expect((await db.tasks.get(step))?.due).toEqual({ date: '2026-10-20' })
+    await r.unmount()
+  })
+
   it('lists only the other dossiers under the featured card', async () => {
     const first = await createDossier('Pneus avant · BMW')
     await attachTaskToDossier(first.id, await createTask({ title: 'Commander les pneus avant' }))

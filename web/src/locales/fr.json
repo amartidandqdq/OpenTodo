@@ -5513,6 +5513,7 @@
   "A completed task cannot be added to a dossier.": "Une tâche terminée ne peut pas être ajoutée à un dossier.",
   "A dossier holds at most {n} tasks.": "Un dossier contient au plus {n} tâches.",
   "A dossier links existing tasks without moving them.": "Un dossier relie des tâches existantes sans les déplacer.",
+  "A dossier links existing tasks in one order. The tasks stay in their lists.": "Un dossier relie des tâches existantes dans un ordre choisi. Les tâches restent dans leurs listes.",
   "A dossier links the steps of one thread.": "Un dossier relie les étapes d’un même fil.",
   "A finished thread": "Un fil terminé",
   "A first step": "Une première étape",

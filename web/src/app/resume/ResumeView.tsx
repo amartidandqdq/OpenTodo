@@ -11,6 +11,7 @@ import { contextChips, contextName, dossierState, featuredDossier } from '../../
 import { createDossier, resumeDossier, setDossierWaiting } from '../../lib/dossiers'
 import { createTaskThenSuggest } from '../../lib/assistantSuggest'
 import { t } from '../../lib/i18n'
+import { readString, writeString } from '../../lib/deviceStorage'
 import type { Dossier, Task } from '../../lib/types'
 import { Button, Icon, PageBody, PageHeader, Skeleton } from '../../ui'
 import { act, reportActionError } from '../actionError'
@@ -26,6 +27,27 @@ import { ContextLabelsDialog } from './ContextLabelsDialog'
 import { DossierCard, DossierFocusButton, ReasonTip, dossierStatusText, dossierText, dossierTextLocked } from './DossierCard'
 import { DossierLinkCard } from './DossierLinkCard'
 import { useDossierData } from './useDossierData'
+
+/** Device-only flag: the first-use note was dismissed on this device (never synced). */
+export const DOSSIER_NOTE_KEY = 'ot.resume.dossierNote'
+
+/** One sentence on what a dossier is, under "New dossier", until it is dismissed once. */
+function DossierNote() {
+  const [hidden, setHidden] = useState(() => readString(DOSSIER_NOTE_KEY) === '1')
+  if (hidden) return null
+  const dismiss = () => {
+    writeString(DOSSIER_NOTE_KEY, '1')
+    setHidden(true)
+  }
+  return (
+    <div className="flex max-w-[30ch] items-start gap-2 rounded-control border border-soft bg-sunken px-2.5 py-2 text-meta text-default" data-dossier-note>
+      <p className="min-w-0 flex-1">{t('A dossier links existing tasks in one order. The tasks stay in their lists.')}</p>
+      <button type="button" className="ui-btn ui-btn--ghost ui-btn--sm touch-target -my-1 -mr-1 px-1.5 py-1 text-muted" aria-label={t('Dismiss')} onClick={dismiss} data-dossier-note-dismiss>
+        <Icon name="x" size="xs" />
+      </button>
+    </div>
+  )
+}
 
 export function ResumeView() {
   const data = useDossierData()
@@ -118,7 +140,10 @@ export function ResumeView() {
     <PageBody width="list">
       <PageHeader title={t('Pick up the thread')} icon="compass" step="display" titleInPage
         eyebrow={<span className="uppercase tracking-wide">{workspace || t('Personal')} · {dt.formatDate(data.today, 'heading')}</span>}
-        actions={<Button variant="secondary" size="sm" icon="plus" onClick={() => setCreating(true)} data-new-dossier>{t('New dossier')}</Button>} />
+        actions={<div className="flex flex-col items-end gap-2">
+          <Button variant="secondary" size="sm" icon="plus" onClick={() => setCreating(true)} data-new-dossier>{t('New dossier')}</Button>
+          <DossierNote />
+        </div>} />
       <p className="mb-5 max-w-[65ch] text-meta text-muted">{t('One clear next action. Everything else stays where it is.')}</p>
       <div className="mb-5 rounded-control border border-default bg-surface px-3 py-1.5" data-resume-capture>
         <div className="flex items-center gap-2">

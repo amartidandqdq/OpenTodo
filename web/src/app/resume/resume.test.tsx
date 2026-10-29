@@ -11,7 +11,7 @@ import { attachTaskToDossier, createDossier, dossierLinkOffer } from '../../lib/
 import { createLabel } from '../../lib/labels'
 import { createProject, createTask, resetDeviceId } from '../../lib/ops'
 import { click, key, render, type, waitFor } from '../../ui/test-utils'
-import { ResumeView } from './ResumeView'
+import { DOSSIER_NOTE_KEY, ResumeView } from './ResumeView'
 
 let n = 0
 beforeEach(() => {
@@ -34,6 +34,21 @@ describe('Pick up the thread', () => {
     expect(r.container.textContent).toContain('Create a dossier')
     expect(await db.dossiers.count()).toBe(0)
     await r.unmount()
+  })
+
+  it('shows a one-time note under New dossier and keeps it dismissed on this device', async () => {
+    localStorage.removeItem(DOSSIER_NOTE_KEY)
+    const r = await render(<ResumeView />)
+    await waitFor(() => !!r.container.querySelector('[data-dossier-note]'), 'the first-use note')
+    expect(r.container.querySelector('[data-dossier-note]')!.textContent).toContain('A dossier links existing tasks in one order.')
+    await click(r.container.querySelector('[data-dossier-note-dismiss]')!)
+    await waitFor(() => !r.container.querySelector('[data-dossier-note]'), 'the note dismissed')
+    expect(localStorage.getItem(DOSSIER_NOTE_KEY)).toBe('1')
+    await r.unmount()
+    const again = await render(<ResumeView />)
+    await waitFor(() => !!again.container.querySelector('[data-new-dossier]'), 'the header action')
+    expect(again.container.querySelector('[data-dossier-note]')).toBeNull()
+    await again.unmount()
   })
 
   it('creates a dossier from the empty page and opens its page', async () => {

@@ -5,6 +5,8 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 import { DEMO_STATUS, showLauncher, type AssistantStatus } from '../lib/assistantStatus'
 import { AssistantPanelBody, AssistantSheet, Composer, ENCRYPTED_MESSAGE, OFFLINE_MESSAGE, type PanelViewProps } from './assistant/AssistantPanel'
+import { canContinueRound } from './assistant/AssistantPanelBody'
+import type { AssistantMessage, Review } from '../lib/assistant'
 
 const noop = () => {}
 const status: AssistantStatus = {
@@ -115,5 +117,22 @@ describe('launcher', () => {
     expect(showLauncher(DEMO_STATUS)).toBe(false)
     expect(showLauncher(status)).toBe(true)
     expect(showLauncher({ ...status, available: false, reason: 'encryption_enabled' })).toBe(true)
+  })
+})
+
+describe('Continue after the round limit', () => {
+  const review: Review = { dropped: [], items: [{ change: { entity: 'task', entityId: 'a', patch: {} }, state: 'ok', checked: true, title: 'Water plants', lines: [], shared: false }] }
+  const answer = (stop: AssistantMessage['stop']): AssistantMessage => ({ role: 'assistant', text: 'Here is what I prepared.', at: 1, stop })
+
+  it('offers Continue only when the proposal on screen came from a round-limit stop', () => {
+    expect(canContinueRound([answer('round_limit')], review)).toBe(true)
+    expect(canContinueRound([answer('end_turn')], review)).toBe(false)
+    expect(canContinueRound([answer('round_limit')], null)).toBe(false)
+    expect(canContinueRound([], review)).toBe(false)
+    const withContinue = body({ messages: [answer('round_limit')], review, onContinue: noop })
+    expect(withContinue).toContain('data-assistant-continue')
+    expect(withContinue).toContain('>Continue<')
+    expect(body({ messages: [answer('end_turn')], review, onContinue: noop })).not.toContain('data-assistant-continue')
+    expect(body({ messages: [answer('round_limit')], review })).not.toContain('data-assistant-continue')
   })
 })

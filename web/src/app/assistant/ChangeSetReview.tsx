@@ -22,6 +22,8 @@ export interface ChangeSetReviewProps {
   onApply: () => void
   onDiscard: () => void
   onUndo: () => void
+  /** Set when the proposal came from a turn that stopped at the round limit: sends the rest as a follow-up. */
+  onContinue?: () => void
   regionRef?: RefObject<HTMLDivElement | null>
 }
 
@@ -108,6 +110,7 @@ export function ChangeSetReview(p: ChangeSetReviewProps) {
           {t('{n, plural, one {Apply # change} other {Apply # changes}}', { n: checked })}
         </button>
         <button type="button" className="ui-btn ui-btn--secondary ui-btn--sm" onClick={p.onDiscard}>{t('Discard')}</button>
+        {p.onContinue && <button type="button" className="ui-btn ui-btn--secondary ui-btn--sm" onClick={p.onContinue} disabled={p.busy} data-assistant-continue>{t('Continue')}</button>}
         <span className="ml-auto text-meta text-faint">{t.rich('{enter} applies, {esc} discards. Each change shows in its task’s history.', { enter: <Kbd k="Enter" />, esc: <Kbd k="Esc" /> })}</span>
       </div>
     </div>

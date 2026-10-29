@@ -47,6 +47,8 @@ export interface PanelViewProps {
   onApply: () => void
   onDiscard: () => void
   onUndo: () => void
+  /** Sends "Continue with the rest." after a round-limit stop (assistant-review-actions). */
+  onContinue?: () => void
   onDraft: (s: string) => void
   onSend: () => void
   onStop: () => void
@@ -61,6 +63,11 @@ export interface PanelViewProps {
   layout?: 'page' | 'sheet'
   /** The on-device assistant of an encrypted account (assistant-on-device). */
   device?: DeviceMode
+}
+
+/** A proposal from a turn that stopped at the round limit can be continued: the last message says so and a proposal is on screen. */
+export function canContinueRound(messages: AssistantMessage[], review: Review | null): boolean {
+  return !!review && messages[messages.length - 1]?.stop === 'round_limit'
 }
 
 /** The panel's content without state (rendered to markup in tests). */
@@ -125,7 +132,8 @@ export function AssistantPanelBody(p: PanelViewProps) {
           )}
           {(p.review || p.result) && (
             <div className="sm:pl-9">
-              <ChangeSetReview review={p.review} result={p.result} busy={p.reviewBusy} onToggle={p.onToggle} onApply={p.onApply} onDiscard={p.onDiscard} onUndo={p.onUndo} regionRef={p.reviewRef} />
+              <ChangeSetReview review={p.review} result={p.result} busy={p.reviewBusy} onToggle={p.onToggle} onApply={p.onApply} onDiscard={p.onDiscard} onUndo={p.onUndo} regionRef={p.reviewRef}
+                onContinue={canContinueRound(p.messages, p.review) ? p.onContinue : undefined} />
             </div>
           )}
         </>

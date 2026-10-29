@@ -2964,7 +2964,11 @@
     "web/src/app/FirstRun.tsx",
     "web/src/app/ReauthDialog.tsx",
     "web/src/app/SecurityPanel.tsx",
-    "web/src/app/TwoFactorPanel.tsx"
+    "web/src/app/TwoFactorPanel.tsx",
+    "web/src/app/assistant/ChangeSetReview.tsx"
+  ],
+  "Continue with the rest.": [
+    "web/src/app/assistant/useAssistantConversation.ts"
   ],
   "Conversation": [
     "web/src/app/assistant/AssistantPanelBody.tsx",

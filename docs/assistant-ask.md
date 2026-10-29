@@ -30,6 +30,8 @@ When you ask for changes, the answer ends with **Proposed changes**: one line pe
 - Every item is checked. Uncheck what you do not want; the head counts what is selected ("3 of 4 selected").
 - **Apply 3 changes** (or <kbd>Enter</kbd> inside the list) applies the checked items. The summary says how many were applied ("4 of 5 changes applied").
 - **Discard** (or <kbd>Esc</kbd> inside the list) drops the proposal. Nothing changes.
+- A long list keeps **Apply** and **Discard** at the bottom of the panel, so you can apply it without scrolling back.
+- When the assistant runs out of steps on a big request, it proposes the changes it had prepared, marked as partial, and **Continue** asks it for the rest in the same conversation. Nothing is applied until you apply it.
 - Items in a **shared** project are marked, because other people see the change.
 - An item that changed on another device after it was proposed is unchecked and marked **changed since proposed**. Applying the rest leaves the newer value alone.
 - An item that no longer exists on this device is left out with a note.

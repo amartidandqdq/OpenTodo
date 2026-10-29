@@ -40,6 +40,15 @@ Le champ n'est en lecture seule que si aucune étape du dossier ne peut être
 modifiée par la personne. Modifier la date n'écrit que sur le dossier, et
 l'annulation reste disponible.
 
+Une date de suivi passée s'affiche « Revoir depuis le » dans la couleur
+d'attention ; une date à venir reste lisible dans la couleur du texte.
+
+Sur la carte principale, **Pas maintenant** met le dossier en attente jusqu'au
+lendemain, avec l'attente « Pas maintenant » et la date de suivi. Aucune tâche
+n'est modifiée, et l'annulation reste disponible. Une note unique, sous
+**Nouveau dossier**, rappelle ce qu'est un dossier ; la fermer n'est mémorisé
+que sur cet appareil.
+
 La vue **En attente** rassemble ces dossiers avec les autres attentes déjà
 présentes dans l'application. Reprendre un dossier efface son attente et sa
 date de suivi ; la prochaine tâche ouverte redevient l'étape à avancer.
@@ -49,6 +58,10 @@ la réception, le rendez-vous de montage et la géométrie. Après la commande,
 la personne décide de mettre le dossier en attente de livraison. À la réception,
 elle reprend le dossier et termine l'étape correspondante. L'application ne
 déduit aucune de ces réalisations du titre des tâches.
+
+Depuis le menu d'actions d'une tâche ouverte, **Ajouter à un dossier** rattache
+la tâche à un dossier existant ou crée un dossier qui la contient. La tâche
+reste dans sa liste ; l'action est annulable en une fois.
 
 ## Choisir son moment
 

@@ -36,6 +36,15 @@ describe('ChangeSetReview', () => {
     expect(html).toContain('role="group"')
   })
 
+  it('keeps the foot in view while a long card scrolls: clipped, not clipping its content', () => {
+    const html = render()
+    // The card clips with overflow: clip (not hidden), so the sticky foot still sticks to the scrolling panel.
+    expect(html).toContain('overflow-clip')
+    expect(html).not.toContain('overflow-hidden')
+    expect(html).toMatch(/class="sticky bottom-0 z-10 [^"]*bg-surface[^"]*" data-assistant-review-foot/)
+    expect(html.indexOf('data-assistant-review-foot')).toBeGreaterThan(html.indexOf('data-assistant-review'))
+  })
+
   it('summarises what was applied and offers Undo', () => {
     expect(appliedSummary({ applied: 4, total: 5, undoId: 'u' })).toBe('4 of 5 changes applied.')
     expect(appliedSummary({ applied: 2, total: 2, undoId: 'u', auto: true })).toBe('2 changes applied automatically.')

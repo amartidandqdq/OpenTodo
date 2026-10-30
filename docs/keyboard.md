@@ -347,6 +347,10 @@ On a Mac, use <kbd>⌘</kbd> where this page says <kbd>Ctrl</kbd>, and <kbd>Opti
 
 <!-- shortcuts:end -->
 
+## With the pointer
+
+Right-click a task row to open its menu at the cursor; tick a few rows to act on all of them.
+
 ## Vim keybindings
 
 If you're used to Vim, turn on **Settings → General → Keyboard → Vim keybindings**. It's off by default, so the cheat sheet lists only the basic shortcuts, and it applies to that device only. A device that already had Vim keybindings turned on keeps them. With it on, a small indicator shows the mode (Normal, Insert or Command), and you get:

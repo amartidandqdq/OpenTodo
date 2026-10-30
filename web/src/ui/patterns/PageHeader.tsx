@@ -94,6 +94,8 @@ export interface PageHeaderProps {
   kind?: 'day' | 'tool'
   /** A day page's briefing under the title: one or two sentences at the prose step. */
   briefing?: ReactNode
+  /** A day page's one-line summary under the title, above the briefing; it stays when the briefing is hidden. */
+  summary?: ReactNode
   /** A quiet context line above the title (mockup A: the workspace a list belongs to). */
   eyebrow?: ReactNode
   /** The title's step: 'display' (mockup A lists) renders the display-size title with its meta stacked quietly under it. */
@@ -121,7 +123,7 @@ function SidebarToggleButton() {
   )
 }
 
-export function PageHeader({ title, subtitle, meta, leading, actions, barActions = false, overflow, menu, help, back, level = 1, sticky = true, children, icon, testId, titleRef, titleTabIndex, kind = 'tool', briefing, eyebrow, step, titleInPage }: PageHeaderProps) {
+export function PageHeader({ title, subtitle, meta, leading, actions, barActions = false, overflow, menu, help, back, level = 1, sticky = true, children, icon, testId, titleRef, titleTabIndex, kind = 'tool', briefing, summary, eyebrow, step, titleInPage }: PageHeaderProps) {
   const H = level === 1 ? 'h1' : 'h2'
   // The shell's phone bar shows this page's title and actions below 768 px (app-shell
   // "No desktop top bar"); the header's own row exists only above it, so the actions
@@ -181,6 +183,7 @@ export function PageHeader({ title, subtitle, meta, leading, actions, barActions
           {heading}
           {lead}
         </div>
+        {summary && <div data-page-summary>{summary}</div>}
         {briefing && <div className="mt-2 text-prose text-muted" data-page-briefing>{briefing}</div>}
       </>}
       {!ownRow && actions && !barActions && <div className="flex flex-wrap items-center gap-1 pt-2" data-page-actions>{actions}</div>}
@@ -196,6 +199,7 @@ export function PageHeader({ title, subtitle, meta, leading, actions, barActions
           {heading}
           {lead}
         </div>
+        {summary && <div data-page-summary>{summary}</div>}
         {briefing && <div className="mt-2 max-w-[72ch] text-prose text-muted" data-page-briefing>{briefing}</div>}
       </>}
       {phoneTitle && <div className="flex min-w-0 flex-wrap items-start gap-x-2 gap-y-1 py-1" data-page-header-row>

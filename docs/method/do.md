@@ -23,7 +23,7 @@ A **context** is any label whose name starts with `@`: `@home`, `@computer`, `@c
 
 ## Today and focus
 
-Due dates still matter: **Today** shows what must happen today. The [Daily check](rhythms.md#daily-check) lets you pick up to three tasks as today's focus, shown on the Loop home.
+Due dates still matter: **Today** shows what must happen today. The [Daily check](rhythms.md#daily-check) lets you pick up to three tasks as today's focus, shown on the Loop home. Press the sun on a fourth task and choose which of the three it replaces; Undo brings the old choice back.
 
 ## One next step
 

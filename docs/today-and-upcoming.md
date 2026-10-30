@@ -27,7 +27,7 @@ To push a task to later, open it and change **Due**, or press <kbd>s</kbd> to pl
 
 Your appointments can show here too: [Calendar events in Today](calendar-events-in-today.md).
 
-At the end of the list, **Close the day** moves what is left to tomorrow in one step ([Close the day](method/rhythms.md#close-the-day)); afterwards it reads **Day closed** with the time.
+At the end of the list, **Close the day** opens a dialog: for each My day task choose **Tomorrow**, **Another day** or **Not now**; one Undo reverts it ([Close the day](method/rhythms.md#close-the-day)).
 
 ## Plan your week with Upcoming
 

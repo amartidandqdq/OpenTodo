@@ -3,12 +3,11 @@
 // already on open tasks. Everything is read from the local rows; the page never
 // invents a dossier, a context, a date or progress.
 import { useEffect, useMemo, useState } from 'react'
-import { addDaysISO } from '../../lib/dates'
 import { compareDueThenPriority } from '../../lib/ordering'
 import { resolveLabels } from '../../lib/labels'
 import { hasTimeColumn } from '../../lib/rowTime'
 import { contextChips, contextName, dossierState, featuredDossier } from '../../lib/dossierModel'
-import { createDossier, resumeDossier, setDossierWaiting } from '../../lib/dossiers'
+import { createDossier, resumeDossier } from '../../lib/dossiers'
 import { createTaskThenSuggest } from '../../lib/assistantSuggest'
 import { t } from '../../lib/i18n'
 import { readString, writeString } from '../../lib/deviceStorage'
@@ -26,6 +25,7 @@ import { useWorkspaceName } from '../workspaceNav'
 import { ContextLabelsDialog } from './ContextLabelsDialog'
 import { DossierCard, DossierFocusButton, ReasonTip, dossierStatusText, dossierText, dossierTextLocked } from './DossierCard'
 import { DossierLinkCard } from './DossierLinkCard'
+import { postponeDossier } from './dossierPostpone'
 import { useDossierData } from './useDossierData'
 
 /** Device-only flag: the first-use note was dismissed on this device (never synced). */
@@ -121,11 +121,7 @@ export function ResumeView() {
   const postponeFeatured = async () => {
     if (!featured) return
     try {
-      const entry = await setDossierWaiting(featured.id, t('Not now'), addDaysISO(data.today, 1))
-      if (entry) {
-        const locked = dossierTextLocked(featured.title)
-        showUndoToast(locked ? t('Dossier on hold') : entry.label ?? t('Dossier on hold'), entry.id)
-      }
+      await postponeDossier(featured, data.today)
     } catch (err) {
       reportActionError(err)
     }

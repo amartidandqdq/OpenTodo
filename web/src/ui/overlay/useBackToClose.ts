@@ -5,12 +5,14 @@
 // pop their entries together, once, and only while their markers are still on top.
 // Touch only: with a mouse, the browser's Back is not how an overlay is dismissed.
 import { useEffect, useLayoutEffect, useRef } from 'react'
+import { resettable } from '../../lib/moduleState'
 
 interface Open { mark: number; close: () => void }
 const open = new Set<Open>()
 /** Marker entries currently on top of the history, owned or not yet released. */
 let depth = 0
 let flushing = false
+resettable('ui/overlay/useBackToClose', () => { open.clear(); depth = 0; flushing = false })
 
 const markOf = (): number => (history.state as { overlay?: number } | null)?.overlay ?? 0
 const touch = () => typeof window !== 'undefined' && !!window.matchMedia?.('(pointer: coarse)').matches

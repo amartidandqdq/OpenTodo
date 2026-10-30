@@ -39,6 +39,9 @@
 
 /* `dark:` follows the same two conditions as the tokens: the system preference
    (unless a [data-theme="light"] ancestor opts out) or a [data-theme="dark"] ancestor. */
+/* `pins`: from 768 px, except on a phone held in landscape (coarse pointer, under 500 px tall),
+   where a pinned row would cover the list (stickyQuickAdd.ts). */
+@custom-variant pins (@media (width >= 48rem) and (not ((pointer: coarse) and (height < 500px))));
 @custom-variant dark {
   &:where([data-theme="dark"], [data-theme="dark"] *) {
     @slot;

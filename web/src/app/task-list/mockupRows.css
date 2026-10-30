@@ -44,9 +44,11 @@
     .mockup-task > [data-row-open] { min-height: 1.375rem; }
   }
   @media (pointer: coarse) {
-    /* Preserve 44px targets for completion, disclosure and the open control. */
+    /* Preserve 44px targets for completion, disclosure and the open control. The open
+       control keeps its 44px height but its content starts at the top: a centred
+       one-line title would sit 11px below the circle, which is aligned to the first line. */
     .mockup-task, :root[data-density="compact"] .mockup-task { min-height: 3.25rem; padding-block: 0.3125rem; }
-    .mockup-task > [data-row-open] { min-height: 2.75rem; justify-content: center; }
+    .mockup-task > [data-row-open] { min-height: 2.75rem; }
     .mockup-task > :is([data-leading-slot], [data-row-controls], [data-row-time], [data-row-expand]) { margin-top: 0.75rem; }
   }
 }

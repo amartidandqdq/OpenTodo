@@ -31,12 +31,12 @@ When you ask for changes, the answer ends with **Proposed changes**: one line pe
 - **Apply 3 changes** (or <kbd>Enter</kbd> inside the list) applies the checked items. The summary says how many were applied ("4 of 5 changes applied").
 - **Discard** (or <kbd>Esc</kbd> inside the list) drops the proposal. Nothing changes.
 - A long list keeps **Apply** and **Discard** at the bottom of the panel, so you can apply it without scrolling back.
-- When the assistant runs out of steps on a big request, it proposes the changes it had prepared, marked as partial, and **Continue** asks it for the rest in the same conversation. Nothing is applied until you apply it.
+- When the assistant runs out of steps on a big request, it proposes what it prepared, marked partial; **Continue** asks for the rest. Nothing is applied until you apply it.
 - Items in a **shared** project are marked, because other people see the change.
 - An item that changed on another device after it was proposed is unchecked and marked **changed since proposed**. Applying the rest leaves the newer value alone.
 - An item that no longer exists on this device is left out with a note.
 
-One proposal holds at most 50 changes. For bigger requests the assistant proposes the first 50 and offers to continue after you have reviewed them.
+One proposal holds at most 50 changes. For bigger requests it proposes the first 50 and offers to continue.
 
 Applied changes are ordinary edits made on this device: they show at once, work offline, sync to your other devices, appear in the task's history as **Assistant**, and trigger reminders, webhooks and notifications like any edit.
 

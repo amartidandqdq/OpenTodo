@@ -35,7 +35,7 @@ Each view is built from your device's tasks, so it works offline. Today and Upco
 | **Review** | Your [weekly review](review-and-statistics.md) | <kbd>g</kbd> <kbd>r</kbd> |
 | **Statistics** | What you [completed and let slip](statistics.md#statistics) | <kbd>g</kbd> <kbd>Shift+S</kbd> |
 
-The sidebar keeps Inbox, Today, Upcoming and Calendar at the top; the rest wait in **More**, a menu on a computer. **Next**, **Waiting**, **Anytime** and **Someday** are one **Horizons** entry there, and a row of four buttons at the top of each of them moves between them. **Loop home** and **Statistics** stay out of **More** until you turn on **Show every More section** (Settings → Appearance → Sidebar; this device only). Inbox and Today show open-task counts; a project shows its count on hover or focus. Deferred and parked tasks ([When a task starts](tasks-and-projects.md#when-a-task-starts)) are not counted.
+The sidebar keeps Inbox, Today, Upcoming and Calendar at the top; the rest wait in **More**, a menu on a computer. **Horizons** groups the four method views. Inbox and Today show open-task counts. Deferred and parked tasks ([When a task starts](tasks-and-projects.md#when-a-task-starts)) are not counted.
 
 Each project can also be shown three ways: as a **List**, as a **Board** with a column per section, or as a **Timeline** of its dates with arrows between tasks that wait for each other. Press <kbd>v</kbd> to cycle through them; see [Sections and boards](sections-and-boards.md).
 

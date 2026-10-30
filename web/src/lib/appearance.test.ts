@@ -1,10 +1,13 @@
 // @vitest-environment happy-dom
 // Appearance preference (OpenSpec change theming, tasks 3.1 and 3.3).
 import 'fake-indexeddb/auto'
+import { readFileSync } from 'node:fs'
+import path from 'node:path'
 import { beforeEach, describe, expect, it } from 'vitest'
-import { applyAppearance, CACHE_KEY, readAppearance, setAppearance } from './appearance'
+import { applyAppearance, CACHE_KEY, lightBar, readAppearance, setAppearance } from './appearance'
 import { db } from './db'
 import { applyOps, resetDeviceId } from './ops'
+import { DARK_BAR, DEFAULT_ACCENT } from '../ui/tokens/accents'
 
 beforeEach(async () => {
   await db.delete()
@@ -73,5 +76,19 @@ describe('applyAppearance', () => {
     expect(root.hasAttribute('data-theme')).toBe(false)
     expect(root.hasAttribute('data-accent')).toBe(false)
     expect(metas()).toEqual([['#047857', '(prefers-color-scheme: light)'], ['#0d0e10', '(prefers-color-scheme: dark)']])
+  })
+})
+
+describe('static fallbacks', () => {
+  // The bars before appearance.js or the app runs (no cache yet) match the default
+  // appearance, so the Android status bar does not change after the first load.
+  it('index.html, appearance.js and the manifest use the default bars', () => {
+    const light = lightBar(DEFAULT_ACCENT)
+    const web = (file: string) => readFileSync(path.resolve(process.cwd(), file), 'utf8')
+    expect(web('index.html')).toContain(`<meta name="theme-color" content="${light}" media="(prefers-color-scheme: light)" />`)
+    expect(web('index.html')).toContain(`<meta name="theme-color" content="${DARK_BAR}" media="(prefers-color-scheme: dark)" />`)
+    expect(web('index.html')).toContain('<meta name="mobile-web-app-capable" content="yes" />')
+    expect(web('public/appearance.js')).toContain(`add(bar || '${light}')`)
+    expect(web('vite.config.ts')).toContain(`theme_color: '${light}'`)
   })
 })

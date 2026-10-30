@@ -8,9 +8,6 @@ import { keysOf } from '../lib/shortcuts'
 import { dismissRejected, useSyncStatus } from '../lib/sync'
 import { canonicalPath, navigate, parseRoute, useRoute } from './router'
 import { SIDEBAR_COLLAPSED_REM, SIDEBAR_MAX_REM, SIDEBAR_MIN_REM, setSidebarCollapsed, setSidebarWidth, toggleSidebarCollapsed, useSidebarLayout } from './sidebarLayout'
-import { CalendarView } from './CalendarView'
-import { MonthView } from './MonthView'
-import { PlanView } from './PlanView'
 import { FilterView } from './FilterView'
 import { LabelsView } from './LabelsView'
 import { PlacesView } from './locations/PlacesView'
@@ -23,8 +20,6 @@ import { TaskListView } from './TaskListView'
 import { AskScreen } from './assistant/AskEntry'
 import { TrashView } from './TrashView'
 import { FeedView } from './FeedView'
-import { ImportScreen } from './ImportScreen'
-import { SettingsView } from './SettingsView'
 import { ReminderToasts } from './ReminderToasts'
 import { WorkspaceHost } from './NewWorkspaceDialog'
 import { WelcomeDialog } from './WelcomeDialog'
@@ -90,6 +85,12 @@ const FocusView = lazy(() => import('./focus/FocusView').then((m) => ({ default:
 const LoopHome = lazy(() => import('./method/LoopHome').then((m) => ({ default: m.LoopHome })))
 // The start guide (lean-chrome D5): its own chunk; it opens over the Inbox once per account, or from Settings.
 const FirstRunGuide = lazy(() => import('./FirstRun').then((m) => ({ default: m.FirstRunGuide })))
+// Calendar, month and plan views, settings and import: not on the Inbox's first screen, so each is its own chunk.
+const CalendarView = lazy(() => import('./CalendarView').then((m) => ({ default: m.CalendarView })))
+const MonthView = lazy(() => import('./MonthView').then((m) => ({ default: m.MonthView })))
+const PlanView = lazy(() => import('./PlanView').then((m) => ({ default: m.PlanView })))
+const SettingsView = lazy(() => import('./SettingsView').then((m) => ({ default: m.SettingsView })))
+const ImportScreen = lazy(() => import('./ImportScreen').then((m) => ({ default: m.ImportScreen })))
 
 /** Requests that need the sidebar on screen: the phone drawer opens, and for a find the icon rail expands. */
 function useSidebarRequests(setSidebarOpen: (open: boolean) => void) {
@@ -318,6 +319,9 @@ export function Shell({ user, onLogout }: { user: User; onLogout: () => void }) 
   )
 }
 
+/** Shown while a screen's chunk is fetched: the page's rows, as the other screens do. */
+const SCREEN_LOADING = <div className="px-4 py-6"><Skeleton shape="row" count={4} /></div>
+
 /** The page for the current route: every view's component, behind the one lazy
     boundary. Unmoved from the shell body, so it keeps the screens in one list. */
 function ShellScreen({ route, user, onLogout }: { route: ReturnType<typeof useRoute>; user: User; onLogout: () => void }) {
@@ -326,9 +330,9 @@ function ShellScreen({ route, user, onLogout }: { route: ReturnType<typeof useRo
     {route.view === 'help' ? (
       <Suspense fallback={<p className="px-4 py-6 text-body text-muted" role="status">{t('Loading help…')}</p>}><HelpView page={route.page} q={route.q} /></Suspense>
     ) : route.view === 'settings' ? (
-      <SettingsView user={user} onLogout={onLogout} section={route.section} page={route.page} anchor={route.anchor} />
+      <Suspense fallback={SCREEN_LOADING}><SettingsView user={user} onLogout={onLogout} section={route.section} page={route.page} anchor={route.anchor} /></Suspense>
     ) : route.view === 'import' ? (
-      <ImportScreen />
+      <Suspense fallback={SCREEN_LOADING}><ImportScreen /></Suspense>
     ) : route.view === 'labels' ? (
       <LabelsView route={route} />
     ) : route.view === 'places' ? (
@@ -372,11 +376,11 @@ function ShellScreen({ route, user, onLogout }: { route: ReturnType<typeof useRo
     ) : route.view === 'ask' ? (
       <AskScreen role={user.role} name={user.name} />
     ) : route.view === 'day' || route.view === 'week' ? (
-      <CalendarView mode={route.view} date={route.date} />
+      <Suspense fallback={SCREEN_LOADING}><CalendarView mode={route.view} date={route.date} /></Suspense>
     ) : route.view === 'month' ? (
-      <MonthView date={route.date} />
+      <Suspense fallback={SCREEN_LOADING}><MonthView date={route.date} /></Suspense>
     ) : route.view === 'plan' ? (
-      <PlanView date={route.date} />
+      <Suspense fallback={SCREEN_LOADING}><PlanView date={route.date} /></Suspense>
     ) : (
       // App renders the invite, reset, capture and display screens itself; a stray /invite, /reset, /share or /display route inside the shell falls back to the Inbox.
       <TaskListView userId={user.id} userRole={user.role} route={route.view === 'invite' || route.view === 'project-invite' || route.view === 'workspace-invite' || route.view === 'reset' || route.view === 'confirm-email' || route.view === 'forgot' || route.view === 'verify' || route.view === 'public' || route.view === 'share' || route.view === 'display' ? { view: 'inbox' } : route} />

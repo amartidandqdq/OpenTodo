@@ -52,3 +52,18 @@
     .mockup-task > :is([data-leading-slot], [data-row-controls], [data-row-time], [data-row-expand]) { margin-top: 0.75rem; }
   }
 }
+
+/* Compact on touch: a 44 px row (Comfortable keeps 52 px), so the row itself stays a full
+   touch target while the visible padding shrinks. The open control fills the row and
+   centres its lines, and the slots around it (disclosure, checkbox, time, expand) centre on
+   the row instead of hanging from a top margin, so the circle sits on the title's centre
+   in a one-line row and the 44 px hit area of the checkbox never reaches past the row.
+   Outside the layers so these win over the slots' utility classes (mt-0.5, self-start). */
+@media (pointer: coarse) {
+  :root[data-density="compact"] .mockup-task { min-height: 2.75rem; padding-block: 0.25rem; }
+  :root[data-density="compact"] .mockup-task > [data-row-open] { min-height: 2.25rem; justify-content: center; }
+  :root[data-density="compact"] .mockup-task > :is([data-leading-slot], [data-row-controls], [data-row-time], [data-row-expand]) {
+    align-self: center;
+    margin-block: 0;
+  }
+}

@@ -8,7 +8,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { db } from '../lib/db'
 import { createTask, resetDeviceId } from '../lib/ops'
 import type { Task } from '../lib/types'
-import { flush, mockFetch, noPublicLinks, render } from '../ui/test-utils'
+import { mockFetch, noPublicLinks, render, waitFor } from '../ui/test-utils'
 import { TaskListView } from './TaskListView'
 import { TaskRow } from './TaskRow'
 import { useBulkList } from './bulk/useBulkList'
@@ -21,11 +21,6 @@ beforeEach(async () => {
   await db.open()
   resetDeviceId()
 })
-
-async function waitFor(ok: () => boolean, ms = 2000) {
-  for (let t = 0; t < ms && !ok(); t += 20) await flush(20)
-  expect(ok()).toBe(true)
-}
 
 /** A right-click at (x, y); returns the event so a test can read defaultPrevented. */
 function rightClick(el: Element, x: number, y: number): MouseEvent {
@@ -129,7 +124,7 @@ describe('the list bindings', () => {
     taskMap: new Map(), ticked: ['a', 'b'],
     selection: { ticked: new Set(['a', 'b']), toggle: vi.fn(), extendTo: vi.fn(), selectAll: vi.fn(), set: vi.fn(), clear: vi.fn() },
     ui: { pickerFor: null, setPickerFor: vi.fn(), assignFor: null, setAssignFor: vi.fn(), prompt: null, setPrompt: vi.fn(), addingUnder: null, setAddingUnder: vi.fn(), addingTo: null, setAddingTo: vi.fn(), openActions: vi.fn() },
-    setSelectMode: vi.fn(), toggleComplete: vi.fn(), toggleCollapsed: vi.fn(), startDrag: vi.fn(),
+    setSelectMode: vi.fn(), toggleComplete: vi.fn(), toggleCollapsed: vi.fn(), startDrag: vi.fn(), setExpandedId: vi.fn(),
     quickAddRef: { current: null }, insertAfter: { current: null }, listRoot: { current: null },
     projectReadOnly: false, openContextMenu: vi.fn(), draggingId: null, ...over,
   } as BindingContext)

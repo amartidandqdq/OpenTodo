@@ -61,28 +61,11 @@ describe('normalizeSpoken (English)', () => {
 
 describe('normalizeSpoken (other languages)', () => {
   it.each([
-    [['de'], 'Zahnarzt anrufen morgen um neun Uhr dreißig', 'Zahnarzt anrufen morgen um 9:30'],
-    [['de'], 'Steuer machen hashtag home priorität eins', 'Steuer machen #home p1'],
-    [['de'], 'Training einundzwanzig Uhr', 'Training 21 Uhr'],
-    [['de'], 'lesen für zwanzig Minuten', 'lesen +20m'],
     [['fr'], 'appeler maman à neuf heures', 'appeler maman à 9 heures'],
     [['fr'], 'courir pendant vingt-cinq minutes', 'courir +25m'],
     [['fr'], 'payer loyer étiquette maison priorité trois', 'payer loyer @maison p3'],
-    [['it'], 'chiamare Luca alle nove', 'chiamare Luca alle 9'],
-    [['it'], 'palestra per quarantacinque minuti', 'palestra +45m'],
-    [['it'], 'bollette hashtag casa priorità due', 'bollette #casa p2'],
-    [['es'], 'llamar a Ana a las diez', 'llamar a Ana a las 10'],
-    [['es'], 'leer durante veinticinco minutos', 'leer +25m'],
-    [['es'], 'leer durante treinta y cinco minutos', 'leer +35m'],
-    [['pt'], 'ligar para o João às onze', 'ligar para o João às 11'],
-    [['pt'], 'caminhar durante trinta e cinco minutos', 'caminhar +35m'],
-    [['pt'], 'pagar contas etiqueta casa prioridade quatro', 'pagar contas @casa p4'],
   ])('%s: %s → %s', (langs, spoken, typed) => {
     expect(n(spoken, langs)).toBe(typed)
-  })
-
-  it('applies English cues alongside another language, as the parser does', () => {
-    expect(n('Steuer hashtag home priority two', ['de'])).toBe('Steuer #home p2')
   })
 })
 
@@ -122,10 +105,5 @@ describe('normalised transcripts parse like typed text', () => {
     const r = parse(n('call the dentist tomorrow at nine'), ctx)
     expect(r.title).toBe('call the dentist')
     expect(r.due).toEqual({ date: '2026-10-11', time: '09:00' })
-  })
-  it('German date phrases', () => {
-    const r = parse(n('Zahnarzt anrufen morgen um neun Uhr dreißig', ['de']), { ...ctx, languages: ['de', 'en'], dayMonthOrder: 'DM' })
-    expect(r.title).toBe('Zahnarzt anrufen')
-    expect(r.due).toEqual({ date: '2026-10-11', time: '09:30' })
   })
 })

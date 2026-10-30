@@ -25,10 +25,10 @@ func TestQuickAddParseWithTheAccountsProjects(t *testing.T) {
 	e.mustStatus(resp, 201, out)
 	homeID := out["id"].(string)
 	c := e.bearerClient()
-	h := append(bearer(e.token("full")), "Accept-Language", "de-DE,de;q=0.9,en;q=0.5")
-	resp, out = c.do("POST", parsePath, parseBody("Heizung entlüften morgen 9 Uhr #Home p1 @call"), h...)
+	h := append(bearer(e.token("full")), "Accept-Language", "fr-FR,fr;q=0.9,en;q=0.5")
+	resp, out = c.do("POST", parsePath, parseBody("Purger le radiateur demain à 9h #Home p1 @call"), h...)
 	c.mustStatus(resp, 200, out)
-	if out["title"] != "Heizung entlüften" {
+	if out["title"] != "Purger le radiateur" {
 		t.Fatalf("title = %v", out["title"])
 	}
 	f := out["fields"].(map[string]any)
@@ -45,8 +45,8 @@ func TestQuickAddParseWithTheAccountsProjects(t *testing.T) {
 		ch := raw.(map[string]any)
 		texts[ch["kind"].(string)] = ch["text"].(string)
 	}
-	if !strings.Contains(texts["due"], "Okt") || texts["project"] != "Home" || texts["priority"] != "P1" || texts["label"] != "@call" {
-		t.Fatalf("chips = %v (the date in German, the project's name)", texts)
+	if !strings.Contains(texts["due"], "oct") || texts["project"] != "Home" || texts["priority"] != "P1" || texts["label"] != "@call" {
+		t.Fatalf("chips = %v (the date in French, the project's name)", texts)
 	}
 	if out["origin"] != nil {
 		t.Fatalf("origin without a url = %v", out["origin"])
@@ -135,10 +135,10 @@ func TestQuickAddParseRateLimit(t *testing.T) {
 	}
 }
 
-// TestQuickAddParseChipsInSixLanguages: the date chip follows the account's
+// TestQuickAddParseChipsInTwoLanguages: the date chip follows the account's
 // interface language, and "tomorrow" is read in each language.
-func TestQuickAddParseChipsInSixLanguages(t *testing.T) {
-	for lang, line := range map[string]string{"en": "Call tomorrow", "de": "Anrufen morgen", "fr": "Appeler demain", "es": "Llamar mañana", "it": "Chiamare domani", "pt": "Ligar amanhã"} {
+func TestQuickAddParseChipsInTwoLanguages(t *testing.T) {
+	for lang, line := range map[string]string{"en": "Call tomorrow", "fr": "Appeler demain"} {
 		a := parseAccountData{lang: lang, labels: map[string]string{}, names: map[string]string{}}
 		a.ctx.Languages = quickadd.ActiveLanguages([]string{lang})
 		got := parseLine(line, a, "2026-10-21", "08:00")

@@ -21,9 +21,9 @@ afterEach(() => {
 describe('voice settings', () => {
   it('are off by default and stored on this device only', () => {
     expect(loadVoiceSettings()).toEqual({ enabled: false, lang: null, recognizer: 'browser' })
-    saveVoiceSettings({ enabled: true, lang: 'it', recognizer: 'browser' })
-    expect(JSON.parse(store.get('opentodo.voice')!)).toEqual({ enabled: true, lang: 'it', recognizer: 'browser' })
-    expect(loadVoiceSettings()).toEqual({ enabled: true, lang: 'it', recognizer: 'browser' })
+    saveVoiceSettings({ enabled: true, lang: 'fr', recognizer: 'browser' })
+    expect(JSON.parse(store.get('opentodo.voice')!)).toEqual({ enabled: true, lang: 'fr', recognizer: 'browser' })
+    expect(loadVoiceSettings()).toEqual({ enabled: true, lang: 'fr', recognizer: 'browser' })
   })
 
   it('ignore junk and unknown languages', () => {
@@ -42,17 +42,17 @@ describe('voice settings', () => {
 
 describe('recognition language', () => {
   it('follows the first quick-add language unless overridden', () => {
-    expect(recognitionLanguage({ enabled: true, lang: null }, ['de', 'en'])).toBe('de')
-    expect(recognitionLanguage({ enabled: true, lang: 'it' }, ['de', 'en'])).toBe('it')
+    expect(recognitionLanguage({ enabled: true, lang: null }, ['fr', 'en'])).toBe('fr')
+    expect(recognitionLanguage({ enabled: true, lang: 'en' }, ['fr', 'de'])).toBe('en')
     expect(recognitionLanguage({ enabled: true, lang: null }, [])).toBe('en')
   })
 
   it("uses the browser's regional tag when it has one, else a default region", () => {
-    expect(recognitionTag('en', ['en-GB', 'de'])).toBe('en-GB')
-    expect(recognitionTag('en', ['de-DE'])).toBe('en-US')
-    expect(recognitionTag('de', ['de-AT'])).toBe('de-AT')
-    expect(recognitionTag('de', ['de'])).toBe('de-DE')
-    expect(recognitionTag('it', ['en-US'])).toBe('it-IT')
-    expect(recognitionTag('pt', ['pt_PT'])).toBe('pt-PT')
+    expect(recognitionTag('en', ['en-GB', 'fr'])).toBe('en-GB')
+    expect(recognitionTag('en', ['fr-FR'])).toBe('en-US')
+    expect(recognitionTag('fr', ['fr-CA'])).toBe('fr-CA')
+    expect(recognitionTag('fr', ['fr'])).toBe('fr-FR')
+    expect(recognitionTag('fr', ['en-US'])).toBe('fr-FR')
+    expect(recognitionTag('fr', ['fr_BE'])).toBe('fr-BE')
   })
 })

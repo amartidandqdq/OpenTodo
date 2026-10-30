@@ -97,8 +97,8 @@ describe('DigestCard', () => {
 
 describe('helpers', () => {
   it('language from the browser and the state line', () => {
-    expect(browserDigestLanguage(['de-CH', 'en'])).toBe('de')
-    expect(browserDigestLanguage(['ja', 'pt-BR'])).toBe('pt')
+    expect(browserDigestLanguage(['fr-CH', 'en'])).toBe('fr')
+    expect(browserDigestLanguage(['ja', 'de-CH'])).toBe('en')
     expect(browserDigestLanguage(['ja'])).toBe('en')
     expect(digestSummary({ enabled: true, weekday: 0, hour: 18, timeZone: 'America/New_York' }, '18:00')).toBe('On, Sundays at 18:00 (America/New_York)')
   })

@@ -63,7 +63,7 @@ func TestTodoistItemsDeadlineObject(t *testing.T) {
 
 func TestTodoistBackupDeadline(t *testing.T) {
 	csv := "TYPE,CONTENT,DESCRIPTION,PRIORITY,INDENT,AUTHOR,RESPONSIBLE,DATE,DATE_LANG,TIMEZONE,DEADLINE,DEADLINE_LANG\n" +
-		"task,Bericht,,1,1,,,,de,Europe/Berlin,21 Okt.,de\n" +
+		"task,Rapport,,1,1,,,,fr,Europe/Paris,21 oct.,fr\n" +
 		"task,Unklar,,1,1,,,,en,Europe/Berlin,whenever,en\n"
 	p, err := parseWith(t, zipOf(t, map[string]string{"Home [1].csv": csv}), func(o *Options) { o.exportedAt = time.Date(2026, 9, 19, 0, 0, 0, 0, time.UTC) })
 	if err != nil {
@@ -72,7 +72,7 @@ func TestTodoistBackupDeadline(t *testing.T) {
 	var got, unclear Row
 	for _, r := range p.Rows {
 		switch r.Title {
-		case "Bericht":
+		case "Rapport":
 			got = r
 		case "Unklar":
 			unclear = r

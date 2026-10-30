@@ -1049,11 +1049,11 @@ func TestAddNatural(t *testing.T) {
 	if len(rs) != 1 || rs[0]["offset_minutes"] != float64(-60) {
 		t.Fatalf("reminders = %v", rs)
 	}
-	// German, with an explicit language.
-	_ = json.Unmarshal([]byte(h.mustRun("add", "--natural", "--lang", "de", "Zahnarzt nächsten Mittwoch um 15 Uhr erinnere mich 30 Minuten vorher", "--json")), &created)
+	// French, with an explicit language.
+	_ = json.Unmarshal([]byte(h.mustRun("add", "--natural", "--lang", "fr", "Dentiste demain à 15h", "--json")), &created)
 	tk = h.task(created.ID)
-	if tk["title"] != "Zahnarzt" || tk["due"].(map[string]any)["time"] != "15:00" {
-		t.Fatalf("german = %v", tk)
+	if tk["title"] != "Dentiste" || tk["due"].(map[string]any)["time"] != "15:00" {
+		t.Fatalf("french = %v", tk)
 	}
 	// Ordinal weekday rule with "of the month" (quick-add-nth-weekday 3.3).
 	_ = json.Unmarshal([]byte(h.mustRun("add", "--natural", "Board every 2nd Tuesday of the month at 10:00", "--json")), &created)

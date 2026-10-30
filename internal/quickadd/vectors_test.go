@@ -73,7 +73,7 @@ func TestVocabularyLoads(t *testing.T) {
 			t.Fatalf("%s: %+v", code, v)
 		}
 	}
-	if got := ActiveLanguages([]string{"de-CH", "ja", "fr"}); len(got) != 3 || got[0] != "de" || got[2] != "en" {
+	if got := ActiveLanguages([]string{"de-CH", "ja", "fr"}); len(got) != 2 || got[0] != "fr" || got[1] != "en" {
 		t.Fatalf("active = %v", got)
 	}
 }

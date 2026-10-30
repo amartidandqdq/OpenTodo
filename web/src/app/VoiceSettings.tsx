@@ -14,7 +14,7 @@ import { t, preferredLanguages } from '../lib/i18n'
 import { cardCopy, rowCopy, SETTINGS_COPY } from '../lib/settingsCopy'
 
 const LANGUAGE_NAMES: Record<string, string> = {
-  en: 'English', de: 'Deutsch', fr: 'Français', it: 'Italiano', es: 'Español', pt: 'Português',
+  en: 'English', fr: 'Français',
 }
 
 /** The privacy statement shown before voice capture can be switched on (spec "Privacy contract"). */

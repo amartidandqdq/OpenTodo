@@ -162,8 +162,8 @@ describe('attribute tokens', () => {
 describe('vocabularies', () => {
   const codes = Object.keys(VOCABULARIES)
 
-  it('bundles en, de, fr, it, es and pt', () => {
-    expect(codes.sort()).toEqual(['de', 'en', 'es', 'fr', 'it', 'pt'])
+  it('bundles en and fr', () => {
+    expect(codes.sort()).toEqual(['en', 'fr'])
   })
 
   it('every vocabulary defines the same keys and table shapes', () => {
@@ -185,11 +185,11 @@ describe('vocabularies', () => {
   })
 
   it('active languages follow the browser list, filtered to bundled ones, with English always on', () => {
-    expect(activeLanguages(['de-CH', 'fr', 'en-US'])).toEqual(['de', 'fr', 'en'])
-    expect(activeLanguages(['it'])).toEqual(['it', 'en'])
+    expect(activeLanguages(['de-CH', 'fr', 'en-US'])).toEqual(['fr', 'en'])
+    expect(activeLanguages(['it'])).toEqual(['en'])
     expect(activeLanguages(['ja', 'zh-CN'])).toEqual(['en'])
     expect(activeLanguages([])).toEqual(['en'])
-    expect(activeLanguages(['pt-BR', 'pt-PT'])).toEqual(['pt', 'en'])
+    expect(activeLanguages(['pt-BR', 'pt-PT'])).toEqual(['en'])
   })
 })
 
@@ -259,8 +259,8 @@ describe('date phrases (English)', () => {
 
   it('numeric dates follow the day/month order', () => {
     expect(dueOf('12/11', ['en'], { dayMonthOrder: 'DM' }).due).toEqual({ date: '2026-11-12' })
-    expect(dueOf('12/11', ['de']).due).toEqual({ date: '2026-11-12' })
-    expect(dueOf('12/11', ['de'], { dayMonthOrder: 'MD' }).due).toEqual({ date: '2026-12-11' })
+    expect(dueOf('12/11', ['fr']).due).toEqual({ date: '2026-11-12' })
+    expect(dueOf('12/11', ['fr'], { dayMonthOrder: 'MD' }).due).toEqual({ date: '2026-12-11' })
   })
 
   it('a date in the past rolls forward, Feb 29 to the next leap year', () => {
@@ -332,27 +332,6 @@ describe('time phrases', () => {
 
 describe('date and time phrases in other languages', () => {
   it.each([
-    // German
-    ['de', 'heute', { date: '2026-10-09' }],
-    ['de', 'morgen', { date: '2026-10-10' }],
-    ['de', 'übermorgen', { date: '2026-10-11' }],
-    ['de', 'uebermorgen', null],
-    ['de', 'am Freitag', { date: '2026-10-16' }],
-    ['de', 'Mi.', { date: '2026-10-14' }],
-    ['de', 'nächsten Mittwoch um 15 Uhr', { date: '2026-10-14', time: '15:00' }],
-    ['de', 'nächsten Samstag', { date: '2026-10-17' }],
-    ['de', 'in 3 Tagen', { date: '2026-10-12' }],
-    ['de', 'in einer Woche', { date: '2026-10-16' }],
-    ['de', 'nächste Woche', { date: '2026-10-12' }],
-    ['de', 'nächsten Monat', { date: '2026-11-01' }],
-    ['de', '3. Februar', { date: '2027-02-03' }],
-    ['de', '12.11.', { date: '2026-11-12' }],
-    ['de', '24.12.2026', { date: '2026-12-24' }],
-    ['de', '12.11', { date: '2026-11-12' }],
-    ['de', '9.30', null],
-    ['de', '14:30 Uhr', { date: TODAY, time: '14:30' }],
-    ['de', 'um 9', { date: TODAY, time: '09:00' }],
-    ['de', 'März 3', { date: '2027-03-03' }],
     // French
     ['fr', "aujourd'hui", { date: '2026-10-09' }],
     ['fr', 'demain à 15h', { date: '2026-10-10', time: '15:00' }],
@@ -368,40 +347,6 @@ describe('date and time phrases in other languages', () => {
     ['fr', '15h30', { date: TODAY, time: '15:30' }],
     ['fr', 'à 9 heures', { date: TODAY, time: '09:00' }],
     ['fr', 'midi', { date: TODAY, time: '12:00' }],
-    // Italian
-    ['it', 'oggi', { date: '2026-10-09' }],
-    ['it', 'domani alle 15', { date: '2026-10-10', time: '15:00' }],
-    ['it', 'dopodomani', { date: '2026-10-11' }],
-    ['it', 'mercoledì', { date: '2026-10-14' }],
-    ['it', 'lunedì prossimo', { date: '2026-10-12' }],
-    ['it', 'prossimo sabato', { date: '2026-10-17' }],
-    ['it', 'tra 3 giorni', { date: '2026-10-12' }],
-    ['it', 'fra una settimana', { date: '2026-10-16' }],
-    ['it', 'il 3 febbraio', { date: '2027-02-03' }],
-    ['it', 'alle 18:45', { date: TODAY, time: '18:45' }],
-    ['it', 'mezzogiorno', { date: TODAY, time: '12:00' }],
-    // Spanish
-    ['es', 'hoy', { date: '2026-10-09' }],
-    ['es', 'mañana a las 15:00', { date: '2026-10-10', time: '15:00' }],
-    ['es', 'pasado mañana', { date: '2026-10-11' }],
-    ['es', 'el próximo lunes', { date: '2026-10-12' }],
-    ['es', 'martes que viene', { date: '2026-10-13' }],
-    ['es', 'en 3 días', { date: '2026-10-12' }],
-    ['es', 'dentro de 2 semanas', { date: '2026-10-23' }],
-    ['es', '3 de febrero', { date: '2027-02-03' }],
-    ['es', 'el 25 de diciembre', { date: '2026-12-25' }],
-    ['es', 'a las 9', { date: TODAY, time: '09:00' }],
-    // Portuguese
-    ['pt', 'hoje', { date: '2026-10-09' }],
-    ['pt', 'amanhã às 15h', { date: '2026-10-10', time: '15:00' }],
-    ['pt', 'depois de amanhã', { date: '2026-10-11' }],
-    ['pt', 'sexta-feira', { date: '2026-10-16' }],
-    ['pt', 'próxima segunda', { date: '2026-10-12' }],
-    ['pt', 'sábado que vem', { date: '2026-10-17' }],
-    ['pt', 'daqui a 3 dias', { date: '2026-10-12' }],
-    ['pt', 'em 2 semanas', { date: '2026-10-23' }],
-    ['pt', '3 de fevereiro', { date: '2027-02-03' }],
-    ['pt', 'às 9', { date: TODAY, time: '09:00' }],
   ])('[%s] %s', (lang, phrase, due) => {
     const r = dueOf(phrase, [lang])
     if (due === null) {
@@ -414,15 +359,8 @@ describe('date and time phrases in other languages', () => {
   })
 
   it('all active languages match at once, English always included', () => {
-    expect(parse('Pay rent tomorrow', ctx({ languages: ['it'] })).due).toEqual({ date: '2026-10-10' })
-    expect(parse('Pagare affitto domani', ctx({ languages: ['it'] })).due).toEqual({ date: '2026-10-10' })
-    // German vocabulary is off unless German is active.
-    expect(parse('Zahnarzt morgen', ctx({ languages: ['en'] })).due).toBeNull()
-  })
-
-  it('longest match decides collisions ("mar" = Tuesday in Spanish, March next to a day)', () => {
-    expect(parse('Pagar mar', ctx({ languages: ['es'] })).due).toEqual({ date: '2026-10-13' })
-    expect(parse('Pay mar 3', ctx({ languages: ['es'] })).due).toEqual({ date: '2027-03-03' })
+    expect(parse('Pay rent tomorrow', ctx({ languages: ['fr'] })).due).toEqual({ date: '2026-10-10' })
+    expect(parse('Payer le loyer demain', ctx({ languages: ['fr'] })).due).toEqual({ date: '2026-10-10' })
   })
 
   it('a bare "15h" is a duration in English and a time in French', () => {
@@ -473,12 +411,6 @@ describe('parse: spec scenarios', () => {
 
   it('date in the past rolls forward', () => {
     expect(parse('Renew passport 3 Feb', ctx())).toMatchObject({ title: 'Renew passport', due: { date: '2027-02-03' } })
-  })
-
-  it('German phrase', () => {
-    expect(parse('Zahnarzt nächsten Mittwoch um 15 Uhr', ctx({ languages: ['de'] }))).toMatchObject({
-      title: 'Zahnarzt', due: { date: '2026-10-14', time: '15:00' },
-    })
   })
 
   it('unsupported language falls back to English and attribute tokens still work', () => {
@@ -590,8 +522,8 @@ describe('parse: determinism', () => {
   })
 
   it('the language order changes nothing for unambiguous phrases', () => {
-    const line = 'Zahnarzt morgen um 9 Uhr'
-    expect(parse(line, ctx({ languages: ['de', 'fr'] }))).toEqual(parse(line, ctx({ languages: ['fr', 'de'] })))
+    const line = 'Payer le loyer demain à 9h'
+    expect(parse(line, ctx({ languages: ['en', 'fr'] }))).toEqual(parse(line, ctx({ languages: ['fr', 'en'] })))
   })
 })
 
@@ -631,16 +563,9 @@ describe('deadline phrases (OpenSpec deadlines 7.1)', () => {
     expect(r).toMatchObject({ title: 'Send report', due: { date: '2026-10-15' }, deadline: '2026-10-16' })
   })
 
-  it('German phrase', () => {
-    expect(at('Bericht Frist 3. November', { languages: ['de'] })).toMatchObject({ title: 'Bericht', deadline: '2026-11-03' })
-  })
-
   it('other languages, accents optional', () => {
     expect(at('Rapport échéance vendredi', { languages: ['fr'] }).deadline).toBe('2026-10-16')
     expect(at('Rapport echeance vendredi', { languages: ['fr'] }).deadline).toBe('2026-10-16')
-    expect(at('Informe fecha límite viernes', { languages: ['es'] })).toMatchObject({ title: 'Informe', deadline: '2026-10-16' })
-    expect(at('Relazione scadenza venerdì', { languages: ['it'] }).deadline).toBe('2026-10-16')
-    expect(at('Relatório prazo sexta', { languages: ['pt'] }).deadline).toBe('2026-10-16')
   })
 
   it('without a date after it, the word stays in the title', () => {
@@ -693,12 +618,6 @@ describe('someday and evening phrases (OpenSpec someday-and-evening 5.1)', () =>
     expect(at('Cook this evening')).toMatchObject({ title: 'Cook', due: { date: '2026-10-14' }, evening: true })
   })
 
-  it('Italian evening and the other languages', () => {
-    expect(at('Chiama Ana stasera', { languages: ['it'] })).toMatchObject({ title: 'Chiama Ana', due: { date: '2026-10-14' }, evening: true })
-    expect(at('Segeln lernen irgendwann', { languages: ['de'] })).toMatchObject({ title: 'Segeln lernen', start: 'someday' })
-    expect(at('Aprender a navegar algun dia', { languages: ['es'] })).toMatchObject({ title: 'Aprender a navegar', start: 'someday' })
-  })
-
   it('a dismissed someday chip keeps the word', () => {
     const first = at('Learn to sail someday')
     const dismissed = first.chips.find((c) => c.kind === 'someday')!.spans
@@ -726,8 +645,6 @@ describe('ordinal weekdays (OpenSpec quick-add-nth-weekday 2.4)', () => {
     const r = parse('Board every 2 Mondays', ctx())
     expect(r.chips).toEqual([])
     expect(r).toMatchObject({ title: 'Board every 2 Mondays', due: null, recurrence: null })
-    expect(parse('Reunión cada 2 lunes', ctx({ languages: ['es'] })).chips).toEqual([])
-    expect(parse('Treffen alle 2 Montage', ctx({ languages: ['de', 'it'] })).chips).toEqual([])
   })
 
   it('resolves against the reference date it is given, which callers set to the logical today', () => {

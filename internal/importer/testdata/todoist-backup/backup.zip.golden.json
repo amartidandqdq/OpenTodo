@@ -8,7 +8,7 @@
     "skip": 0,
     "error": 0,
     "possibleDuplicates": 0,
-    "warnings": 4,
+    "warnings": 6,
     "newProjects": 10,
     "newLabels": 0,
     "newSections": 10,
@@ -140,7 +140,10 @@
       "kind": "task",
       "title": "Task 9",
       "project": "Project 3",
-      "outcome": "create"
+      "outcome": "create",
+      "warnings": [
+        "date \"11 Okt.\" not understood; imported without a due date"
+      ]
     },
     {
       "row": 7,
@@ -149,7 +152,10 @@
       "kind": "task",
       "title": "Task 10",
       "project": "Project 3",
-      "outcome": "create"
+      "outcome": "create",
+      "warnings": [
+        "date \"25 Okt.\" not understood; imported without a due date"
+      ]
     },
     {
       "row": 9,
@@ -531,8 +537,8 @@
     "task id-0026: title=\"Task 6\" description=\"\" priority=4 created_at=1791979200000 project_id=\"id-0001\" origin={\"kind\":\"import\",\"provider\":\"todoist\",\"id\":\"e6aeb7a6cd868745:1\"} labels=[]",
     "task id-0027: title=\"Task 7\" description=\"\" priority=4 created_at=1791979200000 project_id=\"id-0003\" due={\"date\":\"2026-09-30\"} origin={\"kind\":\"import\",\"provider\":\"todoist\",\"id\":\"7d8f6e63841d3d04:1\"} labels=[]",
     "task id-0028: title=\"Task 8\" description=\"\" priority=4 created_at=1791979200000 project_id=\"id-0003\" due={\"date\":\"2026-09-30\"} origin={\"kind\":\"import\",\"provider\":\"todoist\",\"id\":\"9476bb6b5ec3d6cc:1\"} labels=[]",
-    "task id-0029: title=\"Task 9\" description=\"\" priority=4 created_at=1791979200000 project_id=\"id-0003\" due={\"date\":\"2026-10-11\"} origin={\"kind\":\"import\",\"provider\":\"todoist\",\"id\":\"781fe3aac04c5d3a:1\"} labels=[]",
-    "task id-0030: title=\"Task 10\" description=\"\" priority=4 created_at=1791979200000 project_id=\"id-0003\" due={\"date\":\"2026-10-25\"} origin={\"kind\":\"import\",\"provider\":\"todoist\",\"id\":\"6c55633e29ce1ae9:1\"} labels=[]",
+    "task id-0029: title=\"Task 9\" description=\"\" priority=4 created_at=1791979200000 project_id=\"id-0003\" origin={\"kind\":\"import\",\"provider\":\"todoist\",\"id\":\"781fe3aac04c5d3a:1\"} labels=[]",
+    "task id-0030: title=\"Task 10\" description=\"\" priority=4 created_at=1791979200000 project_id=\"id-0003\" origin={\"kind\":\"import\",\"provider\":\"todoist\",\"id\":\"6c55633e29ce1ae9:1\"} labels=[]",
     "task id-0031: title=\"Task 13\" description=\"\" priority=3 created_at=1791979200000 project_id=\"id-0003\" due={\"date\":\"2026-04-30\"} origin={\"kind\":\"import\",\"provider\":\"todoist\",\"id\":\"e59e919cfd8a8e32:1\"} labels=[] section_id=\"id-0012\"",
     "task id-0032: title=\"Task 14\" description=\"\" priority=2 created_at=1791979200000 project_id=\"id-0003\" origin={\"kind\":\"import\",\"provider\":\"todoist\",\"id\":\"e5ab1b47144dbccd:1\"} labels=[] section_id=\"id-0012\"",
     "task id-0033: title=\"Task 16\" description=\"\" priority=3 created_at=1791979200000 project_id=\"id-0003\" origin={\"kind\":\"import\",\"provider\":\"todoist\",\"id\":\"8af9fd0d7489908d:1\"} labels=[] section_id=\"id-0013\"",

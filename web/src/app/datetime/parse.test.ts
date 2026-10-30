@@ -34,7 +34,6 @@ describe('parseDateInput', () => {
     expect(parseDateInput('Tomorrow', DM)).toBe('2026-10-15')
     expect(parseDateInput('fri', DM)).toBe('2026-10-16')
     expect(parseDateInput('3 Nov', DM)).toBe('2026-11-03')
-    expect(parseDateInput('domani', { ...DM, languages: ['it'] })).toBe('2026-10-15')
     expect(parseDateInput('tomorrow evening plans', DM)).toBeNull() // the whole text must be a date
   })
 })

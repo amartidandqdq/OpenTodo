@@ -95,8 +95,8 @@ describe('quick add and voice follow the interface language (D5)', () => {
     expect(langs).toContain('en')
   })
   it('a device’s own quick-add list still wins', () => {
-    const langs = resolveLanguages({ ...DEFAULT_QUICK_ADD_SETTINGS, languages: ['it'] }, preferredLanguages('fr', ['en-US']))
-    expect(langs[0]).toBe('it')
+    const langs = resolveLanguages({ ...DEFAULT_QUICK_ADD_SETTINGS, languages: ['en'] }, preferredLanguages('fr', ['en-US']))
+    expect(langs[0]).toBe('en')
   })
   it('dictation listens in French', () => {
     const browser = preferredLanguages('fr', ['en-US'])
@@ -150,7 +150,7 @@ describe('dates in the interface language (D4)', () => {
 // "Words for tasks that are late"): the interface says Earlier, never "overdue". The
 // filter query keyword `overdue` is a language keyword, not a message.
 describe('words for tasks that are late (page-rhythm D8)', () => {
-  const OLD: Record<string, RegExp> = { de: /überfällig/i, fr: /en retard/i, es: /vencid/i, it: /scadut/i, pt: /atrasad/i }
+  const OLD: Record<string, RegExp> = { fr: /en retard/i }
 
   it('no message of the web app uses "overdue", except the project health word', () => {
     expect(Object.keys(messages).filter((m) => /overdue/i.test(m))).toEqual(['Overdue'])

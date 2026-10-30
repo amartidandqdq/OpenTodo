@@ -52,11 +52,7 @@ var nlpVocabs = func() map[string]*nlpVocab {
 // quick-add vocabulary, which does not parse recurrence (yet).
 var everyWords = map[string][]string{
 	"en": {"every", "each", "ev"},
-	"de": {"jeden", "jede", "jedes", "alle"},
 	"fr": {"chaque", "tous les", "toutes les"},
-	"it": {"ogni"},
-	"es": {"cada", "todos los", "todas las"},
-	"pt": {"cada", "todos os", "todas as", "toda", "todo"},
 }
 
 var englishWeekdays = []string{"monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"}
@@ -107,7 +103,7 @@ func todoistDate(text, lang string, ref time.Time) (*Due, string, error) {
 			order = append(order, lang)
 		}
 	}
-	for _, c := range []string{"en", "de", "fr", "it", "es", "pt"} {
+	for _, c := range []string{"en", "fr"} {
 		if len(order) == 0 || order[0] != c {
 			order = append(order, c)
 		}

@@ -16,7 +16,7 @@ import { cardCopy, noticeCopy, rowCopy } from '../lib/settingsCopy'
 import { useSettingsPending } from './settingsPending'
 
 /** The digest's languages, as the server's message templates (internal/mail). */
-export const DIGEST_LANGUAGES: Record<string, string> = { en: 'English', de: 'Deutsch', fr: 'Français', es: 'Español', it: 'Italiano', pt: 'Português' }
+export const DIGEST_LANGUAGES: Record<string, string> = { en: 'English', fr: 'Français' }
 
 /** The browser's first supported language (primary subtag), else English (design D7). */
 export function browserDigestLanguage(languages: readonly string[] = preferredLanguages()): string {

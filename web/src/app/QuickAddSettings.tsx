@@ -11,7 +11,7 @@ import { type AddPositionPref, readAddPosition, setAddPosition } from '../lib/us
 import { act } from './actionError'
 
 const LANGUAGE_NAMES: Record<string, string> = {
-  en: 'English', de: 'Deutsch', fr: 'Français', it: 'Italiano', es: 'Español', pt: 'Português',
+  en: 'English', fr: 'Français',
 }
 
 const ADD_POSITIONS: readonly AddPositionPref[] = ['bottom', 'top']

@@ -143,10 +143,10 @@ describe('quick-add settings', () => {
   })
 
   it('round-trips through localStorage and sanitises bad data', () => {
-    saveQuickAddSettings({ enabled: false, languages: ['de', 'fr'] })
-    expect(loadQuickAddSettings()).toEqual({ enabled: false, languages: ['de', 'fr'] })
-    localStorage.setItem('opentodo.quickadd', JSON.stringify({ enabled: 'yes', languages: ['xx', 'it'] }))
-    expect(loadQuickAddSettings()).toEqual({ enabled: true, languages: ['it'] })
+    saveQuickAddSettings({ enabled: false, languages: ['en', 'fr'] })
+    expect(loadQuickAddSettings()).toEqual({ enabled: false, languages: ['en', 'fr'] })
+    localStorage.setItem('opentodo.quickadd', JSON.stringify({ enabled: 'yes', languages: ['xx', 'fr'] }))
+    expect(loadQuickAddSettings()).toEqual({ enabled: true, languages: ['fr'] })
     localStorage.setItem('opentodo.quickadd', '{not json')
     expect(loadQuickAddSettings()).toEqual(DEFAULT_QUICK_ADD_SETTINGS)
   })
@@ -161,11 +161,13 @@ describe('quick-add settings', () => {
   })
 
   it('resolves languages from the override or the browser', () => {
-    expect(resolveLanguages(DEFAULT_QUICK_ADD_SETTINGS, ['de-AT', 'en'])).toEqual(['de', 'en'])
-    expect(resolveLanguages({ ...DEFAULT_QUICK_ADD_SETTINGS, languages: ['pt'] }, ['de'])).toEqual(['pt', 'en'])
+    expect(resolveLanguages(DEFAULT_QUICK_ADD_SETTINGS, ['fr-CA', 'en'])).toEqual(['fr', 'en'])
+    // German is no longer supported: dropped, falls back to English.
+    expect(resolveLanguages(DEFAULT_QUICK_ADD_SETTINGS, ['de-AT'])).toEqual(['en'])
+    expect(resolveLanguages({ ...DEFAULT_QUICK_ADD_SETTINGS, languages: ['fr'] }, ['en'])).toEqual(['fr', 'en'])
     expect(resolveLanguages(DEFAULT_QUICK_ADD_SETTINGS, ['ko'])).toEqual(['en'])
     // An explicit empty list means English only, not "follow the browser".
-    expect(resolveLanguages({ ...DEFAULT_QUICK_ADD_SETTINGS, languages: [] }, ['de'])).toEqual(['en'])
+    expect(resolveLanguages({ ...DEFAULT_QUICK_ADD_SETTINGS, languages: [] }, ['fr'])).toEqual(['en'])
   })
 
   it('resolves the numeric date order', () => {
@@ -173,10 +175,9 @@ describe('quick-add settings', () => {
     expect(resolveDayMonthOrder(auto, ['en-US'])).toBe('MD')
     expect(resolveDayMonthOrder(auto, ['en'])).toBe('MD')
     expect(resolveDayMonthOrder(auto, ['en-GB'])).toBe('DM')
-    expect(resolveDayMonthOrder(auto, ['de-DE', 'en-US'])).toBe('DM')
     expect(resolveDayMonthOrder(auto, ['ja', 'fr'])).toBe('DM')
     expect(resolveDayMonthOrder(auto, ['ja'])).toBe('MD')
-    expect(resolveDayMonthOrder({ ...auto, languages: ['it'] }, ['en-US'])).toBe('DM')
+    expect(resolveDayMonthOrder({ ...auto, languages: ['fr'] }, ['en-US'])).toBe('DM')
   })
 
   it('An old device order is ignored, and dropped from the key on load (settings-refresh D6)', () => {

@@ -9,6 +9,7 @@ import { useMethodMode } from '../../lib/method/mode'
 import { dailyDue } from '../../lib/review'
 import { Button, ToastRegion } from '../../ui'
 import { navigate, useRoute } from '../router'
+import { useReviewReminders } from '../reviewReminders'
 import { useToday } from '../useViews'
 import { readString, writeString } from '../../lib/deviceStorage'
 
@@ -28,13 +29,15 @@ export function DailyCheckToast() {
   const route = useRoute()
   const [shown, setShown] = useState(false)
   const onDaily = route.view === 'review' && route.step === 'daily'
+  // Only with Review reminders on (declutter): off, the toast never offers the check.
+  const reminders = useReviewReminders()
   useEffect(() => {
     // Wait for the review row (undefined while loading), so a done check is never offered again.
-    if (mode !== 'first' || review === undefined || onDaily || offeredOn() === today) return
+    if (!reminders || mode !== 'first' || review === undefined || onDaily || offeredOn() === today) return
     if (!dailyDue(review?.daily_at, today)) return
     markOffered(today)
     setShown(true)
-  }, [mode, review, today, onDaily])
+  }, [reminders, mode, review, today, onDaily])
   useEffect(() => { if (onDaily) setShown(false) }, [onDaily])
   if (!shown) return null
   return (

@@ -269,6 +269,10 @@
   "A dossier links the steps of one thread.": [
     "web/src/app/resume/ResumeView.tsx"
   ],
+  "A dot on Review and a prompt when a review is due. Off by default; this device only.": [
+    "web/src/app/settingsIndex.ts",
+    "web/src/lib/settingsCopy.ts"
+  ],
   "A field": [
     "web/src/lib/assistant.ts"
   ],
@@ -1369,6 +1373,7 @@
   ],
   "Anytime": [
     "web/src/app/AppearanceSection.tsx",
+    "web/src/app/HorizonSwitch.tsx",
     "web/src/app/Sidebar.tsx",
     "web/src/app/TaskListView.tsx",
     "web/src/lib/shortcuts.ts"
@@ -5737,6 +5742,12 @@
   "Home|icon category": [
     "web/src/ui/icons/catalogue.ts"
   ],
+  "Horizon": [
+    "web/src/app/HorizonSwitch.tsx"
+  ],
+  "Horizons": [
+    "web/src/app/Sidebar.tsx"
+  ],
   "Host": [
     "web/src/app/IssueEditor.tsx"
   ],
@@ -6467,7 +6478,7 @@
   "Keyboard guide": [
     "web/src/app/ShortcutHelp.tsx"
   ],
-  "Keyboard navigation with hjkl": [
+  "Keyboard navigation with hjkl. Off by default; this device only.": [
     "web/src/app/settingsIndex.ts"
   ],
   "Keyboard shortcuts": [
@@ -7047,6 +7058,10 @@
     "web/src/app/method/LoopHome.tsx",
     "web/src/lib/shortcuts.ts"
   ],
+  "Loop home, Statistics, and the four horizons as separate items. This device only.": [
+    "web/src/app/settingsIndex.ts",
+    "web/src/lib/settingsCopy.ts"
+  ],
   "Loop pulse · last {n} days": [
     "web/src/app/method/LoopHome.tsx"
   ],
@@ -7280,6 +7295,9 @@
   ],
   "Missing on the server": [
     "web/src/app/task-detail/AttachmentsRow.tsx"
+  ],
+  "Modal editing with counts, {kbd}, {kbd2} and {kbd3}. Off by default; this device only.": [
+    "web/src/lib/settingsCopy.ts"
   ],
   "Mode": [
     "web/src/app/AppearanceSection.tsx",
@@ -7839,6 +7857,7 @@
     "web/src/app/review/ReviewView.tsx"
   ],
   "Next|method": [
+    "web/src/app/HorizonSwitch.tsx",
     "web/src/app/PreferencesPanels.tsx",
     "web/src/app/Sidebar.tsx",
     "web/src/app/method/MethodListView.tsx",
@@ -8314,9 +8333,6 @@
   ],
   "Normal text": [
     "web/src/lib/richtextEditor.ts"
-  ],
-  "Normal, Insert and Command modes with counts, {kbd}, {kbd2} and {kbd3}. This device only.": [
-    "web/src/lib/settingsCopy.ts"
   ],
   "Not": [
     "web/src/app/filter/ConditionEditor.tsx",
@@ -9808,7 +9824,7 @@
   "Powered by OpenTodo {version} · AGPL-3.0 · no tracking, no telemetry": [
     "web/src/app/InstanceBrand.tsx"
   ],
-  "Prefer modal editing? Vim keybindings can be enabled in Settings → General → Keyboard.": [
+  "Prefer modal editing? Advanced keyboard shortcuts (vim) can be turned on in Settings → General → Keyboard.": [
     "web/src/app/ShortcutHelp.tsx"
   ],
   "Prefix": [
@@ -10953,6 +10969,13 @@
   "Review progress": [
     "web/src/app/review/ReviewProgress.tsx"
   ],
+  "Review reminders": [
+    "web/src/app/settingsIndex.ts",
+    "web/src/lib/settingsCopy.ts"
+  ],
+  "Review reminders (this device)": [
+    "web/src/app/PreferencesPanels.tsx"
+  ],
   "Review since": [
     "web/src/app/resume/DossierCard.tsx"
   ],
@@ -11851,6 +11874,11 @@
     "web/src/app/task-list/RowActionCluster.tsx",
     "web/src/lib/shortcuts.ts"
   ],
+  "Show every More section": [
+    "web/src/app/AppearanceSection.tsx",
+    "web/src/app/settingsIndex.ts",
+    "web/src/lib/settingsCopy.ts"
+  ],
   "Show in Assigned to me": [
     "web/src/app/task-detail/Facets.tsx"
   ],
@@ -12241,6 +12269,7 @@
   ],
   "Someday": [
     "web/src/app/AppearanceSection.tsx",
+    "web/src/app/HorizonSwitch.tsx",
     "web/src/app/ParseChips.tsx",
     "web/src/app/RuleEditor.tsx",
     "web/src/app/Sidebar.tsx",
@@ -15446,11 +15475,11 @@
     "web/src/lib/settingsCopy.ts",
     "web/src/lib/shortcuts.ts"
   ],
-  "Vim keybindings (this device)": [
-    "web/src/app/PreferencesPanels.tsx"
-  ],
   "Vim keybindings are on for this device (turn them off in Settings → General → Keyboard). The mode, NORMAL, INSERT or COMMAND, is shown at the bottom; a focused text field is Insert mode. All the usual shortcuts still work in Normal mode.": [
     "web/src/app/vim/help.ts"
+  ],
+  "Vim keybindings, this device": [
+    "web/src/app/PreferencesPanels.tsx"
   ],
   "Vim mode": [
     "web/src/app/vim/VimLayer.tsx"
@@ -15505,6 +15534,7 @@
     "web/src/app/filter/conditionText.ts"
   ],
   "Waiting|method": [
+    "web/src/app/HorizonSwitch.tsx",
     "web/src/app/PreferencesPanels.tsx",
     "web/src/app/Sidebar.tsx",
     "web/src/app/method/MethodListView.tsx",

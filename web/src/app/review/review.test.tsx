@@ -15,6 +15,7 @@ import { resetPanel } from '../panel'
 import { navigate } from '../router'
 import { Shell } from '../Shell'
 import { Sidebar } from '../Sidebar'
+import { REMINDERS_KEY } from '../reviewReminders'
 import { setMethodMode } from '../../lib/method/mode'
 
 const user = { id: 'u1', email: 'a@example.com', name: 'Ada', role: 'owner', createdAt: 0 } as User
@@ -30,6 +31,8 @@ beforeEach(async () => {
   resetDeviceId()
   resetPanel()
   localStorage.clear()
+  // The due markers and the Daily check toast are opt-in (declutter); these tests exercise them, so they opt in.
+  localStorage.setItem(REMINDERS_KEY, '1')
   setDateTime({ date_format: 'day-month', time_format: '24h', week_start: 'mon' }, { order: 'DM', hour12: false, weekStart: 1 })
   fetchSpy = vi.fn(async () => new Response('{}', { status: 404 }))
   vi.stubGlobal('fetch', fetchSpy)
@@ -173,6 +176,20 @@ describe('Weekly review stepper', () => {
 })
 
 describe('sidebar Review entry', () => {
+  it('with Review reminders off (the default) nothing is due: no dot, the words name the last review (declutter)', async () => {
+    localStorage.removeItem(REMINDERS_KEY)
+    await db.review.put({ ...REVIEW_DEFAULTS, id: 'me', completed_at: NOW.getTime() - 9 * 86_400_000, _clock: {} })
+    localStorage.setItem('ot.sidebar.more', '1')
+    const original = window.matchMedia
+    window.matchMedia = ((q: string) => ({ matches: !/pointer:\s*fine/.test(q), media: q, onchange: null, addEventListener() {}, removeEventListener() {}, addListener() {}, removeListener() {}, dispatchEvent: () => false })) as typeof window.matchMedia
+    onTestFinished(() => { window.matchMedia = original })
+    const r = await render(<Sidebar route={{ view: 'inbox' }} user={user} />)
+    await waitFor(() => r.container.querySelector('[data-destination="review"]')?.getAttribute('aria-description') === 'Last review 9 days ago', 'the Review item with its last review')
+    expect(r.container.querySelector('[data-review-due]')).toBeNull()
+    expect(r.container.textContent).not.toContain('Review due')
+    await r.unmount()
+  })
+
   it('nine days after the last review carries a due marker with a text alternative', async () => {
     await db.review.put({ ...REVIEW_DEFAULTS, id: 'me', completed_at: NOW.getTime() - 9 * 86_400_000, _clock: {} })
     localStorage.setItem('ot.sidebar.more', '1')
@@ -246,6 +263,17 @@ describe('rhythm markers (open-loops-method 5.6)', () => {
     await flush(100)
     expect(document.querySelector('[data-daily-toast]')).toBeNull()
     await again.unmount()
+  })
+
+  it('with Review reminders off (the default) the Daily check is not offered (declutter)', async () => {
+    localStorage.removeItem(REMINDERS_KEY)
+    await setMethodMode('first')
+    navigate({ view: 'inbox' })
+    const r = await render(<Shell user={user} onLogout={() => {}} />)
+    // eslint-disable-next-line test-hygiene/no-fixed-wait -- asserts that no toast appears once the shell has rendered
+    await flush(100)
+    expect(document.querySelector('[data-daily-toast]')).toBeNull()
+    await r.unmount()
   })
 
   // Close the day (close-the-day 5.3): "Day closed" for the rest of the local day; a due marker wins.

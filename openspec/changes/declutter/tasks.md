@@ -1,0 +1,32 @@
+# Tasks
+
+## 1. Horizons in More
+
+- [x] 1.1 `Sidebar.tsx`: `moreEntriesOf` lists one "Horizons" entry (route Next, marked current on the four horizon views) in place of Next, Waiting, Anytime and Someday; test `sidebar.test.tsx` checks one entry and the current mark
+- [x] 1.2 `method/HorizonSwitch.tsx`: Buttons for Next, Waiting, Anytime and Someday, placed under the title of NextView, WaitingView and the Anytime and Someday lists; test `horizonSwitch.test.tsx` checks the four buttons, the current mark and navigation
+- [x] 1.3 Messages extracted; French "Horizons" and "Horizon" in `fr.json`
+
+## 2. Plus menu sections hidden by default
+
+- [x] 2.1 `app/sidebarMore.ts` device flag "Show every More section" (`createStoredValue`, off by default); `moreEntriesOf` drops Loop home and Statistics and the four horizons unless it is on; test `sidebar.test.tsx` covers the default and the restored list
+- [x] 2.2 Settings → Appearance → Sidebar: switch row "Show every More section" (`SidebarView`); test `appearance.test.tsx` checks the default off and the write
+- [x] 2.3 Messages extracted; French values in `fr.json`; `settingsIndex.ts` entry added
+
+## 3. Vim keybindings
+
+- [x] 3.1 `vim/prefs.ts`: the flag is read from `opentodo.advanced`; an absent value falls back to the earlier `opentodo.vim` value; sign-out clears both; `prefs.test.ts` covers default off, migration of a stored Vim switch, and turning off
+- [x] 3.2 `PreferencesPanels.tsx` `KeyboardView`: the switch is "Vim keybindings"; the hint in `ShortcutHelp.tsx` names it; `preferencesPanels.test.tsx` and `shortcutHelp.test.tsx` cover the label and the hidden Vim rows
+- [x] 3.3 Messages extracted; French values in `fr.json`
+
+## 4. Review reminders off by default
+
+- [x] 4.1 `app/reviewReminders.ts` device flag `opentodo.reviewReminders` (off by default); `Sidebar.tsx` `reviewMarker`, `DailyCheckToast.tsx` and `LoopHome.tsx` ignore due rhythms unless on; tests `review.test.tsx`, `loopHome.test.tsx` and `sidebar.test.tsx` cover off and on
+- [x] 4.2 Settings → General → Start view and briefing: switch row "Review reminders" (`ReviewRemindersSection`); test `preferencesPanels.test.tsx` checks the default off and the write
+- [x] 4.3 Messages extracted; French values in `fr.json`; `settingsIndex.ts` entry added
+
+## 5. Checks
+
+- [x] 5.1 `node scripts/i18n/extract.mjs --write` and `node scripts/i18n-check.mjs` pass
+- [x] 5.2 `cd web && node_modules/.bin/vitest run` on the touched suites; `node_modules/.bin/tsc --noEmit -p .` passes
+- [x] 5.3 `make openspec-validate` (the pinned OpenSpec CLI 1.13.2) passes
+- [x] 5.4 `docs/` describes the defaults and where each setting is (`docs/keyboard.md`, `docs/built-in-views.md`, `docs/review-and-statistics.md`, `docs/settings-app.md`)

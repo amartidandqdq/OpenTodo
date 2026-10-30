@@ -25,6 +25,7 @@ import { MethodLink } from '../help/MethodLink'
 import { setPanelTaskId } from '../panel'
 import { QuickAdd } from '../QuickAdd'
 import { navigate, routePath, type Route } from '../router'
+import { useReviewReminders } from '../reviewReminders'
 import { TaskRow } from '../TaskRow'
 import { useMethodInput } from './useMethodInput'
 
@@ -60,6 +61,7 @@ export function LoopHome() {
   const labels = useAllLabels()
   const review = useReviewRow()
   const reviewedAt = useReviewedAt()
+  const reminders = useReviewReminders()
   const weekStart = useDateTimeFormat().resolved.weekStart
   const data = useMemo(() => {
     if (!input) return null
@@ -72,7 +74,8 @@ export function LoopHome() {
     const contexts = nextGroups(input, labels)
     const nextCount = new Set(contexts.flatMap((g) => g.tasks.map((x) => x.id))).size
     const waiting = waitingTasks(input).length
-    const rhythms = { daily: dailyDue(review?.daily_at, input.today), weekly: reviewDue(review?.completed_at, now), monthly: monthlyDue(review?.monthly_at, now) }
+    // Review reminders (declutter): off, no rhythm is due, so the Loop home does not nag about the review.
+    const rhythms = { daily: reminders && dailyDue(review?.daily_at, input.today), weekly: reminders && reviewDue(review?.completed_at, now), monthly: reminders && monthlyDue(review?.monthly_at, now) }
     const rhythmDue = rhythms.daily || rhythms.weekly || rhythms.monthly
     const byId = new Map(live.map((x) => [x.id, x]))
     const focus = storedFocus(review, input.today).map((id) => byId.get(id)).filter((x): x is Task => !!x)
@@ -87,7 +90,7 @@ export function LoopHome() {
     const stamps = { weekly: review?.completed_at ?? null, monthly: review?.monthly_at ?? null }
     const closedAt = review && dayClosed(review, input.today) ? review.closed_at : null
     return { inbox, withoutNext, stalled, contexts, nextCount, waiting, rhythms, rhythmDue, stamps, closedAt, focus, pulse, up: nextMove({ inbox, withoutNext, rhythmDue, nextCount }) }
-  }, [input, labels, review, reviewedAt, weekStart]) // eslint-disable-line react-hooks/exhaustive-deps -- reviewedAt: the walk's stamps change what Place counts
+  }, [input, labels, review, reviewedAt, weekStart, reminders]) // eslint-disable-line react-hooks/exhaustive-deps -- reviewedAt: the walk's stamps change what Place counts
   const labelMap = useMemo(() => new Map(labels.map((l) => [l.id, l])), [labels])
   const projectMap = useMemo(() => new Map((input?.projects ?? []).map((p) => [p.id, p])), [input])
   const projects = useMemo(() => (input?.projects ?? []).filter((p) => !p.deleted_at && !p.archived), [input])

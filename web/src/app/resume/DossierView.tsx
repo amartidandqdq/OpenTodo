@@ -169,7 +169,7 @@ export function DossierView({ id }: { id: string }) {
                 getSecondary={(task) => task.project_id ? dossierText(projectMap.get(task.project_id)?.name) || t('List removed') : t('Inbox')}
                 rankContext="dossier.task" onPick={(task) => act(attach(task))} />
             </Field>
-            <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
+            <div className="mt-2 flex flex-wrap items-center justify-between gap-2 max-md:pe-[4.5rem]">
               <p className="text-meta text-faint">{candidates.length === 0 ? t('Every open task you can edit is already here, or there is none.') : t('{n, plural, one {# open task can join this thread} other {# open tasks can join this thread}}', { n: candidates.length })}</p>
               <Button size="sm" variant="secondary" icon="plus" onClick={() => setNewTask(true)} data-dossier-new-task>{t('New task')}</Button>
             </div>

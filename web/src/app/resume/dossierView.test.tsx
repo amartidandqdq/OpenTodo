@@ -46,6 +46,14 @@ describe('DossierView', () => {
     await r.unmount()
   })
 
+  it('insets the new-task row on narrow screens so it clears the floating add button', async () => {
+    const { id } = await seedDossier()
+    const r = await render(<DossierView id={id} />)
+    await waitFor(() => !!r.container.querySelector('[data-dossier-new-task]'), 'the new task button')
+    expect(r.container.querySelector('[data-dossier-new-task]')!.parentElement!.className).toContain('max-md:pe-[4.5rem]')
+    await r.unmount()
+  })
+
   it('advances to the following open task and reopens the earlier step', async () => {
     const { id, quotes, fitters } = await seedDossier()
     const r = await render(<DossierView id={id} />)

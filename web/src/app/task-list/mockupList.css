@@ -6,7 +6,7 @@
    follow automatically. */
 @layer components {
   .mockup-list { padding: 1.5625rem 1rem; }
-  @media (min-width: 48rem) { .mockup-list { padding: 1.8125rem 1.875rem; } }
+  @media (min-width: 48rem) { .mockup-list { padding: 1.8125rem 2rem; } }
   @media (min-width: 78.125rem) { .mockup-list { padding-inline: 2.8125rem; } }
   /* The bordered quick capture around the list's quick add line (mockup .quickadd). */
   .mockup-capture {

@@ -12540,7 +12540,8 @@
     "web/src/app/resume/DossierView.tsx"
   ],
   "Step {n} of {count}": [
-    "web/src/app/FirstRun.tsx"
+    "web/src/app/FirstRun.tsx",
+    "web/src/app/resume/DossierView.tsx"
   ],
   "Step {n} of {total} · {phase}": [
     "web/src/app/review/CloseDay.tsx",

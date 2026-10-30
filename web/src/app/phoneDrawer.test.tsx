@@ -10,7 +10,7 @@ import { db } from '../lib/db'
 import { setMethodMode } from '../lib/method/mode'
 import { createProject, resetDeviceId } from '../lib/ops'
 import type { User } from '../lib/types'
-import { click, render, minWidthPx, waitFor } from '../ui/test-utils'
+import { click, key, render, minWidthPx, waitFor } from '../ui/test-utils'
 import { resetPanel } from './panel'
 import { navigate } from './router'
 import { Shell } from './Shell'
@@ -33,6 +33,7 @@ beforeEach(async () => {
 })
 afterEach(() => { window.matchMedia = original; vi.unstubAllGlobals() })
 
+const menuButton = () => document.querySelector<HTMLButtonElement>('[data-phone-bar] button[aria-label="Open menu"]')
 const primary = () => [...document.querySelectorAll('nav[data-sidebar-primary] [data-sidebar-item]')].map((b) => b.textContent ?? '')
 
 describe('the phone drawer at 390 px', () => {
@@ -81,6 +82,46 @@ describe('the phone drawer at 390 px', () => {
     await r.unmount()
   })
 
+  it('a closed drawer is inert and out of the tab order', async () => {
+    navigate({ view: 'inbox' })
+    const r = await render(<Shell user={user} onLogout={() => {}} />)
+    await waitFor(() => !!document.querySelector('aside[data-sidebar]') && !!menuButton(), 'the shell')
+    const aside = document.querySelector('aside[data-sidebar]')!
+    expect(aside.hasAttribute('inert')).toBe(true)
+    expect(aside.getAttribute('aria-hidden')).toBe('true')
+    expect(document.querySelector('[data-app-frame]')!.hasAttribute('inert')).toBe(false)
+    await click(menuButton()!)
+    await waitFor(() => !aside.className.includes('-translate-x-full'), 'the drawer open')
+    expect(aside.hasAttribute('inert')).toBe(false)
+    await r.unmount()
+  })
+
+  it('an open drawer takes focus, holds Tab, hides the page behind it, and Escape gives focus back to the menu button', async () => {
+    navigate({ view: 'inbox' })
+    const r = await render(<Shell user={user} onLogout={() => {}} />)
+    await waitFor(() => !!menuButton() && !!document.querySelector('[data-tab-bar]'), 'the shell with its tab bar')
+    const aside = document.querySelector('aside[data-sidebar]')!
+    const frame = document.querySelector('[data-app-frame]')!
+    await act(async () => menuButton()!.focus())
+    await click(menuButton()!)
+    await waitFor(() => aside.contains(document.activeElement), 'focus in the drawer')
+    expect(aside.hasAttribute('inert')).toBe(false)
+    expect(frame.hasAttribute('inert')).toBe(true)
+    // The tab bar and the add button leave the page while the drawer is open.
+    expect(document.querySelector('[data-tab-bar]')).toBeNull()
+    expect(document.querySelector('[data-add-button]')).toBeNull()
+    // Tab does not leave the drawer.
+    const tab = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true })
+    await act(async () => { (document.activeElement ?? document.body).dispatchEvent(tab) })
+    expect(aside.contains(document.activeElement)).toBe(true)
+    await key(document.activeElement ?? document.body, 'Escape')
+    await waitFor(() => aside.className.includes('-translate-x-full'), 'Escape closes the drawer')
+    expect(aside.hasAttribute('inert')).toBe(true)
+    expect(frame.hasAttribute('inert')).toBe(false)
+    expect(document.activeElement).toBe(menuButton())
+    await r.unmount()
+  })
+
   it('rows are 48 px in the drawer, at most 20 rem and 85 vw wide; Settings from the footer closes it', async () => {
     navigate({ view: 'inbox' })
     const r = await render(<Shell user={user} onLogout={() => {}} />)
@@ -97,6 +138,23 @@ describe('the phone drawer at 390 px', () => {
     await act(async () => { document.querySelector<HTMLElement>('[data-settings-button]')!.click() })
     await waitFor(() => location.pathname.startsWith('/settings'))
     await waitFor(() => aside.className.includes('-translate-x-full'))
+    await r.unmount()
+  })
+})
+
+describe('the sidebar at 1280 px', () => {
+  it('stays a persistent column: neither inert nor hidden from assistive technology', async () => {
+    window.matchMedia = ((q: string) => ({
+      matches: /pointer:\s*fine/.test(q) ? true : /pointer:\s*coarse/.test(q) ? false : minWidthPx(q) <= 1280,
+      media: q, onchange: null, addEventListener() {}, removeEventListener() {}, addListener() {}, removeListener() {}, dispatchEvent: () => false,
+    })) as typeof window.matchMedia
+    navigate({ view: 'inbox' })
+    const r = await render(<Shell user={user} onLogout={() => {}} />)
+    await waitFor(() => !!document.querySelector('aside[data-sidebar]'), 'the shell')
+    const aside = document.querySelector('aside[data-sidebar]')!
+    expect(aside.hasAttribute('inert')).toBe(false)
+    expect(aside.hasAttribute('aria-hidden')).toBe(false)
+    expect(document.querySelector('[data-app-frame]')!.hasAttribute('inert')).toBe(false)
     await r.unmount()
   })
 })

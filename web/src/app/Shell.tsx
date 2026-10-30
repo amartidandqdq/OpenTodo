@@ -1,4 +1,4 @@
-import { DESKTOP_HEADER_QUERY, IconButton, Skeleton, setSidebarToggle, PageActions, PageBarTitle, TruncatedText, useMediaQuery, usePageBar, useOverlayDepth } from '../ui'
+import { DESKTOP_HEADER_QUERY, IconButton, Skeleton, setSidebarToggle, PageActions, PageBarTitle, TruncatedText, trapTab, useMediaQuery, useOverlay, usePageBar, useOverlayDepth } from '../ui'
 import { useCommandBar } from './palette/useCommandBar'
 import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import type { User } from '../lib/types'
@@ -226,6 +226,10 @@ export function Shell({ user, onLogout }: { user: User; onLogout: () => void }) 
   usePageFocus(route, frame, content)
   // The phone's bottom chrome: the tab bar minimises while scrolling down, the toast sits above it (phone-v2 D5, D6).
   const minimised = usePhoneChrome(content, phoneChrome, sidebarOpen)
+  // The phone drawer (phone-v2): closed, it is inert so its controls are out of the tab order; open, it is an overlay (Escape, focus in and back) and the page behind it is inert.
+  const drawerOpen = sidebarOpen && !desktop
+  const drawerClosed = !desktop && !sidebarOpen
+  const drawer = useRef<HTMLElement>(null)
 
   return (
     // The mockup A shell (original-mockup-a): the desktop application bar above
@@ -241,7 +245,9 @@ export function Shell({ user, onLogout }: { user: User; onLogout: () => void }) 
       {/* touch-none: a swipe on the scrim does not scroll the page behind the open drawer (sidebar-drawer-scroll). */}
       {sidebarOpen && <div className="fixed inset-0 z-[45] touch-none bg-scrim md:hidden" onClick={() => setSidebarOpen(false)} />}
       {/* The sidebar column: a drawer below 768 px, a column from there, resizable and collapsible from 1024 px (app-shell); its colour, shared by the sticky group headers, is --sidebar-bg: the surface in the drawer, the canvas as a column (precision-tokens D1), where it sits beside the inset content surface without an edge (precision-shell D1). */}
-      <aside data-sidebar data-sidebar-width={sidebar.collapsed ? 'collapsed' : sidebar.width}
+      {drawerOpen && <DrawerOverlay panel={drawer} onClose={() => setSidebarOpen(false)} />}
+      <aside ref={drawer} data-sidebar data-sidebar-width={sidebar.collapsed ? 'collapsed' : sidebar.width} inert={drawerClosed || undefined} aria-hidden={drawerClosed || undefined}
+        onKeyDown={(e) => { if (drawerOpen) trapTab(e, e.currentTarget) }}
         style={{ '--sidebar-w': `${sidebar.collapsed ? SIDEBAR_COLLAPSED_REM : sidebar.width}rem` } as React.CSSProperties}
         className={`fixed inset-y-0 left-0 z-[45] flex w-80 max-w-[85vw] max-md:[&_[data-sidebar-item]]:min-h-12 transform max-md:border-r max-md:border-default bg-(--sidebar-bg) [--sidebar-bg:var(--color-surface)] md:[--sidebar-bg:var(--color-canvas)] md:pointer-fine:[--sidebar-bg:var(--color-sidebar)] md:border-r md:border-soft pl-[env(safe-area-inset-left)] transition-transform md:static md:w-(--sidebar-w) md:max-w-none md:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
       >
@@ -251,7 +257,7 @@ export function Shell({ user, onLogout }: { user: User; onLogout: () => void }) 
         {!sidebar.collapsed && <SidebarResizer width={sidebar.width} />}
       </aside>
       {/* From 768 px the page is one continuous surface with the sidebar (original-mockup-a): no inset card, no radius, no margin; the app bar's hairline and the sidebar's edge carry the structure. */}
-      <main ref={frame} className="flex min-w-0 flex-1 flex-col md:!pb-0 bg-canvas" data-app-frame data-phone-chrome={phoneChrome || undefined}
+      <main ref={frame} className="flex min-w-0 flex-1 flex-col md:!pb-0 bg-canvas" data-app-frame data-phone-chrome={phoneChrome || undefined} inert={drawerOpen || undefined}
         style={phoneChrome ? { paddingBottom: `calc(${TAB_BAR_HEIGHT_REM}rem + env(safe-area-inset-bottom))` } : undefined}>
         {/* Below 768 px: the bar with the menu button, the page's title and its actions (app-shell "No desktop top bar"). */}
         <PhoneBar onMenu={() => setSidebarOpen(true)} />
@@ -390,6 +396,12 @@ function ShellScreen({ route, user, onLogout }: { route: ReturnType<typeof useRo
 }
 
 /** The sidebar's drag edge (app-shell "Resizable sidebar", original-mockup-a): 10.5 to 22.5 rem, per device; arrows resize it from the keyboard. */
+/** The open phone drawer as an overlay: Escape through the stack, focus moved in, back to the menu button on close, and the tab bar and add button out of the page (they hide while an overlay is open). */
+function DrawerOverlay({ panel, onClose }: { panel: React.RefObject<HTMLElement | null>; onClose: () => void }) {
+  useOverlay({ panel, onClose })
+  return null
+}
+
 function SidebarResizer({ width }: { width: number }) {
   const dragging = useRef<{ startX: number; startWidth: number } | null>(null)
   const rem = () => parseFloat(getComputedStyle(document.documentElement).fontSize) || 16

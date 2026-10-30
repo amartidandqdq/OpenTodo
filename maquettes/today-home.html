@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aujourd’hui — maquette</title>
+<style>
+  :root {
+    color-scheme: light;
+    --background: #f5f2eb;
+    --surface: #fffdf8;
+    --surface-2: #f8f5ee;
+    --sidebar: #f0ece3;
+    --foreground: #22201b;
+    --muted: #716b60;
+    --faint: #9a9387;
+    --border: #e4dfd4;
+    --border-strong: #d4cec1;
+    --primary: #047857;
+    --primary-soft: #e5f2ec;
+    --sun: #b45309;
+    --sun-soft: #fbeedb;
+    --radius: 12px;
+    --shadow: 0 1px 2px rgba(34, 32, 27, .05);
+    --font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: transparent; }
+  body { font-family: var(--font); color: var(--foreground); -webkit-font-smoothing: antialiased; }
+  button { font: inherit; cursor: pointer; }
+  svg { display: block; }
+  .app {
+    width: 100%;
+    max-width: 728px;
+    margin: 0 auto;
+    background: var(--background);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    font-size: 14px;
+    line-height: 1.4;
+  }
+  .topbar {
+    height: 54px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+  .brand { display: flex; align-items: center; gap: 8px; font-weight: 650; font-size: 14px; letter-spacing: -.01em; }
+  .brand-mark {
+    width: 23px; height: 23px; border-radius: 7px;
+    background: var(--primary); color: #fff;
+    display: grid; place-items: center;
+  }
+  .divider { width: 1px; height: 18px; background: var(--border); margin: 0 2px; }
+  .workspace { color: var(--muted); font-size: 12.5px; }
+  .top-actions { margin-left: auto; display: flex; align-items: center; gap: 2px; }
+  .icon-btn {
+    width: 30px; height: 30px; border: 0; background: transparent; color: var(--muted);
+    border-radius: 8px; display: grid; place-items: center;
+  }
+  .ask {
+    display: flex; align-items: center; gap: 6px;
+    padding: 6px 9px; border: 0; border-radius: 8px;
+    background: var(--surface-2); color: var(--muted);
+    font-size: 12px; font-weight: 600;
+  }
+  .avatar {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: #e9e4d9; display: grid; place-items: center;
+    font-size: 11px; font-weight: 650; color: #5e584e; margin-left: 6px;
+  }
+  .shell { display: grid; grid-template-columns: 192px 1fr; min-height: 646px; }
+  .sidebar {
+    background: var(--sidebar);
+    border-right: 1px solid var(--border);
+    padding: 12px 10px 14px;
+    display: flex; flex-direction: column;
+  }
+  .nav { display: flex; flex-direction: column; gap: 2px; }
+  .nav-item {
+    display: flex; align-items: center; gap: 8px;
+    height: 32px; padding: 0 8px; border-radius: 8px;
+    color: var(--muted); font-size: 12.2px;
+  }
+  .nav-item.active {
+    background: var(--surface); color: var(--foreground); font-weight: 600;
+    box-shadow: var(--shadow);
+  }
+  .nav-item .count {
+    margin-left: auto; font-size: 11px; color: var(--faint);
+    font-variant-numeric: tabular-nums;
+  }
+  .nav-item.active .count { color: var(--muted); }
+  .nav-sep { height: 1px; background: var(--border); margin: 10px 6px; }
+  .side-label {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 8px 5px;
+    font-size: 9.5px; letter-spacing: .12em; text-transform: uppercase;
+    font-weight: 700; color: var(--faint);
+  }
+  .side-label span:last-child {
+    font-weight: 500; letter-spacing: 0; text-transform: none; color: var(--faint);
+  }
+  .project {
+    display: flex; align-items: center; gap: 8px;
+    height: 30px; padding: 0 8px; border-radius: 7px;
+    color: var(--muted); font-size: 12.5px;
+  }
+  .project .dot { width: 7px; height: 7px; border-radius: 2px; background: #b8b0a2; flex: none; }
+  .project .dot.green { background: #86a779; }
+  .project .dot.orange { background: #cf9a62; }
+  .project .dot.blue { background: #8ca6c4; }
+  .project .dot.violet { background: #a99ac4; }
+  .sidebar-foot {
+    margin-top: auto; padding: 10px 8px 0; border-top: 1px solid var(--border);
+    color: var(--faint); font-size: 11px;
+    display: flex; align-items: center; gap: 7px;
+  }
+  .sync-dot { width: 6px; height: 6px; border-radius: 50%; background: #7f9b71; }
+  .main { background: var(--surface); padding: 24px 28px 26px; min-width: 0; }
+  .eyebrow {
+    font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase;
+    font-weight: 700; color: var(--faint); margin: 0 0 7px;
+  }
+  h1 {
+    margin: 0; font-size: 32px; line-height: 1.05;
+    letter-spacing: -.035em; font-weight: 680;
+  }
+  .summary {
+    display: flex; align-items: center; flex-wrap: wrap; gap: 7px;
+    margin: 9px 0 0; color: var(--muted); font-size: 12.5px;
+  }
+  .summary .sep { color: var(--border-strong); }
+  .summary .item { display: inline-flex; align-items: center; gap: 5px; }
+  .summary .item svg { color: var(--faint); }
+  .summary .chosen svg { color: var(--sun); }
+  .summary .next { color: var(--foreground); }
+  .summary .next svg { color: var(--sun); }
+  .capture {
+    margin: 18px 0 22px;
+    display: flex; align-items: center; gap: 10px;
+    height: 46px; padding: 0 12px;
+    border: 1px solid var(--border-strong); border-radius: 10px;
+    background: var(--surface);
+  }
+  .capture .plus {
+    width: 20px; height: 20px; border-radius: 6px;
+    background: var(--surface-2); color: var(--muted);
+    display: grid; place-items: center;
+  }
+  .capture .placeholder { color: var(--faint); font-size: 13px; }
+  .capture .hint { margin-left: auto; font-size: 10.5px; color: var(--faint); }
+  .section-head { display: flex; align-items: center; gap: 8px; margin: 0 0 6px; }
+  .section-head h2 {
+    margin: 0; font-size: 10.5px; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--faint); font-weight: 700;
+  }
+  .section-head .count { font-size: 11px; color: var(--faint); font-variant-numeric: tabular-nums; }
+  .section-head .choose {
+    margin-left: auto; border: 0; background: transparent;
+    color: var(--primary); font-size: 11.5px; font-weight: 600; padding: 2px 4px;
+  }
+  .day-list { list-style: none; margin: 0; padding: 0; }
+  .task {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 10px 4px; border-top: 1px solid var(--border);
+  }
+  .task:first-child { border-top: 0; }
+  .check {
+    width: 18px; height: 18px; border-radius: 50%;
+    border: 1.5px solid var(--border-strong); margin-top: 1px; flex: none;
+  }
+  .task-body { min-width: 0; flex: 1; }
+  .task-title { font-size: 13.5px; line-height: 1.3; font-weight: 520; letter-spacing: -.005em; }
+  .task-meta {
+    display: flex; align-items: center; gap: 6px;
+    margin-top: 3px; color: var(--faint); font-size: 11.5px;
+  }
+  .task-meta .dot { width: 3px; height: 3px; border-radius: 50%; background: var(--border-strong); }
+  .sun {
+    color: var(--sun); flex: none; width: 21px; height: 21px;
+    border-radius: 6px; background: var(--sun-soft); display: grid; place-items: center;
+  }
+  .sun.ghost { background: transparent; color: var(--faint); }
+  .resume {
+    margin-top: 18px;
+    display: flex; align-items: center; gap: 10px;
+    padding: 11px 12px;
+    border: 1px solid var(--border); border-radius: 10px;
+    background: var(--surface-2);
+  }
+  .resume .icon {
+    width: 28px; height: 28px; border-radius: 8px;
+    background: var(--surface); border: 1px solid var(--border);
+    display: grid; place-items: center; color: var(--muted);
+  }
+  .resume .copy { min-width: 0; }
+  .resume .kicker {
+    font-size: 9.5px; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--faint); font-weight: 700;
+  }
+  .resume .title { font-size: 12.5px; font-weight: 600; margin-top: 1px; }
+  .resume .sub { font-size: 11.5px; color: var(--muted); margin-top: 1px; }
+  .link {
+    border: 0; background: transparent; color: var(--primary);
+    font-size: 11.5px; font-weight: 600; padding: 4px 2px;
+  }
+  .resume .link { margin-left: auto; }
+  .tomorrow {
+    margin-top: 24px; padding-top: 14px;
+    border-top: 1px solid var(--border);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .tomorrow .label {
+    font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--faint); font-weight: 700;
+  }
+  .tomorrow .text { color: var(--muted); font-size: 12.5px; }
+  .tomorrow .actions { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+  .btn {
+    border: 1px solid var(--border-strong); background: var(--surface);
+    color: var(--foreground); font-size: 11.5px; font-weight: 600;
+    padding: 7px 11px; border-radius: 8px;
+  }
+  .btn.primary { background: var(--primary); border-color: var(--primary); color: #fff; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  <symbol id="i-inbox" viewBox="0 0 24 24"><path d="M4 5.5h16v13H4z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M4 13h4l1.5 2h5L16 13h4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></symbol>
+  <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M8 3v4M16 3v4M4 10h16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m15.5 15.5 4 4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3.5 13.7 9l5.5 1.7-5.5 1.7L12 17.9l-1.7-5.5L4.8 10.7 10.3 9 12 3.5Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M19 16.5v3M17.5 18h3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 7.5V12l3 2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+  <symbol id="i-loop" viewBox="0 0 24 24"><path d="M5 8.5A7 7 0 0 1 17.5 6L20 8.5M20 4v4.5h-4.5M19 15.5A7 7 0 0 1 6.5 18L4 15.5M4 20v-4.5h4.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m8 10 4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</svg>
+
+<div class="app" role="img" aria-label="Maquette de la page Aujourd’hui">
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark"><svg width="15" height="15"><use href="#i-check"/></svg></span>
+      <span>OpenTodo</span>
+    </div>
+    <span class="divider"></span>
+    <span class="workspace">Personnel</span>
+    <div class="top-actions">
+      <button class="icon-btn" aria-label="Recherche et commandes"><svg width="16" height="16"><use href="#i-search"/></svg></button>
+      <button class="ask"><svg width="14" height="14"><use href="#i-spark"/></svg>Assistant</button>
+      <span class="avatar">A</span>
+    </div>
+  </header>
+
+  <div class="shell">
+    <aside class="sidebar">
+      <nav class="nav" aria-label="Navigation principale">
+        <div class="nav-item active"><svg width="15" height="15"><use href="#i-sun"/></svg>Aujourd’hui<span class="count">3</span></div>
+        <div class="nav-item"><svg width="15" height="15"><use href="#i-inbox"/></svg>Boîte de réception<span class="count">4</span></div>
+        <div class="nav-item"><svg width="15" height="15"><use href="#i-calendar"/></svg>À venir</div>
+        <div class="nav-item"><svg width="15" height="15"><use href="#i-calendar"/></svg>Calendrier</div>
+        <div class="nav-item"><svg width="15" height="15"><use href="#i-chevron"/></svg>Plus</div>
+      </nav>
+      <div class="nav-sep"></div>
+      <div class="side-label"><span>Projets</span><span>Tout</span></div>
+      <div class="project"><i class="dot green"></i>Travail</div>
+      <div class="project"><i class="dot orange"></i>Maison</div>
+      <div class="project"><i class="dot blue"></i>Voiture</div>
+      <div class="project"><i class="dot violet"></i>Rosalie</div>
+      <div class="project"><i class="dot"></i>Vacances</div>
+      <div class="sidebar-foot"><span class="sync-dot"></span><span>Alex · synchronisé</span></div>
+    </aside>
+
+    <main class="main">
+      <p class="eyebrow">Jeudi 29 octobre</p>
+      <h1>Aujourd’hui</h1>
+      <p class="summary">
+        <span class="item chosen"><svg width="13" height="13"><use href="#i-sun"/></svg>3 choses</span>
+        <span class="sep">·</span>
+        <span class="item next"><svg width="13" height="13"><use href="#i-clock"/></svg>14:30 Dentiste</span>
+        <span class="sep">·</span>
+        <span class="item">rien en retard</span>
+      </p>
+
+      <div class="capture">
+        <span class="plus"><svg width="13" height="13"><use href="#i-plus"/></svg></span>
+        <span class="placeholder">Capturer une tâche…</span>
+      </div>
+
+      <div class="section-head">
+        <svg width="12" height="12" style="color:var(--sun)"><use href="#i-sun"/></svg>
+        <h2>Ma journée</h2>
+        <span class="count">3/3</span>
+        <button class="choose">Choisir</button>
+      </div>
+      <ul class="day-list">
+        <li class="task">
+          <span class="check"></span>
+          <div class="task-body">
+            <div class="task-title">Préparer la démo de jeudi</div>
+            <div class="task-meta"><span>Travail</span><span class="dot"></span><span>45 min</span></div>
+          </div>
+          <span class="sun" title="Retirer de Ma journée"><svg width="14" height="14"><use href="#i-sun"/></svg></span>
+        </li>
+        <li class="task">
+          <span class="check"></span>
+          <div class="task-body">
+            <div class="task-title">Commander les pneus avant</div>
+            <div class="task-meta"><span>Voiture</span><span class="dot"></span><span>15 min</span></div>
+          </div>
+          <span class="sun" title="Retirer de Ma journée"><svg width="14" height="14"><use href="#i-sun"/></svg></span>
+        </li>
+        <li class="task">
+          <span class="check"></span>
+          <div class="task-body">
+            <div class="task-title">Appeler la banque</div>
+            <div class="task-meta"><span>Maison</span></div>
+          </div>
+          <span class="sun" title="Retirer de Ma journée"><svg width="14" height="14"><use href="#i-sun"/></svg></span>
+        </li>
+      </ul>
+
+      <div class="resume">
+        <span class="icon"><svg width="15" height="15"><use href="#i-loop"/></svg></span>
+        <div class="copy">
+          <div class="kicker">Reprendre le fil</div>
+          <div class="title">BMW · commander 2 pneus</div>
+          <div class="sub">Prochaine action · 5 étapes dans un même fil</div>
+        </div>
+        <button class="link">Ouvrir</button>
+      </div>
+
+      <div class="tomorrow">
+        <span class="label">Demain</span>
+        <span class="text">2 choses · rien de prévu</span>
+        <div class="actions">
+          <button class="link">Voir</button>
+          <button class="btn">Clôturer la journée</button>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+</body>
+</html>

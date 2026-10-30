@@ -52,6 +52,21 @@ describe('the phone drawer at 390 px', () => {
     await r.unmount()
   })
 
+  it('a destination chosen in the drawer leaves Back on the page it was opened from', async () => {
+    const id = await createProject({ name: 'Home' })
+    navigate({ view: 'today' })
+    const r = await render(<Shell user={user} onLogout={() => {}} />)
+    const project = () => document.querySelector<HTMLElement>(`[data-project-row="${id}"] [data-sidebar-item]`)
+    await waitFor(() => !!project())
+    await click(document.querySelector('[data-phone-bar] button[aria-label="Open menu"]')!)
+    await waitFor(() => (history.state as { overlay?: number } | null)?.overlay === 1, 'the drawer entry')
+    await click(project()!)
+    await waitFor(() => location.pathname === `/project/${id}` && history.state?.overlay === undefined, 'navigated over the marker')
+    await act(async () => history.back())
+    await waitFor(() => location.pathname === '/today', 'Back returns to Today')
+    await r.unmount()
+  })
+
   it('Companion: Calendar first, and no Today, Inbox or Upcoming (the tab bar has them)', async () => {
     await setMethodMode('companion')
     const r = await render(<Sidebar route={{ view: 'inbox' }} user={user} />)

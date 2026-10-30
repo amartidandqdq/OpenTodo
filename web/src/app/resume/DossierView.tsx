@@ -2,11 +2,12 @@
 // next open task, the hold, attach/detach/reorder and the edit dialogs. The task
 // rows keep their own list and are completed through the ordinary path.
 import { useMemo, useRef, useState } from 'react'
+import { beginDrag } from '../../lib/dnd'
 import { compareDueThenPriority } from '../../lib/ordering'
 import { localDueOf } from '../../lib/dates'
 import { dossierState } from '../../lib/dossierModel'
 import {
-  attachTaskToDossier, createTaskInDossier, deleteDossier, detachTaskFromDossier, moveDossierTask,
+  attachTaskToDossier, createTaskInDossier, deleteDossier, detachTaskFromDossier, moveDossierTask, placeDossierTask,
   removeUnavailableDossierTasks, resumeDossier, setDossierWaiting, updateDossier,
 } from '../../lib/dossiers'
 import { t } from '../../lib/i18n'
@@ -18,12 +19,17 @@ import { act, reportActionError } from '../actionError'
 import { showUndoToast } from '../bulk/toastStore'
 import { DateField } from '../datetime/DateField'
 import { useDateTimeFormat } from '../DateTimePrefsProvider'
+import { dragFeedback, sameDrop, zoneUnder } from '../listDrop'
+import { prefersReducedMotion } from '../motion'
 import { navigate } from '../router'
 import { completeWithUndo } from '../undoable'
 import { DossierCard, ReasonTip, dossierLists, dossierText, dossierTextLocked } from './DossierCard'
 import { useDossierData } from './useDossierData'
 
 const NO_IDS: string[] = []
+
+/** Where a dragged step would land: before or after another step. */
+interface StepDrop { id: string; zone: 'before' | 'after' }
 
 interface UndoLike { id: string; label?: string }
 
@@ -77,6 +83,35 @@ export function DossierView({ id }: { id: string }) {
   const move = async (task: Task, delta: -1 | 1) => {
     if (!dossier || !state) return
     toast(await moveDossierTask(dossier.id, task.id, delta), t('Dossier order changed'))
+  }
+  const place = async (task: Task, targetId: string, zone: 'before' | 'after') => {
+    if (!dossier) return
+    toast(await placeDossierTask(dossier.id, task.id, targetId, zone), t('Dossier order changed'))
+  }
+  // Drag a step onto another one: it lands before or after it (mouse, pen, or a long press on touch).
+  const [dropAt, setDropAt] = useState<StepDrop | null>(null)
+  const [draggingId, setDraggingId] = useState<string | null>(null)
+  const startDrag = (e: React.PointerEvent, task: Task) => {
+    if (!state || state.tasks.length < 2) return
+    let current: StepDrop | null = null
+    const show = (d: StepDrop | null) => {
+      if (sameDrop(d, current)) return
+      current = d
+      setDropAt(d)
+    }
+    beginDrag(e, {
+      label: dossierText(task.title) || t('Untitled'),
+      onStart: () => setDraggingId(task.id),
+      onMove: (target, _x, y) => {
+        const id = target?.startsWith('step:') ? target.slice('step:'.length) : null
+        const zone = id && id !== task.id ? zoneUnder('data-dossier-step', id, y, false) : null
+        show(id && (zone === 'before' || zone === 'after') ? { id, zone } : null)
+      },
+      onDrop: () => {
+        if (current) act(place(task, current.id, current.zone))
+      },
+      onEnd: () => { show(null); setDraggingId(null) },
+    })
   }
   const clean = async () => {
     if (!dossier || !state) return
@@ -190,7 +225,8 @@ export function DossierView({ id }: { id: string }) {
                   readOnly={!canEdit(task)} projectName={task.project_id ? dossierText(projectMap.get(task.project_id)?.name) || t('List removed') : t('Inbox')}
                   onComplete={() => (task.completed_at ? reopen(task) : complete(task))}
                   onOpen={() => navigate({ view: 'task', id: task.id })}
-                  onMove={(delta) => act(move(task, delta))} onDetach={() => act(detach(task))} />
+                  onMove={(delta) => act(move(task, delta))} onDetach={() => act(detach(task))}
+                  onPointerDown={(e) => startDrag(e, task)} dragging={draggingId === task.id} dropIndicator={dropAt?.id === task.id ? dropAt.zone : null} />
               ))}
             </ol>
           )}
@@ -214,7 +250,7 @@ export function DossierView({ id }: { id: string }) {
   )
 }
 
-function StepRow({ task, index, total, current, readOnly, projectName, onComplete, onOpen, onMove, onDetach }: {
+function StepRow({ task, index, total, current, readOnly, projectName, onComplete, onOpen, onMove, onDetach, onPointerDown, dragging, dropIndicator }: {
   task: Task
   index: number
   total: number
@@ -225,13 +261,19 @@ function StepRow({ task, index, total, current, readOnly, projectName, onComplet
   onOpen: () => void
   onMove: (delta: -1 | 1) => void
   onDetach: () => void
+  onPointerDown: (e: React.PointerEvent) => void
+  dragging: boolean
+  dropIndicator: 'before' | 'after' | null
 }) {
   const dt = useDateTimeFormat()
+  const feedback = dragFeedback(prefersReducedMotion())
   const done = !!task.completed_at
   const due = task.due ? localDueOf(task.due) : null
   return (
-    <li data-dossier-step={task.id} data-done={done || undefined} data-current={current || undefined}
-      className={`flex min-w-0 items-start gap-2 rounded-control px-2 py-2 ${current ? 'bg-accent-soft' : 'hover:bg-sunken'}`}>
+    <li data-dossier-step={task.id} data-drop-target={`step:${task.id}`} data-done={done || undefined} data-current={current || undefined}
+      data-draggable="" onPointerDown={onPointerDown}
+      className={`relative flex min-w-0 items-start gap-2 rounded-control px-2 py-2 transition-[opacity,transform] duration-(--duration-emphasis) ease-calm ${current ? 'bg-accent-soft' : 'hover:bg-sunken'} ${dragging ? feedback.lift : ''}`}>
+      {dropIndicator && <span aria-hidden="true" data-drop-indicator={dropIndicator} className={`${feedback.line} ${dropIndicator === 'before' ? '-top-px' : '-bottom-px'}`} />}
       <ReasonTip reason={readOnly ? t('This task is read-only') : undefined}>
       <button type="button" aria-label={`${t('Step {n} of {count}', { n: index + 1, count: total })}: ${done ? t('Reopen {title}', { title: dossierText(task.title) }) : t('Complete {title}', { title: dossierText(task.title) })}`}
         aria-pressed={done} disabled={readOnly} onClick={onComplete}

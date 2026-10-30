@@ -54,6 +54,26 @@ describe('DossierView', () => {
     await r.unmount()
   })
 
+  it('drags a step below the other and saves the new order', async () => {
+    const { id, quotes, fitters } = await seedDossier()
+    const r = await render(<DossierView id={id} />)
+    await waitFor(() => !!r.container.querySelector(`[data-dossier-step="${fitters}"]`), 'the steps')
+    const first = r.container.querySelector<HTMLElement>(`[data-dossier-step="${quotes}"]`)!
+    const second = r.container.querySelector<HTMLElement>(`[data-dossier-step="${fitters}"]`)!
+    second.getBoundingClientRect = () => ({ top: 100, height: 40, bottom: 140, left: 0, right: 300, width: 300, x: 0, y: 100, toJSON: () => ({}) })
+    const at = vi.spyOn(document, 'elementFromPoint').mockReturnValue(second)
+    await act(async () => {
+      first.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, pointerId: 1, pointerType: 'mouse', button: 0, clientX: 50, clientY: 50 }))
+      window.dispatchEvent(new PointerEvent('pointermove', { pointerId: 1, pointerType: 'mouse', clientX: 50, clientY: 130 }))
+    })
+    await waitFor(() => !!r.container.querySelector('[data-drop-indicator="after"]'), 'the drop line below the second step')
+    await act(async () => { window.dispatchEvent(new PointerEvent('pointerup', { pointerId: 1, pointerType: 'mouse', clientX: 50, clientY: 130 })) })
+    await waitFor(async () => (await db.dossiers.get(id))?.task_ids.join() === [fitters, quotes].join(), 'the saved order')
+    expect(r.container.querySelector('[data-drop-indicator]')).toBeNull()
+    at.mockRestore()
+    await r.unmount()
+  })
+
   it('advances to the following open task and reopens the earlier step', async () => {
     const { id, quotes, fitters } = await seedDossier()
     const r = await render(<DossierView id={id} />)

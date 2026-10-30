@@ -233,6 +233,27 @@ export async function moveDossierTask(dossierId: string, taskId: string, delta: 
   })
 }
 
+/** The order with `id` taken out and put just before or after `target`; null when that changes nothing. */
+export function placeStep(order: readonly string[], id: string, target: string, zone: 'before' | 'after'): string[] | null {
+  if (id === target || !order.includes(id) || !order.includes(target)) return null
+  const rest = order.filter((x) => x !== id)
+  rest.splice(rest.indexOf(target) + (zone === 'after' ? 1 : 0), 0, id)
+  return rest.every((x, i) => x === order[i]) ? null : rest
+}
+
+/** Drops one step before or after another (drag and drop); steps hidden from this view keep their places. */
+export async function placeDossierTask(dossierId: string, taskId: string, targetId: string, zone: 'before' | 'after'): Promise<Awaited<ReturnType<typeof applyBatch>>> {
+  return dossierWrite(async () => {
+    const dossier = await liveDossier(dossierId)
+    const { here } = await visibleTaskSets()
+    const visible = new Set(here.map((task) => task.id))
+    if (!visible.has(taskId) || !visible.has(targetId)) return null
+    const ids = placeStep(orderOf(dossier), taskId, targetId, zone)
+    if (!ids) return null
+    return applyBatch([{ entity: 'dossier', entityId: dossierId, patch: { task_ids: ids } }], { ...ACTION, label: t('Dossier order changed') })
+  })
+}
+
 /** Puts the thread on hold; only dossier fields are written. */
 export async function setDossierWaiting(dossierId: string, waitingFor: string, followUp: string | null): Promise<Awaited<ReturnType<typeof applyBatch>>> {
   return dossierWrite(async () => {

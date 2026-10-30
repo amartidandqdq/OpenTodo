@@ -6,7 +6,7 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import { db, entityTables, useDatabase } from './db'
 import {
   attachTaskToDossier, createDossier, deleteDossier, detachTaskFromDossier,
-  dossierLinkOffer, hideDossierLinkOffer, moveDossierTask, offerDossierLink, removeUnavailableDossierTasks,
+  dossierLinkOffer, hideDossierLinkOffer, moveDossierTask, offerDossierLink, placeDossierTask, placeStep, removeUnavailableDossierTasks,
   resumeDossier, setDossierFollowUp, setDossierWaiting, toggleDossierFocus, updateDossier,
 } from './dossiers'
 import { dossierState, suggestDossiers } from './dossierModel'
@@ -157,6 +157,31 @@ describe('attaching real tasks', () => {
     expect((await liveDossier(id)).task_ids).toEqual([a, c])
     expect(await db.tasks.get(a)).toEqual(beforeTask)
     expect(await detachTaskFromDossier(id, b)).toBeNull()
+  })
+
+  it('places a step before or after another by drag and drop, and Undo restores the order', async () => {
+    const { id } = await createDossier('Glisser')
+    const [a, b, c, d] = [await seededTask('A'), await seededTask('B'), await seededTask('C'), await seededTask('D')]
+    for (const task of [a, b, c, d]) await attachTaskToDossier(id, task)
+    const beforeTask = await db.tasks.get(a)
+    const entry = await placeDossierTask(id, d, b, 'before')
+    expect((await liveDossier(id)).task_ids).toEqual([a, d, b, c])
+    await undoBatch(entry!.id)
+    expect((await liveDossier(id)).task_ids).toEqual([a, b, c, d])
+    await placeDossierTask(id, a, c, 'after')
+    expect((await liveDossier(id)).task_ids).toEqual([b, c, a, d])
+    expect(await placeDossierTask(id, b, b, 'after')).toBeNull()
+    expect(await placeDossierTask(id, b, c, 'before')).toBeNull()
+    expect(await placeDossierTask(id, 'not-a-member', c, 'before')).toBeNull()
+    expect(await db.tasks.get(a)).toEqual(beforeTask)
+  })
+
+  it('placeStep keeps every other id where it was', () => {
+    expect(placeStep(['a', 'b', 'c'], 'a', 'c', 'after')).toEqual(['b', 'c', 'a'])
+    expect(placeStep(['a', 'b', 'c'], 'c', 'a', 'before')).toEqual(['c', 'a', 'b'])
+    expect(placeStep(['a', 'b', 'c'], 'a', 'b', 'before')).toBeNull()
+    expect(placeStep(['a', 'b', 'c'], 'a', 'a', 'after')).toBeNull()
+    expect(placeStep(['a', 'b'], 'z', 'a', 'after')).toBeNull()
   })
 
   it('cleans only members that no longer resolve and never removes a live one', async () => {

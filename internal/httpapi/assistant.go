@@ -53,6 +53,7 @@ func (s *Server) registerAssistantRoutes(mux *routes) {
 	mux.handle("GET /api/v1/me/assistant/usage", signedIn.DemoDenied(), s.handleMyAssistantUsage)
 	mux.handle("POST /api/v1/me/assistant/test", signedIn.SessionOnly().DemoDenied(), s.handleTestMyAssistant)
 	mux.handle("POST /api/v1/assistant/turn", signedIn.SessionOnly().DemoDenied(), s.handleAssistantTurn)
+	mux.handle("POST /api/v1/assistant/classify", signedIn.SessionOnly().DemoDenied(), s.handleAssistantClassify)
 	mux.handle("GET /api/v1/assistant/skills", signedIn.DemoDenied(), s.handleAssistantSkills)
 }
 

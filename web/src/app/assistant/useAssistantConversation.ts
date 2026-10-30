@@ -40,7 +40,7 @@ interface StreamedAnswer {
  */
 type TurnRunner = (req: TurnRequest, onEvent: (e: TurnEvent) => void, signal?: AbortSignal) => Promise<void>
 
-async function streamAnswer(req: TurnRequest, signal: AbortSignal, on: { text: (delta: string, all: string, status: string[]) => void; status: (line: string, all: string, lines: string[]) => void }, run: TurnRunner = streamTurn): Promise<StreamedAnswer> {
+export async function streamAnswer(req: TurnRequest, signal: AbortSignal, on: { text: (delta: string, all: string, status: string[]) => void; status: (line: string, all: string, lines: string[]) => void }, run: TurnRunner = streamTurn): Promise<StreamedAnswer> {
   let text = ''
   const statusLines: string[] = []
   let proposal: ProposedChange[] | null = null
@@ -54,6 +54,8 @@ async function streamAnswer(req: TurnRequest, signal: AbortSignal, on: { text: (
           on.text(ev.text, text, statusLines)
           break
         case 'status':
+          // A tool call ends the model's turn of text: what it says next is a new paragraph, not a glued sentence.
+          if (text && !text.endsWith('\n')) text += '\n\n'
           statusLines.push(ev.text)
           on.status(ev.text, text, [...statusLines])
           break
@@ -76,7 +78,7 @@ async function streamAnswer(req: TurnRequest, signal: AbortSignal, on: { text: (
   } catch (err) {
     failure = { err }
   }
-  answer.text = text
+  answer.text = text.trimEnd()
   return { answer, proposal, failure }
 }
 
@@ -244,19 +246,24 @@ export function useAssistantConversation({ context, onApplied, userName = '' }: 
     }
   }
 
-  const send = async () => {
-    const { draft, skill: chosen, pasted } = composer
+  /** Sends the composer's text, or `follow` as a follow-up (Continue) that leaves the composer, its skill and pasted material alone. */
+  const send = async (follow?: string) => {
+    const typed = follow === undefined
+    const { draft, skill: picked, pasted } = composer
+    const chosen = typed ? picked : null
     // A skill or pasted material can be sent without typed text.
-    const question = draft.trim() || (chosen ? chosen.example : pasted ? t('Use the pasted text.') : '')
+    const question = follow ?? (draft.trim() || (chosen ? chosen.example : pasted ? t('Use the pasted text.') : ''))
     if (!question || streaming) return
-    const material = pasted
-    const selection = composer.selectedFor.current
+    const material = typed ? pasted : null
+    const selection = typed ? composer.selectedFor.current : null
     // The latest thread may still be loading from the device: start a new one then.
     const current = thread ?? newThread(status?.provider ?? '')
-    composer.setDraft('')
-    composer.setSkill(null)
-    composer.setPasted(null)
-    composer.clearSelection()
+    if (typed) {
+      composer.setDraft('')
+      composer.setSkill(null)
+      composer.setPasted(null)
+      composer.clearSelection()
+    }
     setError(null)
     rv.setReview(null)
     rv.setResult(null)
@@ -309,7 +316,7 @@ export function useAssistantConversation({ context, onApplied, userName = '' }: 
     entry = { ...entry, messages: [...entry.messages, answer], updated_at: Date.now(),
       usage: { input: entry.usage.input + (answer.usage?.input ?? 0), output: entry.usage.output + (answer.usage?.output ?? 0) } }
     await persist(entry)
-    const items = answer.stop === 'end_turn' ? streamed.proposal : null
+    const items = answer.stop === 'end_turn' || answer.stop === 'round_limit' ? streamed.proposal : null
     if (items && items.length) await offer(entry, items)
   }
 
@@ -335,6 +342,6 @@ export function useAssistantConversation({ context, onApplied, userName = '' }: 
 
   return {
     status, device, thread, threads, toggleThreads, clearAll, composer, streaming, error, statusAnnounce, live, abort, consent, review: rv,
-    send, startNew, pickThread, stop: () => abort.current?.abort(),
+    send, continueTurn: () => send(t('Continue with the rest.')), startNew, pickThread, stop: () => abort.current?.abort(),
   }
 }

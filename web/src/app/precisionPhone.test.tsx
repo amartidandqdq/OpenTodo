@@ -75,7 +75,9 @@ describe('the day head on a phone (D1)', () => {
     expect([...document.querySelectorAll('h1')].map((h) => h.textContent)).toEqual(['Today'])
     const project = await createProject({ name: 'Home' })
     navigate({ view: 'project', id: project })
-    await waitFor(() => document.querySelector('[data-phone-bar] [data-phone-title]')?.textContent === 'Home')
+    // Mockup A: the list keeps its prominent title in the page; the bar carries no second title.
+    await waitFor(() => document.querySelector('[data-list-page] h1[data-page-title]')?.textContent === 'Home')
+    expect(document.querySelector('[data-phone-bar]')!.textContent).not.toContain('Home')
     expect(document.querySelector('[data-phone-bar]')!.className).toContain('border-b')
     await r.unmount()
   })

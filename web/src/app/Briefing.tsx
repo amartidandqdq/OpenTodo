@@ -10,9 +10,9 @@ import { formatTime, weekday } from '../lib/dates'
 import { formatMinutes } from '../lib/duration'
 import { formatList, t, useLanguageVersion } from '../lib/i18n'
 import { useGridPrefs, useLiveProjects } from '../lib/liveData'
-import { useNotifications, useReviewRow } from '../lib/localData'
+import { useDossiers, useNotifications, useReviewRow } from '../lib/localData'
 import { useLiveTasks } from '../lib/liveTasks'
-import { dayClosed } from '../lib/review'
+import { dayClosed, todayFocusOf } from '../lib/review'
 import { openBriefingTask, openNotifications, openUpcomingDay, revealTasks } from './briefingLinks'
 import { useDateTimeFormat } from './DateTimePrefsProvider'
 import { routePath } from './router'
@@ -28,9 +28,14 @@ export function useBriefing(view: 'today' | 'upcoming' | null): Briefing | null 
   const review = useReviewRow()
   // The bell's list: the newest in-app notifications, cached on the device (design D4).
   const notifications = useNotifications()
-  return useMemo(() => (view && tasks
-    ? briefingFacts({ view, today, tasks, projects, dayLength, notifications, closed: dayClosed(review, today), dayStart })
-    : null), [view, tasks, projects, today, dayLength, notifications, review, dayStart])
+  // Today's chosen threads and tasks (resume-dossiers D5) count as planned even
+  // without a due date; a waiting thread contributes none of its steps.
+  const dossiers = useDossiers()
+  return useMemo(() => {
+    if (!view || !tasks) return null
+    const focus = view === 'today' ? todayFocusOf(review, today, tasks, dossiers).all : undefined
+    return briefingFacts({ view, today, tasks, projects, dayLength, notifications, closed: dayClosed(review, today), dayStart, focus })
+  }, [view, tasks, projects, today, dayLength, notifications, review, dayStart, dossiers])
 }
 
 /** A plain click (not one that opens a new tab) runs `go` instead of following the address. */

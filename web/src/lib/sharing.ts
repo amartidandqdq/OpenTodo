@@ -192,7 +192,8 @@ export async function forgetRejected(sent: Op[], rejected: Rejection[]): Promise
         // same for blockers refused as a cycle or another scope (task-dependencies):
         // the restore op, if the server has a value, follows in the same response.
         const reset = op.entity === 'task' && op.field === 'assignee_id' ? { assignee_id: null }
-          : op.entity === 'task' && op.field === 'blocked_by' ? { blocked_by: [] } : {}
+          : op.entity === 'task' && op.field === 'blocked_by' ? { blocked_by: [] }
+            : op.entity === 'dossier' && op.field === 'task_ids' ? { task_ids: [] } : {}
         await table.put({ ...row, ...reset, _clock: clock })
       }
     }

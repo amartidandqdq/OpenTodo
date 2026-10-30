@@ -24,6 +24,7 @@ The connection is `https://<their server>/mcp` over streamable HTTP with `Author
 | Finding a task by words | `search_tasks` with `query` |
 | One task in full (description, subtasks, comments) | `get_task` with its `id` |
 | Projects, their sections and custom fields | `list_projects` |
+| Dossiers | `list_dossiers`: the threads of Reprendre le fil, not projects |
 | Workspaces | `list_workspaces`; pass `workspace` to the list tools to look in another one |
 | Tracked time | `list_time_entries` |
 | An icon for a project | `list_icons` |
@@ -57,4 +58,4 @@ The server offers ready-made workflows as MCP prompts: `triage-inbox` (give ever
 
 ## Organising projects
 
-`create_project`, `update_project` (rename, colour, icon from `list_icons`, parent, position, workspace), `create_label`, `create_sections`, `update_sections`, `reorder_sections` and `set_favourite` arrange the user's structure. `add_comment` adds a comment to a task. Change structure only when asked: people find their way by where things are.
+`create_project`, `update_project` (rename, colour, icon from `list_icons`, parent, position, workspace), `create_label`, `create_sections`, `update_sections`, `reorder_sections` and `set_favourite` arrange the user's structure. `create_dossier` and `update_dossier` manage the threads of Reprendre le fil (ordered existing tasks, with a hold and a follow-up date; they never move a task). `add_comment` adds a comment to a task. Change structure only when asked: people find their way by where things are.

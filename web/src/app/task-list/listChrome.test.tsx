@@ -141,3 +141,19 @@ describe('empty views', () => {
     }
   })
 })
+
+describe('the view bar', () => {
+  it('toggles the synced density preference from the list header', async () => {
+    await createTask({ title: 'Pay rent' })
+    const r = await render(<TaskListView route={{ view: 'inbox' }} />)
+    await waitFor(() => q('[data-density-toggle]') !== null)
+    const toggle = q('[data-density-toggle]')!
+    expect(toggle.textContent).toContain('Comfortable')
+    await click(toggle)
+    await waitFor(async () => (await db.userPrefs.get('me'))?.density === 'compact', 'the compact preference')
+    await waitFor(() => q('[data-density-toggle]')!.textContent?.includes('Compact'), 'the compact label')
+    await click(q('[data-density-toggle]')!)
+    await waitFor(async () => (await db.userPrefs.get('me'))?.density === 'comfortable', 'the comfortable preference')
+    await r.unmount()
+  })
+})

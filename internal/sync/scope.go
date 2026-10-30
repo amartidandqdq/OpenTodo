@@ -325,6 +325,16 @@ func (r *resolver) resolve(op Op) (scope, reason string, err error) {
 		// Time entries follow their task's scope with their own authorship rules
 		// (time-tracking D1, timeentries.go).
 		return r.resolveTimeEntry(op)
+	case "dossier":
+		// A dossier is personal memory (OpenSpec change resume-dossiers, design
+		// D2). Its order may name tasks of any scope the author can see, never a
+		// task that is invisible to them.
+		if op.Field == "task_ids" {
+			if reason, err := r.checkDossierTasks(op); err != nil || reason != "" {
+				return "", reason, err
+			}
+		}
+		return r.acc.personal, "", nil
 	default:
 		// Labels, saved views and reminders are personal: a reminder on a task in a
 		// shared project still belongs to its creator only (OpenSpec `reminders`).
@@ -445,6 +455,10 @@ func (r *resolver) restoreOps(refused []Op) ([]Op, error) {
 				continue
 			}
 			scope = st.scope
+		case "dossier":
+			// A dossier is always the caller's own: a refused task_ids list hands
+			// back the order stored there, so the device can drop its invalid one.
+			scope = r.acc.personal
 		default:
 			continue
 		}

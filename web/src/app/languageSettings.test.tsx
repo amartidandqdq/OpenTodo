@@ -40,16 +40,16 @@ beforeEach(() => {
 afterEach(async () => { await applyLanguagePreference('en', ['en-US']) })
 
 describe('Language panel', () => {
-  it('picking Deutsch writes the synced preference and the app re-renders in German', async () => {
+  it('picking Français writes the synced preference and the app re-renders in French', async () => {
     const view = await render(<LanguageProvider><Tree /></LanguageProvider>)
     await panelShown(view)
     expect(view.container.querySelector('h1')?.textContent).toBe('Inbox')
-    await choose(view.container.querySelector('#language-select') as HTMLSelectElement, 'de')
-    await waitFor(async () => (await db.userPrefs.get(USER_PREFS_ID))?.language === 'de', 'the preference stored')
+    await choose(view.container.querySelector('#language-select') as HTMLSelectElement, 'fr')
+    await waitFor(async () => (await db.userPrefs.get(USER_PREFS_ID))?.language === 'fr', 'the preference stored')
     await translated(view)
-    expect(currentLanguage()).toBe('de')
-    expect(view.container.querySelector('h1')?.textContent).toBe('Eingang')
-    expect(view.container.querySelector('#language-heading')?.textContent).toBe('Sprache')
+    expect(currentLanguage()).toBe('fr')
+    expect(view.container.querySelector('h1')?.textContent).toBe('Boîte de réception')
+    expect(view.container.querySelector('#language-heading')?.textContent).toBe('Langue')
     await view.unmount()
   })
 
@@ -65,26 +65,26 @@ describe('Language panel', () => {
   })
 
   it('without a synced row the language applied at first paint stays', async () => {
-    await applyLanguagePreference('it', ['en-US'])
+    await applyLanguagePreference('fr', ['en-US'])
     const view = await render(<LanguageProvider><Tree /></LanguageProvider>)
     await panelShown(view)
-    expect(currentLanguage()).toBe('it')
-    expect(view.container.querySelector('h1')?.textContent).toBe('In arrivo')
+    expect(currentLanguage()).toBe('fr')
+    expect(view.container.querySelector('h1')?.textContent).toBe('Boîte de réception')
     await view.unmount()
   })
 
   it('System names the language it resolves to, and every language in its own name', async () => {
     const view = await render(<LanguageView value="system" system="English" onChange={vi.fn()} />)
     const options = [...view.container.querySelectorAll('#language-select option')].map((o) => o.textContent)
-    expect(options).toEqual(['System (English)', 'English', 'Deutsch', 'Français', 'Español', 'Italiano', 'Português'])
+    expect(options).toEqual(['System (English)', 'English', 'Français'])
     await view.unmount()
   })
 
   it('a catalog that could not be loaded is reported, and loading is announced', async () => {
-    const failed = await render(<LanguageView value="de" system="English" status="failed" onChange={vi.fn()} />)
+    const failed = await render(<LanguageView value="fr" system="English" status="failed" onChange={vi.fn()} />)
     expect(failed.container.querySelector('[data-language-status="failed"]')?.textContent).toContain('could not be loaded')
     await failed.unmount()
-    const loading = await render(<LanguageView value="de" system="English" status="loading" onChange={vi.fn()} />)
+    const loading = await render(<LanguageView value="fr" system="English" status="loading" onChange={vi.fn()} />)
     expect(loading.container.querySelector('[role="status"]')?.textContent).toBe('Loading the language…')
     await loading.unmount()
   })

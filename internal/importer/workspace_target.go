@@ -85,7 +85,7 @@ func intoWorkspace(parsed *Parsed, target string, isDefault bool, name string) {
 			continue
 		}
 		switch r.Kind {
-		case KindProject, KindLabel, KindView:
+		case KindProject, KindLabel, KindView, KindDossier:
 			e["workspace_id"] = value
 		case KindTask:
 			if _, has := e["workspace_id"]; has || opsync.IsNull(e["project_id"]) {

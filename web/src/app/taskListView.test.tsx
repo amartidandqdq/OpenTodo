@@ -46,9 +46,11 @@ describe('list chrome', () => {
     await createTask({ title: 'Call mum', estimate_minutes: 10 })
     const r = await render(<TaskListView route={{ view: 'inbox' }} />)
     await waitFor(() => r.container.textContent!.includes('Call mum'))
+    // The mockup A composition: the header, the capture and the view bar precede the rows.
     const chrome = chromeBeforeFirstTask(r.container)
-    expect(chrome.map((c) => c.tagName.toLowerCase())).toEqual(['header', 'div'])
+    expect(chrome.map((c) => c.tagName.toLowerCase())).toEqual(['header', 'div', 'div'])
     expect(chrome[1].querySelector('input[aria-label="Add a task"]')).toBeTruthy()
+    expect(chrome[2].matches('[data-mockup-viewbar]')).toBe(true)
     expect(r.container.querySelector('[role="group"][aria-label="Duration filter"]')).toBeNull()
     expect(r.container.querySelector('[data-duration-active]')).toBeNull()
     expect([...r.container.querySelectorAll('[data-task-id] [data-row-meta]')].some((m) => m.textContent?.includes('Inbox'))).toBe(false)
@@ -62,7 +64,7 @@ describe('list chrome', () => {
     expect(r.container.querySelector('[data-sort-note]')).toBeNull()
     expect(r.container.textContent).not.toContain('sorted by date')
     expect(r.container.querySelector('[data-ask-hint]')).toBeNull()
-    expect(chromeBeforeFirstTask(r.container).length).toBeLessThanOrEqual(2)
+    expect(chromeBeforeFirstTask(r.container).length).toBeLessThanOrEqual(3)
     await r.unmount()
   })
 
@@ -71,7 +73,7 @@ describe('list chrome', () => {
     await createTask({ title: 'Long one', estimate_minutes: 120 })
     const r = await render(<TaskListView route={{ view: 'inbox' }} />)
     await waitFor(() => r.container.textContent!.includes('Long one'))
-    const trigger = r.container.querySelector<HTMLButtonElement>('[data-page-header] [data-duration-filter] button[aria-haspopup]')!
+    const trigger = r.container.querySelector<HTMLButtonElement>('[data-mockup-viewbar] [data-duration-filter] button[aria-haspopup]')!
     expect(trigger).toBeTruthy()
     await click(trigger)
     await waitFor(() => !!document.querySelector('[role="menu"], [role="dialog"]'))
@@ -79,10 +81,10 @@ describe('list chrome', () => {
     await click(item)
     await waitFor(() => !r.container.textContent!.includes('Long one'))
     expect(r.container.textContent).toContain('Quick one')
-    const active = r.container.querySelector('[data-page-header] [data-duration-active]')!
+    const active = r.container.querySelector('[data-mockup-viewbar] [data-duration-active]')!
     expect(active.textContent).toContain('Quick wins')
-    // Still nothing between the quick add and the first row.
-    expect(chromeBeforeFirstTask(r.container).length).toBe(2)
+    // The toolbar stays the page's last chrome row.
+    expect(chromeBeforeFirstTask(r.container).length).toBe(3)
     await click(active.querySelector<HTMLButtonElement>('[data-clear-duration]')!)
     await waitFor(() => r.container.textContent!.includes('Long one'))
     expect(r.container.querySelector('[data-duration-active]')).toBeNull()

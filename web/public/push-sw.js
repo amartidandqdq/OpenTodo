@@ -27,11 +27,7 @@
   // which language the browser resolves to when no window is open.
   const TEXT = {
     en: { reminder: 'Reminder', due: 'Due {date}', generic: 'You have a reminder', snooze: 'Snooze 10 min', dismiss: 'Dismiss', test: 'Test notification: push works on this device.' },
-    de: { reminder: 'Erinnerung', due: 'Fällig {date}', generic: 'Du hast eine Erinnerung', snooze: '10 Min. später', dismiss: 'Verwerfen', test: 'Testbenachrichtigung: Push funktioniert auf diesem Gerät.' },
     fr: { reminder: 'Rappel', due: 'Échéance {date}', generic: 'Vous avez un rappel', snooze: 'Reporter de 10 min', dismiss: 'Ignorer', test: 'Notification de test : les notifications push fonctionnent sur cet appareil.' },
-    es: { reminder: 'Recordatorio', due: 'Vence {date}', generic: 'Tienes un recordatorio', snooze: 'Posponer 10 min', dismiss: 'Descartar', test: 'Notificación de prueba: las notificaciones push funcionan en este dispositivo.' },
-    it: { reminder: 'Promemoria', due: 'Scadenza {date}', generic: 'Hai un promemoria', snooze: 'Posticipa di 10 min', dismiss: 'Ignora', test: 'Notifica di prova: le notifiche push funzionano su questo dispositivo.' },
-    pt: { reminder: 'Lembrete', due: 'Vence {date}', generic: 'Você tem um lembrete', snooze: 'Adiar 10 min', dismiss: 'Dispensar', test: 'Notificação de teste: as notificações push funcionam neste dispositivo.' },
   }
   self.__opentodoText = TEXT
 

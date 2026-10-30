@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { type ReactNode, useEffect, useRef, useState } from 'react'
+import { MockupTopBar } from './MockupTopBar'
 import { Sidebar } from './Sidebar'
 import { seedInbox, seedToday, seedTracking, seeded, storyUser, withSeed } from './stories/fixtures'
 import { createProject, createTask } from '../lib/ops'
@@ -38,6 +39,21 @@ export const Default: StoryObj = {
 export const ProjectSelected: StoryObj = {
   render: () => (
     <Column><Sidebar route={{ view: 'project', id: seeded.website }} user={storyUser} onSearch={noop} onShortcuts={noop} onToggleCollapse={noop} /></Column>
+  ),
+}
+
+/** Under the application bar (original-mockup-a): the desktop's narrow 12 rem
+ *  sidebar with its compact workspace control — no brand, no search, the app bar
+ *  carries both — beside the continuous content surface. */
+export const CompactUnderAppbar: StoryObj = {
+  render: () => (
+    <div className="flex h-[52rem] flex-col bg-canvas">
+      <MockupTopBar user={storyUser} onSearch={noop} onShortcuts={noop} onSignOut={noop} />
+      <div className="flex min-h-0 flex-1">
+        <div className="flex h-full w-48 shrink-0 flex-col border-r border-default"><Sidebar compact route={{ view: 'inbox' }} user={storyUser} onSearch={noop} onToggleCollapse={noop} /></div>
+        <main className="min-w-0 flex-1 bg-canvas px-8 py-7 text-meta text-faint">The list begins here: one surface with the sidebar, under the bar.</main>
+      </div>
+    </div>
   ),
 }
 

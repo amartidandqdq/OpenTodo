@@ -9,10 +9,15 @@
 import { lazy, Suspense, useRef, useState, type KeyboardEvent } from 'react'
 import { act } from '../actionError'
 import { updateTask } from '../../lib/ops'
+import { logicalToday } from '../../lib/dates'
+import { useReviewRow } from '../../lib/localData'
+import { useLiveTasks } from '../../lib/liveTasks'
+import { storedFocus } from '../../lib/review'
 import { keysOf } from '../../lib/shortcuts'
 import type { Priority, Task } from '../../lib/types'
 import { t } from '../../lib/i18n'
 import { Icon, IconButton, Menu, MenuItem } from '../../ui'
+import { toggleTodayFocus } from '../todayFocusAction'
 
 const RowSchedule = lazy(() => import('./RowSchedule'))
 
@@ -36,6 +41,18 @@ export function RowActionCluster({ task, onMore, force = false, editable = true,
 }) {
   const [scheduling, setScheduling] = useState(false)
   const schedule = useRef<HTMLButtonElement>(null)
+  const review = useReviewRow()
+  const tasks = useLiveTasks()
+  // "Ma journée" (fork change `my-day-sun`): the sun adds or removes the task in the day's
+  // synced focus, without touching its due date. `logicalToday` is enough here: rows
+  // re-render when the review row changes, and the day rolls at the user's day start.
+  const today = logicalToday()
+  const inFocus = storedFocus(review, today).includes(task.id)
+  const canFocus = editable && !task.completed_at && !task.deleted_at
+  const focus = () => act((async () => {
+    if (!tasks) return
+    await toggleTodayFocus(review, today, tasks, task)
+  })())
   // Esc on an action goes back to the row's open control.
   const onKeyDown = (e: KeyboardEvent<HTMLSpanElement>) => {
     if (e.key !== 'Escape' || scheduling) return
@@ -49,7 +66,7 @@ export function RowActionCluster({ task, onMore, force = false, editable = true,
   const shown = force || scheduling ? 'opacity-100' : 'pointer-events-none opacity-0 group-hover:pointer-events-auto group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:opacity-100'
   return (
     <span data-row-actions="" onKeyDown={onKeyDown} onFocus={(e) => reveal(e.target as HTMLElement)}
-      className={`absolute top-px right-1 hidden items-center gap-2 rounded-control border border-strong bg-pop px-0.5 shadow-2 transition-opacity duration-(--duration-ui) md:pointer-fine:flex ${shown}`}>
+      className={`mockup-row-actions absolute right-0 hidden items-center gap-0.5 rounded-control px-0.5 transition-opacity duration-(--duration-ui) md:pointer-fine:flex ${shown}`}>
       {details && (
         <IconButton icon="chevron-down" size="sm" label={details.expanded ? t('Hide details') : t('Show details')}
           shortcut={keysOf(details.expanded ? 'list.collapse' : 'list.expand')} aria-expanded={details.expanded}
@@ -57,6 +74,10 @@ export function RowActionCluster({ task, onMore, force = false, editable = true,
           className={details.expanded ? '[&_svg]:rotate-180' : undefined} />
       )}
       {editable && <>
+      {canFocus && (
+        <IconButton icon="sun" size="sm" label={inFocus ? t('Remove from today’s focus') : t('Add to today’s focus')}
+          aria-pressed={inFocus} data-row-action="focus" onClick={focus} className={inFocus ? 'text-accent' : undefined} />
+      )}
       <IconButton ref={schedule} icon="calendar-days" size="sm" label={t('Schedule')} aria-haspopup="dialog" aria-expanded={scheduling}
         data-row-action="schedule" onClick={() => setScheduling(true)} />
       <Menu kind="menu" label={`${t('Priority')}: ${PRIORITY_TEXT[task.priority]}`} tip={t('Priority')} tipShortcut={keysOf('list.priority')} align="end"

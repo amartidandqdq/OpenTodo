@@ -1,0 +1,31 @@
+/* The desktop shell of the approved original mockup A
+   (openspec/changes/original-mockup-a, spec "Original mockup shell"). The
+   composition of the application bar; every colour, surface, line, radius and
+   step of type comes from the tokens in src/index.css (semantic utilities via
+   @theme inline), so light, dark and themes resolve without overriding. The
+   classes live in the components layer, so utilities can still win. */
+@layer components {
+  /* The bar: 70 px, the mockup's height, with one hairline; the sidebar and the
+     content form one continuous surface below it. */
+  .mockup-topbar {
+    @apply hidden h-[4.375rem] shrink-0 items-center gap-2.5 border-b border-default bg-canvas px-4 md:flex;
+  }
+  /* Brand: the mark and the wordmark, the mockup's leading slot. */
+  .mockup-brand {
+    @apply flex min-w-0 shrink-0 items-center gap-2 text-h2 font-semibold text-strong;
+  }
+  /* The hairline between the brand and the workspace context. */
+  .mockup-topbar-divider {
+    @apply hidden border-l border-default lg:block;
+    height: 1rem;
+  }
+  /* The workspace context beside the brand: quiet, one line, whole with ellipsis. */
+  .mockup-workspace {
+    @apply flex min-w-0 items-center gap-1.5 text-meta text-muted;
+  }
+  /* The Assistant trigger while it is available: one calm chip, like the mockup's. */
+  .mockup-assistant-trigger {
+    @apply flex shrink-0 items-center gap-2 rounded-control bg-sunken px-3 text-meta font-semibold text-default
+      hover:bg-hover focus-visible:bg-hover dark:hover:bg-raised dark:focus-visible:bg-raised;
+  }
+}

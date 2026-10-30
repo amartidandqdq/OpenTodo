@@ -88,7 +88,7 @@ func DeviceManifest(reg *agenttools.Registry) Manifest {
 	m := Manifest{
 		Version: ManifestVersion, Rules: SystemRules, DeviceNote: DeviceNote, Notice: agenttools.Notice, UntrustedNote: UntrustedNote,
 		Views:          views,
-		Messages:       map[string]string{"refusal": RefusalMessage, "cut_off": CutOffMessage, "round_limit": RoundLimitMessage},
+		Messages:       map[string]string{"refusal": RefusalMessage, "cut_off": CutOffMessage, "round_limit": RoundLimitMessage, "round_limit_partial": RoundLimitPartialMessage},
 		Limits:         map[string]int{"max_rounds": MaxRounds, "max_output_tokens": MaxOutputTokens, "max_entities": MaxEntities, "max_items": agenttools.MaxItems},
 		AnthropicModel: DefaultAnthropicModel, AnthropicList: AnthropicModels,
 		Endpoints: map[string]string{Anthropic: "https://api.anthropic.com/v1", OpenAI: OpenAIBaseURL, Gemini: GeminiBaseURL},

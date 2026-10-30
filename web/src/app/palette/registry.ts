@@ -77,6 +77,7 @@ interface Command {
 // The "Go to" commands; their shortcut column is the registry's `go.*` rows (keyboard-shortcuts "Registry drives the guide and the palette").
 type RouteCommand = { label: string; route: Route; icon: IconName; shortcut?: string; keywords?: string }
 const ROUTES: RouteCommand[] = translatedList<RouteCommand, 'label'>([
+  { label: msg('Go to Pick up the thread'), route: { view: 'resume' }, icon: 'compass', keywords: 'dossier dossiers thread resume reprendre fil' },
   { label: msg('Go to Inbox'), route: { view: 'inbox' }, icon: 'inbox', shortcut: keysOf('go.inbox') },
   { label: msg('Go to Today'), route: { view: 'today' }, icon: 'calendar-check', shortcut: keysOf('go.today') },
   { label: msg('Go to Upcoming'), route: { view: 'upcoming' }, icon: 'calendar-days', shortcut: keysOf('go.upcoming') },

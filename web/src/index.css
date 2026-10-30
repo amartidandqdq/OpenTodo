@@ -1,4 +1,18 @@
 @import "tailwindcss";
+@import "./app/task-list/mockupRows.css";
+@import "./app/mockupShell.css";
+@import "./app/task-list/mockupList.css";
+
+/* Mockup A uses one paper surface across the application. Scope the canvas
+   alias to the signed-in shell; public pages retain their existing canvas. */
+@layer components {
+  [data-mockup-shell] {
+    --ot-canvas: var(--ot-surface);
+    --ot-sidebar: var(--ot-surface);
+    --color-canvas: var(--ot-surface);
+    --color-sidebar: var(--ot-surface);
+  }
+}
 
 /* OpenSpec design-language: design tokens (docs/design-system.md).
    Raw values live in --ot-* custom properties: light on :root, dark under the system
@@ -949,6 +963,18 @@ button.ui-column-add { @apply flex-row items-start justify-start px-3 py-2.5 hov
 }
 @keyframes row-rolled { from { background-color: var(--ot-accent-soft); } to { background-color: transparent; } }
 @keyframes row-fade-in { from { opacity: 0; } to { opacity: 1; } }
+
+/* The assistant is working: three dots rise in turn and the mark pulses. Under
+   reduced motion every animation runs once, so the dots simply sit there. */
+@keyframes assistant-dot { 0%, 80%, 100% { transform: translateY(0); opacity: 0.35; } 40% { transform: translateY(-0.3rem); opacity: 1; } }
+@keyframes assistant-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
+@layer components {
+  .assistant-working { display: inline-flex; gap: 0.25rem; padding-block: 0.25rem; }
+  .assistant-working > i { inline-size: 0.375rem; block-size: 0.375rem; border-radius: 9999px; background-color: var(--ot-muted); animation: assistant-dot var(--duration-moment) ease-in-out infinite alternate; }
+  .assistant-working > i:nth-child(2) { animation-delay: 0.15s; }
+  .assistant-working > i:nth-child(3) { animation-delay: 0.3s; }
+  .assistant-working-mark { animation: assistant-pulse var(--duration-moment) ease-in-out infinite alternate; }
+}
 .row-check-pop, [data-departing] [data-check-mark], [data-rolled] [data-check-mark] {
   animation: row-check-pop var(--duration-emphasis) var(--ease-spring) backwards;
 }

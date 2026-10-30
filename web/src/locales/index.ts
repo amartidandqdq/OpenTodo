@@ -4,11 +4,7 @@
 // work in progress: `make i18n-check` reports it, Settings never offers it.
 export const SHIPPED = [
   { code: 'en', name: 'English' },
-  { code: 'de', name: 'Deutsch' },
   { code: 'fr', name: 'Français' },
-  { code: 'es', name: 'Español' },
-  { code: 'it', name: 'Italiano' },
-  { code: 'pt', name: 'Português' },
 ] as const
 
 export type LanguageCode = (typeof SHIPPED)[number]['code']

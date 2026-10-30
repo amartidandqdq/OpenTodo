@@ -92,6 +92,21 @@ async function seed() {
 }
 
 describe('disable with a note document (issue #96)', () => {
+  it('migrates existing dossier text on encryption enable and disable', async () => {
+    await applyOps(['title', 'note', 'waiting_for'].map((field, i): Op => ({
+      id: `d${i}`, entity: 'dossier', entityId: 'd1', field, value: `Private ${field}`, ts: 100, device: 'old',
+    })), { actor: 'me', local: false })
+    await enableEncryption(PASS, FAST)
+    await startMigration('encrypt')
+    await syncNow()
+    const encrypted = await db.dossiers.get('d1')
+    for (const field of ['title', 'note', 'waiting_for']) expect(encrypted?._e2ee?.wire?.[field]).toBe('c')
+    await disableEncryption()
+    await startMigration('decrypt')
+    await syncNow()
+    const plain = await db.dossiers.get('d1')
+    for (const field of ['title', 'note', 'waiting_for']) expect(plain?._e2ee?.wire?.[field]).toBe('p')
+  })
   it('re-writes a task that has a note document as plaintext', async () => {
     await seed()
     await enableEncryption(PASS, FAST)

@@ -26,7 +26,7 @@ import { REVIEW_ID } from './review'
 import { USER_PREFS_ID } from './userPrefs'
 import { ownIn, projectsIn, readWorkspaceState, type WorkspaceState } from './workspaces'
 import type {
-  AppNotification, Attachment, CalendarConnection, CalendarSubscription, WorkspaceGroup, WorkspaceMember, IssueConnection, Comment, FieldDef, Label, Membership, Project, ProjectPrefs, Reminder, Review, Section, Task, UserPrefs, View,
+  AppNotification, Attachment, CalendarConnection, CalendarSubscription, WorkspaceGroup, WorkspaceMember, IssueConnection, Comment, Dossier, FieldDef, Label, Membership, Project, ProjectPrefs, Reminder, Review, Section, Task, UserPrefs, View,
 } from './types'
 
 export type { AttachmentBlob }
@@ -62,6 +62,8 @@ export function useWorkspaceGroups(): WorkspaceGroup[] {
 const prefsRow = liveSnapshot('user prefs', async () => (await db.userPrefs.get(USER_PREFS_ID)) ?? null)
 const reviewRow = liveSnapshot('review', async () => (await db.review.get(REVIEW_ID)) ?? null)
 const projectPrefRows = liveSnapshot('project prefs', () => db.prefs.toArray())
+// Dossiers (resume-dossiers): personal like labels, partitioned by workspace.
+const dossierRows = liveSnapshot('dossiers', async () => ownIn(await readWorkspaceState(), await db.dossiers.toArray()))
 
 // Stable empty values for callers that render before the first snapshot arrives.
 const NO_PROJECTS: Project[] = []
@@ -69,11 +71,13 @@ const NO_LABELS: Label[] = []
 const NO_MEMBERSHIPS: Membership[] = []
 const NO_VIEWS: View[] = []
 const NO_MEMBER_MAP = new Map<string, Membership>()
+const NO_DOSSIERS: Dossier[] = []
 
 const liveOf = derived((all: Project[]) => all.filter((p) => !p.deleted_at).sort(compareByPosition))
 const allSorted = derived((all: Project[]) => all.slice().sort(compareByPosition))
 const activeOf = derived((all: Label[]) => activeLabels(all))
 const memberMapOf = derived((all: Membership[]) => new Map(all.map((m) => [m.projectId, m])))
+const liveDossiersOf = derived((all: Dossier[]) => all.filter((d) => !d.deleted_at).sort(compareByPosition))
 const reviewedAtOf = derived((all: ProjectPrefs[]) => new Map(all.filter((p) => p.reviewed_at > 0).map((p) => [p.id, p.reviewed_at])))
 const NO_STAMPS = new Map<string, number>()
 
@@ -179,6 +183,18 @@ export function useReviewedAt(): ReadonlyMap<string, number> {
 /** The weekly review row: undefined while loading, null when there is none yet. */
 export function useReviewRow(): Review | null | undefined {
   return reviewRow.use()
+}
+
+/** The live dossiers of the current workspace, in position order; empty until loaded. */
+export function useDossiers(): Dossier[] {
+  const all = dossierRows.use()
+  return all ? liveDossiersOf(all) : NO_DOSSIERS
+}
+
+/** Like useDossiers, but undefined until the first read (screens that wait for the rows). */
+export function useDossiersLoaded(): Dossier[] | undefined {
+  const all = dossierRows.use()
+  return all ? liveDossiersOf(all) : undefined
 }
 
 // ---- custom field definitions ----

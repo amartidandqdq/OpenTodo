@@ -7,21 +7,27 @@ import { Kbd } from '../shortcuts/Kbd'
 import { useMemo, useRef, useState, type RefObject } from 'react'
 import { useBelowStickyHeader } from './useBelowStickyHeader'
 import { allCompleted, applyBulk, commonSharedProject, readTicked, reviewAssign, reviewMove, type BulkAction, type ReviewPlan, useTickedTasks } from '../../lib/bulk'
-import { useAllLabels, useLiveSections, useProjects, useMembershipMap } from '../../lib/localData'
+import { useAllLabels, useDossiersLoaded, useLiveSections, useProjects, useMembershipMap, useReviewRow } from '../../lib/localData'
+import { attachTaskToDossier, createDossierWithTask } from '../../lib/dossiers'
+import { useLiveTasks } from '../../lib/liveTasks'
 import { itemKeywords, projectSource, sectionSource, type PickerItem } from '../../lib/pickerSources'
-import { roleOf } from '../../lib/sharing'
+import { canEditTasks, roleOf } from '../../lib/sharing'
 import { toggleTracking, useRunningEntry } from '../../lib/timeEntries'
 import { act } from '../actionError'
-import type { Label, Membership, Priority, Project, Section, Task } from '../../lib/types'
+import type { Dossier, Label, Membership, Priority, Project, Section, Task } from '../../lib/types'
 import { Icon, Dialog, useFinePointer } from '../../ui'
 import { Tooltip } from '../../ui'
 import { DateField } from '../datetime/DateField'
 import { ActionMenu, type ActionGroup, type ActionItem } from '../menus/ActionMenu'
 import { openRowSchedule } from '../task-list/RowSwipe'
 import { BulkReview } from './BulkReview'
-import { showBulkToast } from './toastStore'
+import { showBulkToast, showUndoToast } from './toastStore'
+import { dossierText } from '../resume/DossierCard'
 import { t } from '../../lib/i18n'
 import { withListTransition } from '../motion'
+import { useToday } from '../useViews'
+import { storedFocus } from '../../lib/review'
+import { toggleTodayFocus } from '../todayFocusAction'
 
 /** Apply a bulk action and offer its undo. */
 export async function runBulk(ids: readonly string[], action: BulkAction): Promise<void> {
@@ -36,7 +42,33 @@ const itemKey = (i: PickerItem) => i.key
 const itemLabel = (i: PickerItem) => i.label
 const itemPath = (i: PickerItem) => i.path
 
-interface Data { tasks: Task[]; labels: Label[]; projects: Project[]; sections: Section[]; memberships: Map<string, Membership>; runningTask?: string | null }
+interface Data { tasks: Task[]; labels: Label[]; projects: Project[]; sections: Section[]; memberships: Map<string, Membership>; runningTask?: string | null; dossiers?: Dossier[] }
+
+/**
+ * "Add to a dossier…" for one open task the person may edit: a picker over the live
+ * dossiers, and a typed name that matches none creates one. Nothing for a completed,
+ * deleted or read-only task.
+ */
+export function dossierMenuItem(task: Task | undefined, d: Pick<Data, 'dossiers' | 'memberships'>): ActionItem | undefined {
+  if (!task || task.completed_at || task.deleted_at || !canEditTasks(roleOf(task.project_id, d.memberships))) return undefined
+  return { kind: 'picker', id: 'dossier', label: t('Add to a dossier'), icon: 'compass', picker: {
+    title: t('Add to a dossier'), placeholder: t('Find a dossier…'), source: d.dossiers ?? [], rankContext: 'dossier',
+    getKey: (x: Dossier) => x.id, getLabel: (x: Dossier) => dossierText(x.title) || t('Untitled dossier'),
+    onPick: (x: Dossier) => act(addTaskToDossierFromMenu(task, { dossier: x })),
+    onCreate: (name: string) => act(addTaskToDossierFromMenu(task, { name })),
+  } }
+}
+
+/** Attaches the task to the chosen dossier, or creates the named one with it: one undoable batch. */
+async function addTaskToDossierFromMenu(task: Task, target: { dossier: Dossier } | { name: string }): Promise<void> {
+  if ('name' in target) {
+    const { entry } = await createDossierWithTask(target.name, task.id)
+    showUndoToast(t('{task} added to {dossier}', { task: task.title, dossier: target.name }), entry?.id ?? null)
+    return
+  }
+  const entry = await attachTaskToDossier(target.dossier.id, task.id)
+  if (entry) showUndoToast(t('{task} added to {dossier}', { task: task.title, dossier: dossierText(target.dossier.title) }), entry.id)
+}
 
 /**
  * Start or Stop tracking for one task (time-tracking D5): Stop while its entry runs,
@@ -51,7 +83,7 @@ export function trackingItem(task: Task | undefined, runningTask: string | null 
 }
 
 /** The menu's groups for the given tasks (exported for the palette and tests). */
-export function bulkMenuGroups(ids: readonly string[], d: Data, a: { review: (title: string, plan: Promise<ReviewPlan>) => void; pickDate: () => void; schedule?: () => void }, besideRow = false): ActionGroup[] {
+export function bulkMenuGroups(ids: readonly string[], d: Data, a: { review: (title: string, plan: Promise<ReviewPlan>) => void; pickDate: () => void; schedule?: () => void; focus?: { inFocus: boolean; toggle: () => void } }, besideRow = false): ActionGroup[] {
   const n = d.tasks.length
   const reopen = allCompleted(d.tasks)
   const live = d.labels.filter((l) => !l.deleted_at)
@@ -61,12 +93,14 @@ export function bulkMenuGroups(ids: readonly string[], d: Data, a: { review: (ti
   const shared = commonSharedProject(d.tasks, d.memberships)
   const members = shared ? d.memberships.get(shared)?.members ?? [] : []
   const run = (action: BulkAction) => () => runBulk(ids, action)
+  const dossier = n === 1 ? dossierMenuItem(d.tasks[0], d) : undefined
   const complete: ActionItem = { kind: 'action', id: 'complete', label: reopen ? t('Reopen') : t('Complete'), icon: 'check', shortcut: keysOf('list.complete'), onSelect: run({ kind: 'complete' }) }
   // On touch, one task's menu starts with the two swipe actions (phone-v2 D3, WCAG 2.2 2.5.7).
   const swipeTwins = n === 1 && a.schedule
   return [
     ...(swipeTwins ? [{ items: [complete, { kind: 'action', id: 'schedule', label: t('Schedule…'), icon: 'calendar-days', onSelect: a.schedule } as ActionItem] }] : []),
     ...(n === 1 ? [{ items: trackingItem(d.tasks[0], d.runningTask, d.memberships) }] : []),
+    ...(a.focus ? [{ items: [{ kind: 'action' as const, id: 'focus', label: a.focus.inFocus ? t('Remove from today’s focus') : t('Add to today’s focus'), icon: 'sun' as const, onSelect: a.focus.toggle }] }] : []),
     ...(swipeTwins ? [] : [{ items: [complete] }]),
     // Beside a row its own Priority and Schedule buttons already offer these.
     ...(besideRow ? [] : [{ label: t('Priority'), items: ([1, 2, 3, 4] as Priority[]).map((p) => ({ kind: 'action' as const, id: `p${p}`, label: t('Priority {p}', { p }), icon: 'flag' as const, shortcut: String(p), onSelect: run({ kind: 'priority', priority: p }) })) }]),
@@ -80,6 +114,7 @@ export function bulkMenuGroups(ids: readonly string[], d: Data, a: { review: (ti
         onPick: (l: Label) => { void labelToggle(ids, l.id) },
       } },
     ] },
+    ...(dossier ? [{ items: [dossier] }] : []),
     ...(besideRow ? [] : [{ label: t('Date'), items: [
       { kind: 'action', id: 'today', label: t('Today'), icon: 'calendar-check', onSelect: run({ kind: 'due', pick: 'today' }) },
       { kind: 'action', id: 'tomorrow', label: t('Tomorrow'), icon: 'calendar-days', onSelect: run({ kind: 'due', pick: 'tomorrow' }) },
@@ -127,7 +162,8 @@ function useBulkData(ids: readonly string[]): Data {
   const sections = useLiveSections()
   const memberships = useMembershipMap()
   const runningTask = useRunningEntry()?.task_id ?? null
-  return { tasks, labels, projects, sections, memberships, runningTask }
+  const dossiers = useDossiersLoaded()
+  return { tasks, labels, projects, sections, memberships, runningTask, dossiers }
 }
 
 /**
@@ -146,15 +182,33 @@ export function BulkActionsMenu({ ids, open, onOpenChange, trigger, triggerClass
   anchor?: RefObject<HTMLElement | null>
 }) {
   const data = useBulkData(ids)
+  const reviewRow = useReviewRow()
+  const today = useToday()
+  // The focus is read and written against every live task: the menu's own read holds
+  // only the ticked selection, and writing from it would drop the tasks already chosen.
+  const liveTasks = useLiveTasks()
   const [review, setReview] = useState<{ title: string; plan: ReviewPlan } | null>(null)
   const [dating, setDating] = useState(false)
   const besideRow = !!anchor?.current
   const touch = !useFinePointer()
+  // "Ma journée" (fork change `my-day-sun`): one open task, added to or taken out of the
+  // focus of the day. The focus is the method's own row, synced like any other edit; the
+  // menu only offers the gesture, and a toast says what changed.
+  const focus = useMemo(() => {
+    const task = ids.length === 1 ? data.tasks.find((x) => x.id === ids[0]) : undefined
+    if (!task || task.completed_at || task.deleted_at || !liveTasks) return undefined
+    const inFocus = storedFocus(reviewRow, today).includes(task.id)
+    return {
+      inFocus,
+      toggle: () => act(toggleTodayFocus(reviewRow, today, liveTasks, task)),
+    }
+  }, [ids, data.tasks, reviewRow, today, liveTasks])
   const groups = useMemo(() => bulkMenuGroups(ids, data, {
     review: (title, plan) => { void plan.then((p) => setReview({ title, plan: p })) },
     pickDate: () => setDating(true),
     schedule: touch && ids.length === 1 ? () => openRowSchedule(ids[0]) : undefined,
-  }, besideRow), [ids, data, besideRow, touch])
+    focus,
+  }, besideRow), [ids, data, besideRow, touch, focus])
   const n = data.tasks.length || ids.length
   return (
     <>

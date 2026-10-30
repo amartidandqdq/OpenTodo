@@ -1,4 +1,4 @@
-import { DESKTOP_HEADER_QUERY, IconButton, setSidebarToggle, PageActions, PageBarTitle, TruncatedText, useMediaQuery, usePageBar, useOverlayDepth } from '../ui'
+import { DESKTOP_HEADER_QUERY, IconButton, Skeleton, setSidebarToggle, PageActions, PageBarTitle, TruncatedText, useMediaQuery, usePageBar, useOverlayDepth } from '../ui'
 import { useCommandBar } from './palette/useCommandBar'
 import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import type { User } from '../lib/types'
@@ -18,6 +18,7 @@ import { ProjectsView } from './ProjectsView'
 import { SavedViewRoute } from './SavedViewView'
 import { ViewsView } from './ViewsView'
 import { Sidebar } from './Sidebar'
+import { MockupTopBar } from './MockupTopBar'
 import { TaskListView } from './TaskListView'
 import { AskScreen } from './assistant/AskEntry'
 import { TrashView } from './TrashView'
@@ -39,7 +40,9 @@ import { PanelHost } from './PanelHost'
 import { TaskPage } from './TaskPage'
 import { watchViewerZone } from '../lib/dates'
 import { UndoToast } from './bulk/UndoToast'
+import { ClassifyCard } from './ClassifyCard'
 import { DailyCheckToast } from './method/DailyCheckToast'
+import { useDossierLinkOffer } from '../lib/dossiers'
 import { PanelBoundary } from './PanelBoundary'
 import { TemplateDialogHost } from './TemplateDialogs'
 import { setCurrentUserId } from '../lib/sharing'
@@ -75,6 +78,11 @@ const StatsView = lazy(() => import('./review/ReviewBundle').then((m) => ({ defa
 const DailyCheck = lazy(() => import('./review/ReviewBundle').then((m) => ({ default: m.DailyCheck })))
 const MonthlyLook = lazy(() => import('./review/ReviewBundle').then((m) => ({ default: m.MonthlyLook })))
 const CloseDay = lazy(() => import('./review/ReviewBundle').then((m) => ({ default: m.CloseDay })))
+// Dossiers (resume-dossiers D7): the pages are one lazy chunk; the capture card is
+// fetched only once a local match offers it, so first load carries neither screen.
+const ResumeView = lazy(() => import('./resume/ResumeBundle').then((m) => ({ default: m.ResumeView })))
+const DossierView = lazy(() => import('./resume/ResumeBundle').then((m) => ({ default: m.DossierView })))
+const DossierLinkCard = lazy(() => import('./resume/DossierLinkCard').then((m) => ({ default: m.DossierLinkCard })))
 const NextView = lazy(() => import('./method/MethodListView').then((m) => ({ default: m.NextView })))
 const WaitingView = lazy(() => import('./method/MethodListView').then((m) => ({ default: m.WaitingView })))
 // Focus (focus-mode D6): its own chunk; the engine that ends a session on time is the break reminder, always mounted.
@@ -171,6 +179,9 @@ export function Shell({ user, onLogout }: { user: User; onLogout: () => void }) 
   const sheetOpen = useOverlayDepth() > 0
   const panelOpen = !!usePanel()
   const phoneChrome = !sheetOpen && !panelOpen && !['share', 'invite', 'project-invite', 'workspace-invite', 'reset', 'task'].includes(route.view)
+  // The local dossier offer follows the person across screens (resume-dossiers D6):
+  // a capture on any quick-add line keeps its card until it is confirmed or closed.
+  const dossierOffer = useDossierLinkOffer()
   // The one keydown listener (keyboard-shortcuts "One shortcut registry with
   // scopes"); the shell owns the `global` scope: the palette, `g` navigation, the
   // cheat sheet, the sidebar toggle and the assistant.
@@ -200,6 +211,9 @@ export function Shell({ user, onLogout }: { user: User; onLogout: () => void }) 
 
   const sidebar = useSidebarLayout()
   useHeaderSidebarToggle(sidebar.collapsed)
+  // The desktop top bar exists above the sidebar from 768 px (original-mockup-a); the
+  // sidebar's header then stays compact, while the phone drawer keeps its own brand and search.
+  const desktop = useMediaQuery(DESKTOP_HEADER_QUERY)
   const openPalette = palette.openSearch
   const vim = useVimEnabled()
   const [vimHelp, setVimHelp] = useState<HelpSection | null>(null)
@@ -213,22 +227,30 @@ export function Shell({ user, onLogout }: { user: User; onLogout: () => void }) 
   const minimised = usePhoneChrome(content, phoneChrome, sidebarOpen)
 
   return (
-    <div className="flex h-full bg-canvas">
+    // The mockup A shell (original-mockup-a): the desktop application bar above
+    // the columns, then the sidebar and the content as one continuous surface.
+    <div className="flex h-full flex-col bg-canvas" data-mockup-shell>
       <SkipLink frame={frame} content={content} />
+      {/* The brand, the workspace context, search, the available Assistant and the
+          account access; it renders nothing below 768 px, where the phone page bar
+          stays (spec: "no desktop top-bar duplication"). */}
+      <MockupTopBar user={user} onSearch={openPalette} onAssistant={showLauncher(assistant) ? openAssistant : undefined}
+        onShortcuts={() => setShowHelp(true)} onSignOut={onLogout} />
+      <div className="flex min-h-0 flex-1" data-mockup-columns>
       {/* touch-none: a swipe on the scrim does not scroll the page behind the open drawer (sidebar-drawer-scroll). */}
       {sidebarOpen && <div className="fixed inset-0 z-[45] touch-none bg-scrim md:hidden" onClick={() => setSidebarOpen(false)} />}
       {/* The sidebar column: a drawer below 768 px, a column from there, resizable and collapsible from 1024 px (app-shell); its colour, shared by the sticky group headers, is --sidebar-bg: the surface in the drawer, the canvas as a column (precision-tokens D1), where it sits beside the inset content surface without an edge (precision-shell D1). */}
       <aside data-sidebar data-sidebar-width={sidebar.collapsed ? 'collapsed' : sidebar.width}
         style={{ '--sidebar-w': `${sidebar.collapsed ? SIDEBAR_COLLAPSED_REM : sidebar.width}rem` } as React.CSSProperties}
-        className={`fixed inset-y-0 left-0 z-[45] flex w-80 max-w-[85vw] max-md:[&_[data-sidebar-item]]:min-h-12 transform max-md:border-r max-md:border-default bg-(--sidebar-bg) [--sidebar-bg:var(--color-surface)] md:[--sidebar-bg:var(--color-canvas)] md:pointer-fine:[--sidebar-bg:var(--color-sidebar)] pl-[env(safe-area-inset-left)] transition-transform md:static md:w-(--sidebar-w) md:max-w-none md:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
+        className={`fixed inset-y-0 left-0 z-[45] flex w-80 max-w-[85vw] max-md:[&_[data-sidebar-item]]:min-h-12 transform max-md:border-r max-md:border-default bg-(--sidebar-bg) [--sidebar-bg:var(--color-surface)] md:[--sidebar-bg:var(--color-canvas)] md:pointer-fine:[--sidebar-bg:var(--color-sidebar)] md:border-r md:border-soft pl-[env(safe-area-inset-left)] transition-transform md:static md:w-(--sidebar-w) md:max-w-none md:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
       >
-        <div className="min-w-0 flex-1">
-          <Sidebar route={route} user={user} onSearch={openPalette} onShortcuts={() => setShowHelp(true)} onSignOut={onLogout} onAssistant={showLauncher(assistant) ? openAssistant : undefined} collapsed={sidebar.collapsed} onToggleCollapse={toggleSidebarCollapsed} />
+        <div className="min-w-0 flex-1" onClick={(e) => { if (sidebarOpen && (e.target as Element).closest('[data-sidebar-item]')) setSidebarOpen(false) }}>
+          <Sidebar route={route} user={user} onSearch={openPalette} onShortcuts={() => setShowHelp(true)} onSignOut={onLogout} onAssistant={showLauncher(assistant) ? openAssistant : undefined} collapsed={sidebar.collapsed} onToggleCollapse={toggleSidebarCollapsed} compact={desktop} />
         </div>
         {!sidebar.collapsed && <SidebarResizer width={sidebar.width} />}
       </aside>
-      {/* From 768 px the page is one inset content surface on the canvas: 8 px from the window, the surface radius, one hairline (precision-shell D1). */}
-      <main ref={frame} className="flex min-w-0 flex-1 flex-col md:!pb-0 md:my-2 md:mr-2 md:overflow-hidden md:rounded-surface md:border md:border-default md:bg-surface" data-app-frame data-phone-chrome={phoneChrome || undefined}
+      {/* From 768 px the page is one continuous surface with the sidebar (original-mockup-a): no inset card, no radius, no margin; the app bar's hairline and the sidebar's edge carry the structure. */}
+      <main ref={frame} className="flex min-w-0 flex-1 flex-col md:!pb-0 bg-canvas" data-app-frame data-phone-chrome={phoneChrome || undefined}
         style={phoneChrome ? { paddingBottom: `calc(${TAB_BAR_HEIGHT_REM}rem + env(safe-area-inset-bottom))` } : undefined}>
         {/* Below 768 px: the bar with the menu button, the page's title and its actions (app-shell "No desktop top bar"). */}
         <PhoneBar onMenu={() => setSidebarOpen(true)} />
@@ -250,63 +272,16 @@ export function Shell({ user, onLogout }: { user: User; onLogout: () => void }) 
         {/* Below 768 px the add button's footprint is reserved under every list, so it never covers the last row (phone-v2 D2). */}
         <div ref={content} id="content" data-add-room={phoneChrome || undefined}
           className={`relative min-h-0 flex-1 overflow-y-auto scroll-pb-(--list-scroll-pad) ${phoneChrome ? 'max-md:pb-(--add-room)' : ''} ${sidebarOpen ? 'max-md:overflow-hidden' : ''}`}>
-          {/* One screen failing (a render bug, a chunk gone after an upgrade) leaves the shell usable (client-sync-robustness). */}
-          <PanelBoundary resetKey={route}>
-          {route.view === 'help' ? (
-            <Suspense fallback={<p className="px-4 py-6 text-body text-muted" role="status">{t('Loading help…')}</p>}><HelpView page={route.page} q={route.q} /></Suspense>
-          ) : route.view === 'settings' ? (
-            <SettingsView user={user} onLogout={onLogout} section={route.section} page={route.page} anchor={route.anchor} />
-          ) : route.view === 'import' ? (
-            <ImportScreen />
-          ) : route.view === 'labels' ? (
-            <LabelsView route={route} />
-          ) : route.view === 'places' ? (
-            <PlacesView />
-          ) : route.view === 'rules' ? (
-            <Suspense fallback={null}><RulesView create={route.create} /></Suspense>
-          ) : route.view === 'projects' ? (
-            <ProjectsView archived={route.archived} />
-          ) : route.view === 'filter' ? (
-            <FilterView key={route.q ?? ''} initialQuery={route.q} />
-          ) : route.view === 'views' ? (
-            <ViewsView />
-          ) : route.view === 'view' ? (
-            <SavedViewRoute id={route.id} />
-          ) : route.view === 'trash' ? (
-            <TrashView />
-          ) : route.view === 'task' ? (
-            <TaskPage id={route.id} user={user} />
-          ) : route.view === 'review' ? (
-            <Suspense fallback={<p className="px-4 py-6 text-body text-muted" role="status">{t('Loading the review…')}</p>}>
-              {route.step === 'daily' ? <DailyCheck /> : route.step === 'monthly' ? <MonthlyLook /> : route.step === 'close' ? <CloseDay /> : <ReviewView key={route.step ?? ''} userId={user.id} step={route.step} />}
-            </Suspense>
-          ) : route.view === 'next' ? (
-            <Suspense fallback={null}><NextView /></Suspense>
-          ) : route.view === 'waiting' ? (
-            <Suspense fallback={null}><WaitingView /></Suspense>
-          ) : route.view === 'loop' ? (
-            <Suspense fallback={null}><LoopHome /></Suspense>
-          ) : route.view === 'stats' ? (
-            <Suspense fallback={<p className="px-4 py-6 text-body text-muted" role="status">{t('Loading statistics…')}</p>}><StatsView /></Suspense>
-          ) : route.view === 'focus' ? (
-            <Suspense fallback={null}><FocusView id={route.id} /></Suspense>
-          ) : route.view === 'triage' ? (
-            <Suspense fallback={null}><TriageView /></Suspense>
-          ) : route.view === 'feed' ? (
-            <FeedView />
-          ) : route.view === 'ask' ? (
-            <AskScreen role={user.role} name={user.name} />
-          ) : route.view === 'day' || route.view === 'week' ? (
-            <CalendarView mode={route.view} date={route.date} />
-          ) : route.view === 'month' ? (
-            <MonthView date={route.date} />
-          ) : route.view === 'plan' ? (
-            <PlanView date={route.date} />
-          ) : (
-            // App renders the invite, reset, capture and display screens itself; a stray /invite, /reset, /share or /display route inside the shell falls back to the Inbox.
-            <TaskListView userId={user.id} userRole={user.role} route={route.view === 'invite' || route.view === 'project-invite' || route.view === 'workspace-invite' || route.view === 'reset' || route.view === 'confirm-email' || route.view === 'forgot' || route.view === 'verify' || route.view === 'public' || route.view === 'share' || route.view === 'display' ? { view: 'inbox' } : route} />
+          {/* Pick up the thread already places the card under its own capture; every
+              other screen shows it at the top of the content so a proposal is never lost
+              by navigating away. */}
+          {dossierOffer && route.view !== 'resume' && (
+            <div className="px-4 pt-4 md:px-6" data-dossier-link-host>
+              <Suspense fallback={null}><DossierLinkCard /></Suspense>
+            </div>
           )}
-          </PanelBoundary>
+          {/* One screen failing (a render bug, a chunk gone after an upgrade) leaves the shell usable (client-sync-robustness). */}
+          <ShellScreen route={route} user={user} onLogout={onLogout} />
         </div>
         {vim && (
           <PanelBoundary>
@@ -317,6 +292,7 @@ export function Shell({ user, onLogout }: { user: User; onLogout: () => void }) 
         )}
       </main>
       <PanelBoundary><PanelHost user={user} /></PanelBoundary>
+      </div>
       {phoneChrome && <TabBar route={route} onSearch={openPalette} minimised={minimised} />}
       {(phoneChrome || addOpen) && <AddButton ref={addButton} open={addOpen} away={minimised && !addOpen} onClick={() => setAddOpen((v) => !v)} />}
       <QuickAddSheet open={addOpen} onClose={() => setAddOpen(false)} anchor={addButton} route={route} userId={user.id} />
@@ -334,6 +310,7 @@ export function Shell({ user, onLogout }: { user: User; onLogout: () => void }) 
       <ReminderToasts />
       <BreakReminder />
       <UndoToast />
+      <ClassifyCard />
       <DailyCheckToast />
       <TemplateDialogHost />
       <ArchivePrompt /><WorkspaceHost route={route} panelTask={panelTaskId()} />
@@ -341,7 +318,74 @@ export function Shell({ user, onLogout }: { user: User; onLogout: () => void }) 
   )
 }
 
-/** The sidebar's drag edge (app-shell "Resizable sidebar"): 15 to 22.5 rem, per device; arrows resize it from the keyboard. */
+/** The page for the current route: every view's component, behind the one lazy
+    boundary. Unmoved from the shell body, so it keeps the screens in one list. */
+function ShellScreen({ route, user, onLogout }: { route: ReturnType<typeof useRoute>; user: User; onLogout: () => void }) {
+  return (
+    <PanelBoundary resetKey={route}>
+    {route.view === 'help' ? (
+      <Suspense fallback={<p className="px-4 py-6 text-body text-muted" role="status">{t('Loading help…')}</p>}><HelpView page={route.page} q={route.q} /></Suspense>
+    ) : route.view === 'settings' ? (
+      <SettingsView user={user} onLogout={onLogout} section={route.section} page={route.page} anchor={route.anchor} />
+    ) : route.view === 'import' ? (
+      <ImportScreen />
+    ) : route.view === 'labels' ? (
+      <LabelsView route={route} />
+    ) : route.view === 'places' ? (
+      <PlacesView />
+    ) : route.view === 'rules' ? (
+      <Suspense fallback={null}><RulesView create={route.create} /></Suspense>
+    ) : route.view === 'projects' ? (
+      <ProjectsView archived={route.archived} />
+    ) : route.view === 'filter' ? (
+      <FilterView key={route.q ?? ''} initialQuery={route.q} />
+    ) : route.view === 'views' ? (
+      <ViewsView />
+    ) : route.view === 'view' ? (
+      <SavedViewRoute id={route.id} />
+    ) : route.view === 'trash' ? (
+      <TrashView />
+    ) : route.view === 'task' ? (
+      <TaskPage id={route.id} user={user} />
+    ) : route.view === 'resume' ? (
+      <Suspense fallback={<div className="px-4 py-6"><Skeleton shape="row" count={4} /></div>}><ResumeView /></Suspense>
+    ) : route.view === 'dossier' ? (
+      <Suspense fallback={<div className="px-4 py-6"><Skeleton shape="row" count={4} /></div>}><DossierView id={route.id} /></Suspense>
+    ) : route.view === 'review' ? (
+      <Suspense fallback={<p className="px-4 py-6 text-body text-muted" role="status">{t('Loading the review…')}</p>}>
+        {route.step === 'daily' ? <DailyCheck /> : route.step === 'monthly' ? <MonthlyLook /> : route.step === 'close' ? <CloseDay /> : <ReviewView key={route.step ?? ''} userId={user.id} step={route.step} />}
+      </Suspense>
+    ) : route.view === 'next' ? (
+      <Suspense fallback={null}><NextView /></Suspense>
+    ) : route.view === 'waiting' ? (
+      <Suspense fallback={null}><WaitingView /></Suspense>
+    ) : route.view === 'loop' ? (
+      <Suspense fallback={null}><LoopHome /></Suspense>
+    ) : route.view === 'stats' ? (
+      <Suspense fallback={<p className="px-4 py-6 text-body text-muted" role="status">{t('Loading statistics…')}</p>}><StatsView /></Suspense>
+    ) : route.view === 'focus' ? (
+      <Suspense fallback={null}><FocusView id={route.id} /></Suspense>
+    ) : route.view === 'triage' ? (
+      <Suspense fallback={null}><TriageView /></Suspense>
+    ) : route.view === 'feed' ? (
+      <FeedView />
+    ) : route.view === 'ask' ? (
+      <AskScreen role={user.role} name={user.name} />
+    ) : route.view === 'day' || route.view === 'week' ? (
+      <CalendarView mode={route.view} date={route.date} />
+    ) : route.view === 'month' ? (
+      <MonthView date={route.date} />
+    ) : route.view === 'plan' ? (
+      <PlanView date={route.date} />
+    ) : (
+      // App renders the invite, reset, capture and display screens itself; a stray /invite, /reset, /share or /display route inside the shell falls back to the Inbox.
+      <TaskListView userId={user.id} userRole={user.role} route={route.view === 'invite' || route.view === 'project-invite' || route.view === 'workspace-invite' || route.view === 'reset' || route.view === 'confirm-email' || route.view === 'forgot' || route.view === 'verify' || route.view === 'public' || route.view === 'share' || route.view === 'display' ? { view: 'inbox' } : route} />
+    )}
+    </PanelBoundary>
+  )
+}
+
+/** The sidebar's drag edge (app-shell "Resizable sidebar", original-mockup-a): 10.5 to 22.5 rem, per device; arrows resize it from the keyboard. */
 function SidebarResizer({ width }: { width: number }) {
   const dragging = useRef<{ startX: number; startWidth: number } | null>(null)
   const rem = () => parseFloat(getComputedStyle(document.documentElement).fontSize) || 16
@@ -383,7 +427,7 @@ function PhoneBar({ onMenu }: { onMenu: () => void }) {
         ? <IconButton icon="chevron-left" label={bar.back.label} onClick={bar.back.onClick} className="touch-target" data-page-back />
         : <IconButton icon="menu" label={t('Open menu')} onClick={onMenu} className="touch-target" />}
       <div className="min-w-0 flex-1">
-        {!day && <PageBarTitle>{bar?.title}</PageBarTitle>}
+        {!day && bar?.title != null && <PageBarTitle>{bar.title}</PageBarTitle>}
         {/* One line, so the bar keeps its height (audit M12): a plain subtitle keeps its full text reachable when cut; controls (the Inbox's planned line, a project's members) cut themselves and are named by their content (ux-fixes-phone D2). */}
         {!day && bar?.subtitle && (typeof bar.subtitle === 'string'
           ? <TruncatedText as="p" text={bar.subtitle} className="block text-meta text-muted" data-phone-subtitle="" />

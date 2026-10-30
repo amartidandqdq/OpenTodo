@@ -22,6 +22,8 @@ export interface ChangeSetReviewProps {
   onApply: () => void
   onDiscard: () => void
   onUndo: () => void
+  /** Set when the proposal came from a turn that stopped at the round limit: sends the rest as a follow-up. */
+  onContinue?: () => void
   regionRef?: RefObject<HTMLDivElement | null>
 }
 
@@ -69,7 +71,7 @@ export function ChangeSetReview(p: ChangeSetReviewProps) {
   }
   return (
     <div ref={p.regionRef} role="group" aria-labelledby={headingId} onKeyDown={onKeyDown} data-assistant-review
-      className="@container/review overflow-hidden rounded-card border border-default bg-surface">
+      className="@container/review overflow-clip rounded-card border border-default bg-surface">
       <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 border-b border-default px-3 py-2">
         <Icon name="pencil" size="sm" className="text-muted" />
         <h3 id={headingId} className="text-body font-semibold">{t('Proposed changes')}</h3>
@@ -102,12 +104,13 @@ export function ChangeSetReview(p: ChangeSetReviewProps) {
           )
         })}
       </ul>
-      <div className="flex flex-wrap items-center gap-2 border-t border-default px-3 py-2">
+      <div className="sticky bottom-0 z-10 flex flex-wrap items-center gap-2 border-t border-default bg-surface px-3 py-2" data-assistant-review-foot>
         <button type="button" className="ui-btn ui-btn--primary ui-btn--sm gap-1" onClick={p.onApply} disabled={checked === 0} aria-busy={p.busy} data-assistant-apply>
           <Icon name="check" size="sm" />
           {t('{n, plural, one {Apply # change} other {Apply # changes}}', { n: checked })}
         </button>
         <button type="button" className="ui-btn ui-btn--secondary ui-btn--sm" onClick={p.onDiscard}>{t('Discard')}</button>
+        {p.onContinue && <button type="button" className="ui-btn ui-btn--secondary ui-btn--sm" onClick={p.onContinue} disabled={p.busy} data-assistant-continue>{t('Continue')}</button>}
         <span className="ml-auto text-meta text-faint">{t.rich('{enter} applies, {esc} discards. Each change shows in its task’s history.', { enter: <Kbd k="Enter" />, esc: <Kbd k="Esc" /> })}</span>
       </div>
     </div>

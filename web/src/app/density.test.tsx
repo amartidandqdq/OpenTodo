@@ -4,6 +4,7 @@
 // stylesheet turns into 36 px rows on fine pointers while coarse pointers keep
 // 44 px targets.
 import 'fake-indexeddb/auto'
+import { readFileSync } from 'node:fs'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { applyAppearance, readAppearance, setAppearance } from '../lib/appearance'
 import { db } from '../lib/db'
@@ -13,6 +14,7 @@ import { AppearanceProvider } from './AppearanceProvider'
 import { AppearanceSection } from './AppearanceSection'
 import css from '../index.css?raw'
 import row from './TaskRow.tsx?raw'
+const rowCss = readFileSync('src/app/task-list/mockupRows.css', 'utf8')
 
 const root = () => document.documentElement
 
@@ -51,8 +53,11 @@ describe('preference', () => {
     const coarse = css.slice(css.indexOf('@media (pointer: coarse) {\n  :root[data-density="compact"]'))
     expect(coarse).toMatch(/\.row-pad \{ padding-block: 0\.5rem; \}/)
     expect(coarse).toMatch(/\[data-sidebar-item\] \{ min-height: 2\.75rem; \}/)
-    // Task rows take their padding from the density class, not a fixed utility.
-    expect(row).toMatch(/rounded-control px-2 [^`]*'row-pad'/)
+    // The approved mockup uses its own rhythm, keeping the same synced density.
+    expect(row).toContain('mockup-task')
+    expect(rowCss).toContain('padding: 0.875rem 0.125rem')
+    expect(rowCss).toMatch(/:root\[data-density="compact"\] \.mockup-task \{[^}]*padding-block: 0\.5rem/s)
+    expect(rowCss).toMatch(/@media \(pointer: coarse\)[\s\S]*min-height: 3\.25rem/)
   })
 })
 

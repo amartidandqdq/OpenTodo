@@ -67,6 +67,11 @@ export interface BriefingInput {
   closed: boolean
   /** The day start in minutes after midnight, for the day a completion belongs to. */
   dayStart: number
+  /**
+   * Today's chosen tasks and the next step of each chosen dossier (resume-dossiers
+   * D5). They are planned today even without a due date, and counted once.
+   */
+  focus?: readonly Task[]
 }
 
 const titleOf = (task: Task): BriefingTask => {
@@ -109,6 +114,18 @@ function tomorrowOf(upcoming: readonly Task[], today: string): BriefingTomorrow 
   return { count: list.length, first: list.length ? titleOf(list[0]) : null }
 }
 
+/** The chosen tasks not already in Today's due list, open and live, once each. */
+function focusOfDay(focus: readonly Task[] | undefined, list: readonly Task[]): Task[] {
+  const seen = new Set(list.map((task) => task.id))
+  const out: Task[] = []
+  for (const task of focus ?? []) {
+    if (task.deleted_at || task.completed_at || seen.has(task.id)) continue
+    seen.add(task.id)
+    out.push(task)
+  }
+  return out
+}
+
 /** The briefing of a day page from the local rows (design D3). */
 export function briefingFacts(input: BriefingInput): Briefing {
   const { today, dayLength } = input
@@ -125,7 +142,10 @@ export function briefingFacts(input: BriefingInput): Briefing {
   }
 
   const list = todayList(all, today)
-  if (list.length === 0) {
+  // My day (resume-dossiers D5): a chosen task or a chosen dossier's next step is
+  // planned today, so a focus-only day is not a clear one.
+  const focused = focusOfDay(input.focus, list)
+  if (list.length === 0 && focused.length === 0) {
     const doneToday = input.closed || all.some((x) => x.completed_at && !x.skipped && logicalDay(x.completed_at, input.dayStart) === today)
     return { mode: doneToday ? 'done' : 'clear', tomorrow }
   }
@@ -137,10 +157,10 @@ export function briefingFacts(input: BriefingInput): Briefing {
   if (late.length === 1) facts.push({ kind: 'late', count: 1, ids, task: titleOf(late[0]), days: daysLate(late[0], today) })
   else if (late.length > 1) facts.push({ kind: 'late', count: late.length, ids })
   // Everything Today lists is today's work, late tasks included.
-  const load = dayLoad(list.map((x) => ({ ...x, due: { date: today } })), today, dayLength)
+  const load = dayLoad([...list, ...focused].map((x) => ({ ...x, due: { date: today } })), today, dayLength)
   if (load.over) facts.push({ kind: 'overfull', planned: load.planned, dayLength })
   else if (later.length) facts.push({ kind: 'full', dates: later.slice(0, 1) })
   const reply = replies(input.notifications, all)
   if (reply) facts.push(reply)
-  return { mode: 'today', facts, open: list.length, planned: load.planned }
+  return { mode: 'today', facts, open: list.length + focused.length, planned: load.planned }
 }

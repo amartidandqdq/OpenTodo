@@ -6,14 +6,16 @@ import { usePlace } from '../../lib/locations'
 import { blockedMap } from '../../lib/dependencies'
 import { durationPredicate, loadDurationFilter, saveDurationFilter, type DurationFilter } from '../../lib/filters'
 import { habitStatsMap } from '../../lib/habits'
-import { boardColumns, completedBySection, completedNewestFirst, completedOpenKey, listGroups, sectionBuckets, siblingPositions, tasksForView, type ListGroup, type ListScope } from '../../lib/listGroups'
+import { boardColumns, completedBySection, completedNewestFirst, completedOpenKey, flatRow, listGroups, sectionBuckets, siblingPositions, tasksForView, type ListGroup, type ListScope } from '../../lib/listGroups'
 import { useAllLabels, useCollapsedSections, useListColumnsPref, useLiveProjects, useMemberships, useProjectPrefsRow, useProjectSectionRows, useProjectViewMode, useShowCompletedPref } from '../../lib/liveData'
+import { useDossiers, useReviewRow } from '../../lib/localData'
 import { listDisplayOf, type DisplayScope } from '../../lib/listDisplay'
 import { useListDisplay } from './useListDisplay'
 import { useAccountRowLayout } from '../../lib/rowLayout'
 import { NO_TASKS, useLiveTasks } from '../../lib/liveTasks'
 import { LOGBOOK_PAGE, logbookGroups } from '../../lib/logbook'
 import { canEditTasks, roleOf } from '../../lib/sharing'
+import { todayFocusOf } from '../../lib/review'
 import { buildTaskTree, progressMap } from '../../lib/subtasks'
 import type { Task } from '../../lib/types'
 import { isPlannedWithoutProject } from '../../lib/inbox'
@@ -139,7 +141,16 @@ export function useListModel(route: ListRoute, userId?: string) {
   const { duration, filterKey } = filter
   // eslint-disable-next-line react-hooks/exhaustive-deps -- zone: a zone change re-groups zoned dues (absolute-datetimes)
   const viewTasks = useMemo(() => tasksForView(route, allTasks, projects, today, userId), [allTasks, projects, route, today, zone, userId])
-  const tasks = useMemo(() => (!duration || !filterKey ? viewTasks : viewTasks.filter(durationPredicate(duration))), [viewTasks, duration, filterKey])
+  // My day already shows the tasks chosen for today, with the next step of each chosen
+  // dossier (resume-dossiers D5). Today's ordinary groups leave them out, so a task due
+  // today is shown once; every other view keeps its rows untouched.
+  const review = useReviewRow()
+  const dossiers = useDossiers()
+  const focus = useMemo(() => (route.view === 'today' ? todayFocusOf(review, today, allTasks, dossiers) : null), [route.view, review, today, allTasks, dossiers])
+  const tasks = useMemo(() => {
+    const filtered = !duration || !filterKey ? viewTasks : viewTasks.filter(durationPredicate(duration))
+    return focus ? filtered.filter((task) => !focus.ids.has(task.id)) : filtered
+  }, [viewTasks, duration, filterKey, focus])
 
   // Completed renders a page of the logbook at a time; a new route starts again.
   const [logbookLimit, setLogbookLimit] = useState(LOGBOOK_PAGE)
@@ -149,6 +160,10 @@ export function useListModel(route: ListRoute, userId?: string) {
   const { collapsed, toggleCollapsed } = useCollapsedRows()
   const layout = useProjectLayout(projectId)
   const { board, sections, liveSections, collapsedSections } = layout
+  // Sections with only completed tasks keep a header with "n completed" and Show
+  // (task-list-presentation "Empty groups"). Read before the group set, so the
+  // project's Completed tab (mockup A) counts and rows come from the same source.
+  const doneBySection = useMemo(() => completedBySection(allTasks, projectId, layout.sectionMap), [allTasks, projectId, layout.sectionMap])
 
   // Project lists keep deferred and parked tasks in a Later group at the
   // end (someday-and-evening D2); the board keeps every card in its column.
@@ -179,15 +194,30 @@ export function useListModel(route: ListRoute, userId?: string) {
     projects, projectMap, board, columns, buckets, sectionCount: liveSections.length, collapsedSections, logbook, planned, display, labels,
     // eslint-disable-next-line react-hooks/exhaustive-deps -- zone: a zone change re-groups zoned dues (absolute-datetimes)
   }), [dt.resolved, tree, tasks, laterTasks, route.view, today, zone, collapsed, blocked, taskMap, projects, projectMap, board, columns, buckets, liveSections, collapsedSections, logbook, planned, display, labels])
-  const rows = useMemo(() => groups.flatMap((g) => g.rows), [groups])
+  // Approved mockup A (task-list-presentation): a project's Completed tab is local
+  // view state (no task, no stored preference changes). It shows only this
+  // project's completed tasks as one flat group and resets when the project changes.
+  const [tabOpen, setTabOpen] = useState(false)
+  useResetOnChange([projectId], () => setTabOpen(false))
+  const tabActive = !!projectId && tabOpen && !board && !layout.timeline
+  const tabRows = useMemo(() => {
+    if (!tabActive) return null
+    const all = completedNewestFirst(doneBySection)
+    return (duration && filterKey ? all.filter(durationPredicate(duration)) : all).map((task) => flatRow(task))
+  }, [tabActive, doneBySection, duration, filterKey])
+  const shownGroups = useMemo<ListGroup[]>(
+    () => (tabRows ? [{ key: 'completed-tab', heading: null, rows: tabRows }] : groups),
+    [tabRows, groups],
+  )
+  // Counts include tasks inside folded rows and sections; folding changes only
+  // presentation, not how many tasks belong to this project.
+  const doneCount = useMemo(() => [...doneBySection.values()].reduce((n, list) => n + list.length, 0), [doneBySection])
+  const rows = useMemo(() => shownGroups.flatMap((g) => g.rows), [shownGroups])
   // The list's own rows: the Inbox's planned group is not part of the Inbox (inbox-planned-group D2).
-  const ownRows = useMemo(() => (planned.length ? groups.filter((g) => g.key !== 'planned').flatMap((g) => g.rows) : rows), [planned, groups, rows])
-  const siblingPos = useMemo(() => siblingPositions(groups), [groups])
+  const ownRows = useMemo(() => (planned.length ? shownGroups.filter((g) => g.key !== 'planned').flatMap((g) => g.rows) : rows), [planned, shownGroups, rows])
+  const siblingPos = useMemo(() => siblingPositions(shownGroups), [shownGroups])
   // The time column (rows-v2 D2): one fact of the whole list, from its visible rows; cards have none.
   const timeColumn = useMemo(() => !board && hasTimeColumn(rows.map((r) => r.task)), [board, rows])
-  // Sections with only completed tasks keep a header with "n completed" and Show
-  // (task-list-presentation "Empty groups").
-  const doneBySection = useMemo(() => completedBySection(allTasks, projectId, layout.sectionMap), [allTasks, projectId, layout.sectionMap])
   // With "Show completed tasks" on (project-completed-section), the list layout
   // keeps them in one Completed group at the end, newest first, closed by default.
   const showCompletedPref = useShowCompletedPref(projectId)
@@ -208,8 +238,10 @@ export function useListModel(route: ListRoute, userId?: string) {
     currentPlace,
     projectReadOnly: route.view === 'project' && roleOf(route.id, memberMap) === 'viewer',
     projectEditable: !!projectId && canEditTasks(roleOf(projectId, memberMap)),
-    allTasks, taskMap, progress, blocked, habits, ...filter, logbook, logbookLimit, setLogbookLimit,
-    collapsed, toggleCollapsed, ...layout, tree, columns, groups, rows, ownRows, siblingPos, timeColumn, doneBySection,
+    allTasks, taskMap, progress, blocked, habits, focus, ...filter, logbook, logbookLimit, setLogbookLimit,
+    collapsed, toggleCollapsed, ...layout, tree, columns, groups: shownGroups, rows, ownRows, siblingPos, timeColumn, doneBySection,
+    // The project's Completed tab: whether it is on, its counts and its switch.
+    doneTab: tabActive, setDoneTab: setTabOpen, openCount: tasks.length, doneCount,
     showCompleted, completedTasks, completedOpen, display, displayScope, listDisplay,
   }
 }

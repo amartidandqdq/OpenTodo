@@ -301,7 +301,8 @@ export function Shell({ user, onLogout }: { user: User; onLogout: () => void }) 
       <PanelBoundary><PanelHost user={user} /></PanelBoundary>
       </div>
       {phoneChrome && <TabBar route={route} onSearch={openPalette} minimised={minimised} />}
-      {(phoneChrome || addOpen) && <AddButton ref={addButton} open={addOpen} away={minimised && !addOpen} onClick={() => setAddOpen((v) => !v)} />}
+      {/* Not on Settings: the button would sit over the end of its rows (the chevrons), and nothing there adds a task. */}
+      {((phoneChrome && route.view !== 'settings') || addOpen) && <AddButton ref={addButton} open={addOpen} away={minimised && !addOpen} onClick={() => setAddOpen((v) => !v)} />}
       <QuickAddSheet open={addOpen} onClose={() => setAddOpen(false)} anchor={addButton} route={route} userId={user.id} />
       {showHelp && <ShortcutHelp onClose={() => setShowHelp(false)} vim={vim} extraSections={vim && vimHelp ? [vimHelp] : []}
         context={{ view: route.view, board: hasScope('board') || hasScope('timeline'), panelOpen: hasScope('panel') || !!panelTaskId() }} />}

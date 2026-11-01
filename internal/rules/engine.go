@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"log/slog"
-	"strings"
 	"sync"
 	"time"
 
@@ -23,14 +22,6 @@ const DevicePrefix = opsync.RuleDevicePrefix
 
 // Device is the op device of one rule's batches.
 func Device(ruleID string) string { return DevicePrefix + ruleID }
-
-// RuleID returns the rule of a rule: device, "" for any other device.
-func RuleID(device string) string {
-	if id, ok := strings.CutPrefix(device, DevicePrefix); ok {
-		return id
-	}
-	return ""
-}
 
 // ReminderOps recomputes the reminders that follow a task's due or deadline
 // (the REST PATCH's rule, injected by internal/httpapi).

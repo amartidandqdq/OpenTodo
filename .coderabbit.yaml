@@ -1,0 +1,26 @@
+# CodeRabbit (free for public repositories). Install the GitHub App on this repository to turn it on.
+# Reviews are in English; the repository's own rules are in AGENTS.md.
+language: en-US
+reviews:
+  profile: chill
+  request_changes_workflow: false
+  high_level_summary: true
+  poem: false
+  auto_review:
+    enabled: true
+    drafts: false
+    base_branches: [main]
+  path_filters:
+    - "!internal/web/dist/**"
+    - "!deploy/*/upstream/**"
+    - "!web/src/generated/**"
+    - "!web/src/locales/messages.json"
+    - "!**/testdata/**"
+    - "!**/*.golden.json"
+  path_instructions:
+    - path: "internal/**/*.go"
+      instructions: "Follow AGENTS.md: routes go through the policy wrapper, data writes through ops, no direct time.Now() in httpapi/auth, functions under 150 lines."
+    - path: "web/src/**"
+      instructions: "Follow AGENTS.md: strict TypeScript, data access only via src/lib, tokens from index.css, no emoji or glyphs as icons, every user-facing string through t()."
+chat:
+  auto_reply: true

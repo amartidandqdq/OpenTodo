@@ -4,6 +4,7 @@
 import { getMeta, setMeta } from './db'
 import type { BackupRun, BackupSettings, BackupStatus } from './types'
 import { formatInstant, formatTime, weekdayName } from './dates'
+import { formatBytes } from './format'
 import { t } from './i18n'
 
 const STATUS_KEY = 'backupStatus'
@@ -33,12 +34,7 @@ export async function cacheBackupStatus(status: BackupStatus): Promise<void> {
   await setMeta(STATUS_KEY, status)
 }
 
-export function formatBytes(n: number): string {
-  if (n < 1024) return `${n} B`
-  if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`
-  if (n < 1024 * 1024 * 1024) return `${(n / 1024 / 1024).toFixed(1)} MB`
-  return `${(n / 1024 / 1024 / 1024).toFixed(2)} GB`
-}
+export { formatBytes }
 
 export function scheduleLabel(s: BackupSettings['schedule']): string {
   switch (s.frequency) {

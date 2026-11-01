@@ -6791,5 +6791,14 @@
   "Missed: no device was available": "Persa: nessun dispositivo era disponibile",
   "Waiting for one of your devices": "In attesa di uno dei tuoi dispositivi",
   "no device was available": "nessun dispositivo era disponibile",
-  "{name} · waiting for one of your devices": "{name} · in attesa di uno dei tuoi dispositivi"
+  "{name} · waiting for one of your devices": "{name} · in attesa di uno dei tuoi dispositivi",
+  "No projects yet": "Ancora nessun progetto",
+  "Projects hold tasks; labels describe them. Create a project to group work in the sidebar.": "I progetti contengono le attività; le etichette le descrivono. Crea un progetto per raggruppare il lavoro nella barra laterale.",
+  "Set a time for the reminder first.": "Imposta prima un orario per il promemoria.",
+  "That project is not available any more.": "Quel progetto non è più disponibile.",
+  "That task is not available any more.": "Quell’attività non è più disponibile.",
+  "That time entry is not available any more.": "Quella voce di tempo non è più disponibile.",
+  "The parent project is not available any more.": "Il progetto principale non è più disponibile.",
+  "The parent task is not available any more.": "L’attività principale non è più disponibile.",
+  "The reminder offset must be whole minutes.": "Lo scostamento del promemoria deve essere in minuti interi."
 }

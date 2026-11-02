@@ -38,8 +38,8 @@ export function DailyCheckToast() {
     markOffered(today)
     setShown(true)
   }, [reminders, mode, review, today, onDaily])
-  useEffect(() => { if (onDaily) setShown(false) }, [onDaily])
-  if (!shown) return null
+  useEffect(() => { if (onDaily || !reminders) setShown(false) }, [onDaily, reminders])
+  if (!shown || !reminders) return null
   return (
     <ToastRegion label={t('Daily check', { context: 'method' })}>
       <div role="status" data-daily-toast className="pointer-events-auto flex flex-wrap items-center gap-2 rounded-control border border-default bg-surface p-3 shadow-2">

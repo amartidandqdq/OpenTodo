@@ -15,9 +15,12 @@ import { currentUserId, membershipMap } from './sharing'
 import { applyBatch } from './undo'
 import type { Attachment, AttachmentLimits } from './types'
 import { t } from './i18n'
+import { formatBytes } from './format'
 import { sha256, uuid } from './ids'
 import { safeUrl } from './share'
 import { createSignal } from './store'
+
+export { formatBytes } from './format'
 
 /** The longest attachment name the server accepts. */
 export const MAX_NAME = 255
@@ -57,19 +60,6 @@ export async function refreshLimits(): Promise<AttachmentLimits | null> {
 /** The cached limits for React (live, from this device's store); null until known. */
 export function useAttachmentLimits(): AttachmentLimits | null {
   return useLiveQuery(() => limits(), [], null) ?? null
-}
-
-/** "1.5 MB", "820 KB", "12 bytes". */
-export function formatBytes(n: number): string {
-  if (n < 1024) return `${n} ${n === 1 ? 'byte' : 'bytes'}`
-  const units = ['KB', 'MB', 'GB', 'TB']
-  let v = n / 1024
-  let i = 0
-  while (v >= 1024 && i < units.length - 1) {
-    v /= 1024
-    i++
-  }
-  return `${v >= 10 || Number.isInteger(v) ? Math.round(v) : v.toFixed(1)} ${units[i]}`
 }
 
 // ---- adding ----

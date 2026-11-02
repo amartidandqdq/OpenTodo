@@ -5670,5 +5670,19 @@
   "{task} added to {dossier}": "« {task} » ajoutée au dossier {dossier}",
   "{task} removed from {dossier}": "« {task} » retirée du dossier {dossier}",
   "Open the thread to see the completed steps.": "Ouvrez le fil pour voir les étapes terminées.",
-  "Your other dossiers": "Vos autres dossiers"
+  "Your other dossiers": "Vos autres dossiers",
+  "Move {tasks} to the Trash?": "Mettre {tasks} à la Corbeille ?",
+  "No projects yet": "Aucun projet pour l’instant",
+  "Projects hold tasks; labels describe them. Create a project to group work in the sidebar.": "Les projets regroupent des tâches ; les étiquettes les décrivent. Créez un projet pour rassembler le travail dans la barre latérale.",
+  "Set a time for the reminder first.": "Choisissez d’abord l’heure du rappel.",
+  "Show Trash": "Voir la Corbeille",
+  "That project is not available any more.": "Ce projet n’est plus disponible.",
+  "That task is not available any more.": "Cette tâche n’est plus disponible.",
+  "That time entry is not available any more.": "Cette entrée de temps n’est plus disponible.",
+  "The parent project is not available any more.": "Le projet parent n’est plus disponible.",
+  "The parent task is not available any more.": "La tâche parent n’est plus disponible.",
+  "The reminder offset must be whole minutes.": "Le décalage du rappel doit être un nombre entier de minutes.",
+  "The time entry could not be started; this session is not being tracked. ({detail})": "Impossible de démarrer l’entrée de temps ; cette session n’est pas suivie. ({detail})",
+  "The time entry could not be stopped; the minutes may not be logged correctly. ({detail})": "Impossible d’arrêter l’entrée de temps ; les minutes ne seront peut-être pas enregistrées correctement. ({detail})",
+  "They go to the Trash with their subtasks. You can restore them from the Trash.": "Elles vont à la Corbeille avec leurs sous-tâches. Vous pouvez les restaurer depuis la Corbeille."
 }

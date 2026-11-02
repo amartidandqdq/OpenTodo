@@ -19,6 +19,8 @@ export function HorizonSwitch({ view }: { view: HorizonView }) {
     <nav aria-label={t('Horizon')} data-horizon-switch className="flex flex-wrap gap-1">
       {HORIZON_VIEWS.map((h) => (
         <button key={h} type="button" data-horizon={h} aria-current={h === view ? 'page' : undefined} onClick={() => navigate({ view: h })}
+          // Keep native Space activation away from the window's list.tick shortcut.
+          onKeyDown={(e) => { if (e.key === ' ') e.stopPropagation() }}
           className={`rounded-control px-3 py-1 text-meta touch-target ${h === view ? 'bg-accent text-on-accent' : 'text-default hover:bg-sunken dark:hover:bg-raised'}`}>
           {labels[h]}
         </button>

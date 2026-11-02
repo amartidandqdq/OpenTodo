@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Avatar } from '../Avatar'
 import { HUES } from '../tokens/palette'
 import { Combobox, ComboboxPanel } from './Combobox'
@@ -55,15 +55,28 @@ function Projects() {
   )
 }
 
+const asyncTasks = async (q: string, signal: AbortSignal) => {
+  await new Promise((r) => setTimeout(r, 400))
+  if (signal.aborted) return { items: [] }
+  return { items: TASKS.filter((t) => t.name.toLowerCase().includes(q.toLowerCase())).slice(0, 50) }
+}
+
 function Async() {
-  const source = async (q: string, signal: AbortSignal) => {
-    await new Promise((r) => setTimeout(r, 400))
-    if (signal.aborted) return { items: [] }
-    return { items: TASKS.filter((t) => t.name.toLowerCase().includes(q.toLowerCase())).slice(0, 50) }
-  }
+  const root = useRef<HTMLDivElement>(null)
+  const [ready, setReady] = useState(false)
+  // The visual gate must capture rendered results, not a stable loading frame.
+  useEffect(() => {
+    let frame = 0
+    const check = () => {
+      if (root.current?.querySelector('[role="option"]')) setReady(true)
+      else frame = requestAnimationFrame(check)
+    }
+    frame = requestAnimationFrame(check)
+    return () => cancelAnimationFrame(frame)
+  }, [])
   return (
-    <div className="max-w-sm">
-      <ComboboxPanel label="Parent task" placeholder="Search tasks" source={source} getKey={(t) => t.id} getLabel={(t) => t.name}
+    <div ref={root} className="max-w-sm" data-story-pending={ready ? undefined : ''}>
+      <ComboboxPanel label="Parent task" placeholder="Search tasks" source={asyncTasks} getKey={(t) => t.id} getLabel={(t) => t.name}
         emptyText="No tasks match. Try fewer words." onPick={() => {}} />
     </div>
   )

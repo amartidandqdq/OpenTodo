@@ -6,16 +6,17 @@ import 'fake-indexeddb/auto'
 import { act } from 'react'
 import { afterEach, beforeEach, describe, expect, it, onTestFinished, vi } from 'vitest'
 import { db } from '../../lib/db'
+import { useReviewRow } from '../../lib/localData'
 import { setDateTime } from '../../lib/dates'
 import { createProject, createTask, resetDeviceId, REVIEW_DEFAULTS, setTaskCompleted } from '../../lib/ops'
 import { closeDay } from '../../lib/review'
 import type { User } from '../../lib/types'
-import { flush, key, render, type, waitFor } from '../../ui/test-utils'
+import { key, render, type, waitFor } from '../../ui/test-utils'
 import { resetPanel } from '../panel'
 import { navigate } from '../router'
 import { Shell } from '../Shell'
 import { Sidebar } from '../Sidebar'
-import { REMINDERS_KEY } from '../reviewReminders'
+import { REMINDERS_KEY, setReviewReminders } from '../reviewReminders'
 import { setMethodMode } from '../../lib/method/mode'
 
 const user = { id: 'u1', email: 'a@example.com', name: 'Ada', role: 'owner', createdAt: 0 } as User
@@ -176,6 +177,27 @@ describe('Weekly review stepper', () => {
 })
 
 describe('sidebar Review entry', () => {
+  it.each(['this tab', 'another tab'])('turning reminders off in %s removes an active Daily check offer', async (source) => {
+    await setMethodMode('first')
+    navigate({ view: 'inbox' })
+    const r = await render(<Shell user={user} onLogout={() => {}} />)
+    await waitFor(() => !!document.querySelector('[data-daily-toast]'))
+    const before = await db.outbox.count()
+    await act(async () => {
+      if (source === 'this tab') setReviewReminders(false)
+      else {
+        localStorage.removeItem(REMINDERS_KEY)
+        window.dispatchEvent(new StorageEvent('storage', { key: REMINDERS_KEY, oldValue: '1', newValue: null, storageArea: localStorage }))
+      }
+    })
+    expect(document.querySelector('[data-daily-toast]')).toBeNull()
+    await act(async () => { setReviewReminders(true) })
+    // It was already offered today; enabling reminders must not offer it twice.
+    expect(document.querySelector('[data-daily-toast]')).toBeNull()
+    expect(await db.outbox.count()).toBe(before)
+    await r.unmount()
+  })
+
   it('with Review reminders off (the default) nothing is due: no dot, the words name the last review (declutter)', async () => {
     localStorage.removeItem(REMINDERS_KEY)
     await db.review.put({ ...REVIEW_DEFAULTS, id: 'me', completed_at: NOW.getTime() - 9 * 86_400_000, _clock: {} })
@@ -222,6 +244,11 @@ describe('sidebar Review entry', () => {
   })
 })
 
+// Read the same shared store as DailyCheckToast before asserting that an offer stays absent.
+function ReviewReady() {
+  return useReviewRow() === undefined ? null : <span data-review-ready />
+}
+
 describe('rhythm markers (open-loops-method 5.6)', () => {
   const inline = () => {
     localStorage.setItem('ot.sidebar.more', '1')
@@ -258,9 +285,8 @@ describe('rhythm markers (open-loops-method 5.6)', () => {
     await act(async () => [...document.querySelectorAll<HTMLButtonElement>('[data-daily-toast] button')].find((b) => b.textContent === 'Not today')!.click())
     expect(document.querySelector('[data-daily-toast]')).toBeNull()
     await r.unmount()
-    const again = await render(<Shell user={user} onLogout={() => {}} />)
-    // eslint-disable-next-line test-hygiene/no-fixed-wait -- asserts the toast stays away once the day is read
-    await flush(100)
+    const again = await render(<><Shell user={user} onLogout={() => {}} /><ReviewReady /></>)
+    await waitFor(() => !!again.container.querySelector('[data-review-ready]'), 'review ready after reopening')
     expect(document.querySelector('[data-daily-toast]')).toBeNull()
     await again.unmount()
   })
@@ -269,9 +295,8 @@ describe('rhythm markers (open-loops-method 5.6)', () => {
     localStorage.removeItem(REMINDERS_KEY)
     await setMethodMode('first')
     navigate({ view: 'inbox' })
-    const r = await render(<Shell user={user} onLogout={() => {}} />)
-    // eslint-disable-next-line test-hygiene/no-fixed-wait -- asserts that no toast appears once the shell has rendered
-    await flush(100)
+    const r = await render(<><Shell user={user} onLogout={() => {}} /><ReviewReady /></>)
+    await waitFor(() => !!r.container.querySelector('[data-review-ready]'), 'review ready with reminders off')
     expect(document.querySelector('[data-daily-toast]')).toBeNull()
     await r.unmount()
   })

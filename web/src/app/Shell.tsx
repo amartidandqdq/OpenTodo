@@ -41,6 +41,8 @@ import { TaskPage } from './TaskPage'
 import { watchViewerZone } from '../lib/dates'
 import { UndoToast } from './bulk/UndoToast'
 import { ClassifyCard } from './ClassifyCard'
+import { ToastActionHost } from './ToastActionHost'
+import { BulkConfirmHost } from './bulk/BulkConfirmHost'
 import { DailyCheckToast } from './method/DailyCheckToast'
 import { useDossierLinkOffer } from '../lib/dossiers'
 import { PanelBoundary } from './PanelBoundary'
@@ -311,6 +313,7 @@ export function Shell({ user, onLogout }: { user: User; onLogout: () => void }) 
       <BreakReminder />
       <UndoToast />
       <ClassifyCard />
+      <ToastActionHost /><BulkConfirmHost />
       <DailyCheckToast />
       <TemplateDialogHost />
       <ArchivePrompt /><WorkspaceHost route={route} panelTask={panelTaskId()} />

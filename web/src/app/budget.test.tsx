@@ -227,7 +227,7 @@ describe('visible properties', () => {
     await r.unmount()
   })
 
-  it('a busy row in Today shows at most five property items, its time in the column, the project in its cell and the counts beside the title', async () => {
+  it('a busy row in Today keeps its time and properties beneath the title, with at most five property items', async () => {
     const project = await createProject({ name: 'Home' })
     const labels = [await createLabel({ name: 'errand' }), await createLabel({ name: 'call' }), await createLabel({ name: 'home' })]
     const id = await createTask({ title: 'Busy', project_id: project, due: { date: '2026-10-14', time: '10:00' }, estimate_minutes: 30, labels })
@@ -240,7 +240,8 @@ describe('visible properties', () => {
     const row = r.container.querySelector(`[data-task-id="${id}"]`)!
     const items = [...row.querySelectorAll('[data-row-meta] :is([data-row-item], [data-row-labels])')]
     expect(items.length, items.map((e) => e.outerHTML.slice(0, 60)).join(' | ')).toBeLessThanOrEqual(MAX_ROW_META_ITEMS)
-    expect(row.querySelector('[data-row-time]')!.textContent).toBe('10:00')
+    expect(row.querySelector('[data-row-time]')).toBeNull()
+    expect(row.querySelector('[data-row-meta] [data-date]')!.textContent).toBe('10:00')
     expect(row.querySelector('[data-row-cell="project"] [data-project]')!.textContent).toBe('Home')
     expect(row.querySelector('[data-row-head] [data-row-counts] [data-progress]')).toBeTruthy()
     await r.unmount()
@@ -281,15 +282,17 @@ describe('on a phone (390 px)', () => {
   })
   afterEach(() => { window.matchMedia = original })
 
-  it('Today, the Inbox and a project show nothing between the bar and the quick add', async () => {
+  it('Today, the Inbox and a project keep only the capture and the view bar between their head and the first task', async () => {
     const { project } = await seed()
     for (const route of [{ view: 'inbox' } as const, { view: 'today' } as const, { view: 'project', id: project } as const]) {
       const r = await render(<TaskListView route={route} />)
       await waitFor(() => r.container.querySelectorAll('[data-task-id]').length > 0)
       // Today's head (title, date, briefing) is its header, in the page on a phone (precision-phone D1).
-      const rows = chromeRows(r.container).filter((e) => !e.matches('[data-page-head="day"]'))
+      // Mockup A on a phone: every list keeps its head (the day head or its display head),
+      // then only the bordered capture and the view bar precede the first task.
+      const rows = chromeRows(r.container).filter((e) => !e.matches('[data-page-head]'))
+      expect(rows.map((e) => (e.getAttribute('data-mockup-capture') !== null ? 'capture' : 'viewbar')), route.view).toEqual(['capture', 'viewbar'])
       if (route.view === 'today') expect(r.container.querySelector('[data-list-page] > [data-page-head="day"] h1')?.textContent).toBe('Today')
-      expect(rows.map((e) => e.outerHTML.slice(0, 120)), route.view).toEqual([rows[0].outerHTML.slice(0, 120)])
       expect(rows[0].querySelector('[role="combobox"]'), route.view).toBeTruthy()
       await r.unmount()
     }

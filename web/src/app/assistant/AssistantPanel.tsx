@@ -53,6 +53,8 @@ export function contextName(view: string | undefined, selected: number): string 
     case 'inbox': return t('Inbox')
     case 'project': return t('This project')
     case 'view': return t('This view')
+    case 'resume': return t('Reprendre le fil')
+    case 'dossier': return t('This dossier')
     default: return undefined
   }
 }
@@ -108,7 +110,7 @@ export function AssistantPanel({ onClose, context, onApplied, name = '' }: Assis
       <AssistantPanelBody status={status} connected={online} messages={c.thread?.messages ?? []} streaming={streaming} announce={c.live.announce}
         statusAnnounce={c.statusAnnounce} review={rv.review} result={rv.result} reviewBusy={rv.reviewBusy} error={c.error} draft={composer.draft}
         consentBusy={c.consent.consentBusy} consentError={c.consent.consentError} threads={c.threads} reviewRef={rv.reviewRef}
-        onToggle={rv.toggle} onApply={() => void rv.apply()} onDiscard={() => void rv.discard()} onUndo={() => void rv.undo()} onDraft={composer.setDraft} onSend={() => void c.send()}
+        onToggle={rv.toggle} onApply={() => void rv.apply()} onDiscard={() => void rv.discard()} onUndo={() => void rv.undo()} onContinue={() => void c.continueTurn()} onDraft={composer.setDraft} onSend={() => void c.send()}
         onStop={c.stop} onAccept={(k) => void c.consent.accept(k)} onPickThread={c.pickThread}
         name={name} skills={composer.skills} onStarter={(s) => { composer.chooseSkill(s); focusComposer() }} layout="sheet" device={c.device} />
     </AssistantSheet>

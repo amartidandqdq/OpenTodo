@@ -21,6 +21,23 @@ const IDLE = 'text-faint hover:bg-sunken hover:text-default dark:hover:bg-raised
 /** Below 768 px every control of the row keeps a touch-height target. */
 const TOUCH = 'max-md:min-h-11 max-md:min-w-11 touch-target'
 
+/** The account menu's items (Settings, Help, Keyboard shortcuts, Sign out), shared
+ *  by the footer's account control and the desktop top bar's account access
+ *  (original-mockup-a): one set of features, two named triggers. The sign-out
+ *  confirmation belongs to the host; it runs with the menu already closed. */
+export function AccountMenuItems({ onShortcuts, onSignOutRequested }: { onShortcuts?: () => void; onSignOutRequested?: () => void }) {
+  return <>
+    <MenuItem label={t('Settings')} icon="settings" shortcut={keysOf('go.settings')} onSelect={() => navigate({ view: 'settings' })} data-settings-button />
+    <MenuItem label={t('Help')} icon="circle-help" shortcut={keysOf('go.help')} onSelect={() => navigate({ view: 'help' })} data-help-button />
+    {onShortcuts && <MenuItem label={t('Keyboard shortcuts')} icon="keyboard" shortcut={keysOf('global.help')} onSelect={onShortcuts} data-shortcuts-button />}
+    {onSignOutRequested && <>
+      <MenuSeparator />
+      {/* After the menu closed and gave focus back to its trigger, so Escape returns there. */}
+      <MenuItem label={t('Sign out')} icon="log-out" danger onSelect={() => setTimeout(onSignOutRequested, 0)} data-sign-out-button />
+    </>}
+  </>
+}
+
 export function SidebarFooter({ route, user, collapsed, onSearch, onShortcuts, onAssistant, onToggleCollapse, onSignOut }: {
   route: Route
   user: User
@@ -52,14 +69,7 @@ export function SidebarFooter({ route, user, collapsed, onSearch, onShortcuts, o
             <PersonAvatar id={user.id} name={name} />
             {named && <span className="min-w-0 flex-1 truncate">{name}</span>}
           </>}>
-          <MenuItem label={t('Settings')} icon="settings" shortcut={keysOf('go.settings')} onSelect={() => navigate({ view: 'settings' })} data-settings-button />
-          <MenuItem label={t('Help')} icon="circle-help" shortcut={keysOf('go.help')} onSelect={() => navigate({ view: 'help' })} data-help-button />
-          {onShortcuts && <MenuItem label={t('Keyboard shortcuts')} icon="keyboard" shortcut={keysOf('global.help')} onSelect={onShortcuts} data-shortcuts-button />}
-          {onSignOut && <>
-            <MenuSeparator />
-            {/* After the menu closed and gave focus back to the account control, so Escape returns there. */}
-            <MenuItem label={t('Sign out')} icon="log-out" danger onSelect={() => setTimeout(() => setSigningOut(true), 0)} data-sign-out-button />
-          </>}
+          <AccountMenuItems onShortcuts={onShortcuts} onSignOutRequested={onSignOut ? () => setSigningOut(true) : undefined} />
         </Menu>
         {/* The running time entry (time-tracking D6): in the row, never a line of its own. */}
         {running && <RunningPill running={running} collapsed={collapsed} />}

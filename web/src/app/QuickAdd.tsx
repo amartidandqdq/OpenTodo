@@ -209,11 +209,11 @@ export const QuickAdd = forwardRef<HTMLInputElement, {
   }
 
   // The field's text size: the prose step (15 px) in the palette and on the phone's sheet.
-  const size = layout === 'line' ? '' : 'text-prose'
+  const size = layout === 'line' ? 'py-0' : 'text-prose'
   return (
     <form id={formId} onSubmit={submit} data-quick-add-layout={layout}>
       <div className={`relative flex items-center ${palette ? 'gap-2.5 border-b border-default px-4 py-2.5 sm:pr-11' : layout === 'sheet' ? 'gap-2 px-3 pb-2' : 'gap-2'}`}>
-        {palette ? <Icon name="plus" className="shrink-0 text-faint" /> : layout === 'line' && <span className="text-h2 leading-none text-accent">+</span>}
+        {(palette || layout === 'line') && <Icon name="plus" className="shrink-0 text-faint" />}
         {/* The recognised spans tinted behind the text (moments-and-onboarding D8, QuickAddTint). */}
         <span className="relative flex min-w-0 flex-1">
         <QuickAddTint ref={tints} value={value} chips={chips} className={size} />

@@ -222,6 +222,23 @@
         "idempotentHint": true,
         "openWorldHint": false,
         "readOnlyHint": true,
+        "title": "List dossiers"
+      },
+      "description": "List the user's dossiers, the threads shown on the Reprendre le fil page: each is an ordered list of existing tasks with its state (active, waiting, finished or empty), progress, next action, waiting reason and follow-up date. A dossier is not a project: projects are listed with list_projects.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {},
+        "type": "object"
+      },
+      "name": "list_dossiers",
+      "title": "List dossiers"
+    },
+    {
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": true,
         "title": "List icons"
       },
       "description": "List the icons a project or section can have, best matches first. query searches names, keywords and categories (e.g. \"plant\", \"money\", \"travel\"); without it the whole catalogue is returned in pages of limit. Pass a name to update_project, create_sections or update_sections.",

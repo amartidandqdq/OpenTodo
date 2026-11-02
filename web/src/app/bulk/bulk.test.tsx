@@ -6,9 +6,12 @@ import { act } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { db, useDatabase } from '../../lib/db'
 import { setDateTime } from '../../lib/dates'
+import { createDossier } from '../../lib/dossiers'
 import { createLabel } from '../../lib/labels'
-import { createProject, createTask, resetDeviceId, updateTask } from '../../lib/ops'
-import { key, render, waitFor } from '../../ui/test-utils'
+import { createProject, createTask, mutate, resetDeviceId, updateTask } from '../../lib/ops'
+import { key, render, type, waitFor } from '../../ui/test-utils'
+import type { Task } from '../../lib/types'
+import { dossierMenuItem } from './BulkActions'
 import { PanelHost } from '../PanelHost'
 import { resetPanel } from '../panel'
 import { TaskListView } from '../TaskListView'
@@ -161,6 +164,75 @@ describe('actions (2.5, 3.3, 4.2)', () => {
     for (const id of ids) expect((await db.tasks.get(id))!.due).toEqual({ date: '2026-10-15' })
   })
 
+  it('the Actions menu puts one task in My day and takes it back out', async () => {
+    const { ids } = await inbox('Pay rent')
+    const item = (label: string) => [...document.querySelectorAll<HTMLElement>('[role="menuitem"]')].find((m) => m.textContent?.startsWith(label))
+    await key(document.body, 'j')
+    await key(document.body, '.')
+    await waitFor(() => !!item('Add to today’s focus'), 'the focus action')
+    await act(async () => { item('Add to today’s focus')!.click() })
+    await waitFor(async () => (await db.review.get('me'))?.focus === ids[0], 'the task in today’s focus')
+    expect((await db.review.get('me'))?.focus_date).toBe('2026-10-14')
+    await key(document.body, '.')
+    await waitFor(() => !!item('Remove from today’s focus'), 'the remove action')
+    await act(async () => { item('Remove from today’s focus')!.click() })
+    await waitFor(async () => (await db.review.get('me'))?.focus === '', 'the empty focus')
+  })
+
+  it('the sun on a row puts it in My day without giving it a date', async () => {
+    const { ids } = await inbox('Pay rent')
+    const sun = document.querySelector<HTMLButtonElement>('[data-task-id] [data-row-action="focus"]')!
+    expect(sun.getAttribute('aria-pressed')).toBe('false')
+    await act(async () => { sun.click() })
+    await waitFor(async () => (await db.review.get('me'))?.focus === ids[0], 'the task in today’s focus')
+    await waitFor(() => sun.getAttribute('aria-pressed') === 'true', 'the sun marked pressed')
+    expect((await db.tasks.get(ids[0]))?.due).toBeNull()
+  })
+
+  it('adding one task to the focus from a one-task menu keeps the tasks already chosen', async () => {
+    const { ids } = await inbox('Pay rent', 'Call the bank')
+    await act(async () => { await mutate('review', 'me', { focus_date: '2026-10-14', focus: ids[0] }) })
+    await waitFor(async () => (await db.review.get('me'))?.focus === ids[0], 'the first task in the focus')
+    const item = (label: string) => [...document.querySelectorAll<HTMLElement>('[role="menuitem"]')].find((m) => m.textContent?.startsWith(label))
+    await key(document.body, 'j')
+    await key(document.body, 'j')
+    await key(document.body, '.')
+    await waitFor(() => !!item('Add to today’s focus'), 'the focus action for the second task')
+    await act(async () => { item('Add to today’s focus')!.click() })
+    // The menu read held only the second task; the write must keep the first (review-full-tasks).
+    await waitFor(async () => (await db.review.get('me'))?.focus === `${ids[0]},${ids[1]}`, 'both tasks in the focus')
+  })
+
+  it('Add to a dossier on one open task attaches it to the dossier picked, and a typed name creates one with it', async () => {
+    const kitchen = await createDossier('Kitchen')
+    const { ids } = await inbox('Get three quotes')
+    const item = (label: string) => [...document.querySelectorAll<HTMLElement>('[role="menuitem"]')].find((m) => m.textContent?.startsWith(label))
+    await key(document.body, 'j')
+    await key(document.body, '.')
+    await waitFor(() => !!item('Add to a dossier'), 'the dossier action')
+    await act(async () => { item('Add to a dossier')!.click() })
+    await waitFor(() => !!option('Kitchen'), 'the existing dossier')
+    await act(async () => { option('Kitchen')!.click() })
+    await waitFor(async () => !!(await db.dossiers.get(kitchen.id))?.task_ids.includes(ids[0]), 'the attached step')
+    expect((await db.tasks.get(ids[0]))?.title).toBe('Get three quotes')
+
+    // A name that matches no dossier creates one holding only this task.
+    await key(document.body, 'Escape')
+    await waitFor(() => !document.querySelector('[data-picker-step]'), 'the menu closed')
+    await key(document.body, 'j')
+    await key(document.body, '.')
+    await waitFor(() => !!item('Add to a dossier'), 'the dossier action again')
+    await act(async () => { item('Add to a dossier')!.click() })
+    const field = document.querySelector<HTMLInputElement>('[data-picker-step] input[role="combobox"]')!
+    await type(field, 'Garage')
+    await waitFor(() => !!document.querySelector('[data-picker-step] [role="option"]'), 'the create option')
+    await key(field, 'Enter')
+    await waitFor(async () => (await db.dossiers.toArray()).some((d) => d.title === 'Garage'), 'the created dossier')
+    const garage = (await db.dossiers.toArray()).find((d) => d.title === 'Garage')!
+    expect(garage.task_ids).toEqual([ids[0]])
+    expect((await db.tasks.get(ids[0]))?.title).toBe('Get three quotes')
+  })
+
   it('L then "errand" adds it to the tasks lacking it and the picker stays open', async () => {
     const l = await createLabel({ name: 'errand' })
     const { ids } = await inbox('One', 'Two', 'Three')
@@ -238,5 +310,16 @@ describe('actions (2.5, 3.3, 4.2)', () => {
     await key(document.body, 'z', { ctrlKey: true })
     await waitFor(() => document.querySelector('[data-bulk-toast]')!.textContent!.includes('Undone'), 'Undone in the toast')
     await waitFor(async () => (await priority()) === 4, 'priority 4 back')
+  })
+})
+
+describe('Add to a dossier in the task menu', () => {
+  it('is offered only for one open task the person may edit', () => {
+    const d = { dossiers: [] as never[], memberships: new Map() }
+    const open = { id: 't1', title: 'Open', project_id: null, completed_at: null, deleted_at: null } as unknown as Task
+    expect(dossierMenuItem(open, d)).toMatchObject({ kind: 'picker', id: 'dossier' })
+    expect(dossierMenuItem({ ...open, completed_at: 5 } as Task, d)).toBeUndefined()
+    expect(dossierMenuItem({ ...open, deleted_at: 5 } as Task, d)).toBeUndefined()
+    expect(dossierMenuItem(undefined, d)).toBeUndefined()
   })
 })

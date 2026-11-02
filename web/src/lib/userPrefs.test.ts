@@ -47,7 +47,8 @@ describe('language (app-localization D1)', () => {
   it('a shipped code reads back; a missing row or an unknown code reads as system and the row keeps it', async () => {
     expect(readLanguage(undefined)).toBe('system')
     await applyOps([{ id: 'l1', entity: 'user_prefs', entityId: 'me', field: 'language', value: 'de', ts: 10, device: 'laptop' }])
-    expect(readLanguage(await db.userPrefs.get('me'))).toBe('de')
+    expect(readLanguage(await db.userPrefs.get('me'))).toBe('system')
+    expect((await db.userPrefs.get('me'))?.language).toBe('de')
     await applyOps([{ id: 'l2', entity: 'user_prefs', entityId: 'me', field: 'language', value: 'ja', ts: 11, device: 'newer' }])
     const row = await db.userPrefs.get('me')
     expect(row?.language).toBe('ja')
@@ -55,10 +56,10 @@ describe('language (app-localization D1)', () => {
   })
 
   it('a change made offline applies at once and waits in the outbox', async () => {
-    await setUserPref('language', 'it')
-    expect(readLanguage(await db.userPrefs.get('me'))).toBe('it')
+    await setUserPref('language', 'fr')
+    expect(readLanguage(await db.userPrefs.get('me'))).toBe('fr')
     const queued = (await db.outbox.toArray()).map(({ entity, entityId, field, value }) => ({ entity, entityId, field, value }))
-    expect(queued).toEqual([{ entity: 'user_prefs', entityId: 'me', field: 'language', value: 'it' }])
+    expect(queued).toEqual([{ entity: 'user_prefs', entityId: 'me', field: 'language', value: 'fr' }])
   })
 })
 

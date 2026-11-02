@@ -158,6 +158,10 @@ export async function runDeviceTurn(req: TurnRequest, onEvent: (e: TurnEvent) =>
     usage()
     onEvent({ type: 'error', code, message })
   }
+  const inMemberProject = (c: ProposedChange) => {
+    const pid = c.entity === 'project' ? c.entityId : String(c.patch.project_id ?? c.base?.project_id ?? snap0.byId.get(c.entity === 'comment' ? String(c.patch.task_id) : c.entityId)?.project_id ?? '')
+    return !!pid && snap0.memberships.has(pid)
+  }
   for (let round = 0; round < manifest.limits.max_rounds; round++) {
     let r
     try {
@@ -172,10 +176,7 @@ export async function runDeviceTurn(req: TurnRequest, onEvent: (e: TurnEvent) =>
     output += r.output
     switch (r.stop) {
       case 'end_turn': {
-        const changes = finalise(draft, (c) => {
-          const pid = c.entity === 'project' ? c.entityId : String(c.patch.project_id ?? c.base?.project_id ?? snap0.byId.get(c.entity === 'comment' ? String(c.patch.task_id) : c.entityId)?.project_id ?? '')
-          return !!pid && snap0.memberships.has(pid)
-        })
+        const changes = finalise(draft, inMemberProject)
         usage()
         if (changes.length) onEvent({ type: 'changeset', items: changes, limit: manifest.limits.max_entities })
         onEvent({ type: 'done', stop_reason: 'end_turn' })
@@ -204,5 +205,10 @@ export async function runDeviceTurn(req: TurnRequest, onEvent: (e: TurnEvent) =>
         return failed('provider_error', 'the provider ended the answer for an unknown reason')
     }
   }
-  done('round_limit', manifest.messages.round_limit)
+  // What was drafted before the limit is still worth a review (same gate as at the end of a turn).
+  const partial = finalise(draft, inMemberProject)
+  if (!partial.length) return done('round_limit', manifest.messages.round_limit)
+  usage()
+  onEvent({ type: 'changeset', items: partial, limit: manifest.limits.max_entities })
+  onEvent({ type: 'done', stop_reason: 'round_limit', message: manifest.messages.round_limit_partial })
 }

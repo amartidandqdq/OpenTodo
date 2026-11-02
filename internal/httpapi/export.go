@@ -64,6 +64,14 @@ func (s *Server) handleExport(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	out["places"] = places
+	// The caller's dossiers (OpenSpec change resume-dossiers): personal like
+	// labels, deleted ones included; their task_ids name tasks in the export.
+	dossiers, err := s.sync.List(r.Context(), uid, "dossier", true)
+	if err != nil {
+		s.internal(w, err)
+		return
+	}
+	out["dossiers"] = dossiers
 	// The caller's date and time preferences (date-time-preferences D1): personal,
 	// no REST collection, but part of what the user owns, so the export carries them.
 	prefs, err := s.sync.List(r.Context(), uid, "user_prefs", true)

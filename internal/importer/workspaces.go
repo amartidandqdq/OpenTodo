@@ -82,7 +82,7 @@ func (s *Service) mapWorkspaces(ctx context.Context, uid string, parsed *Parsed,
 		byName[strings.ToLower(name)] = w.ID
 	}
 	if len(unplaced) > 0 {
-		parsed.Notes = append(parsed.Notes, fmt.Sprintf("%s could not be created (workspace limit); their projects, labels, views and tasks are in your default workspace.", strings.Join(unplaced, ", ")))
+		parsed.Notes = append(parsed.Notes, fmt.Sprintf("%s could not be created (workspace limit); their projects, labels, views, dossiers and tasks are in your default workspace.", strings.Join(unplaced, ", ")))
 	}
 	for i := range parsed.Rows {
 		e := parsed.Rows[i].Entity

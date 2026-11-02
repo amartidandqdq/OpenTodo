@@ -84,6 +84,11 @@ func (pl *planner) planOwn(rows []Row) []change {
 			if fields, ok = pl.ownAttachment(row, fields, res); !ok {
 				continue
 			}
+		case KindDossier:
+			var ok bool
+			if fields, ok = pl.ownDossier(fields, fileTasks, row.SourceID, res); !ok {
+				continue
+			}
 		}
 		if err := validateFields(row.Kind, row.SourceID, fields); err != nil {
 			res.Outcome, res.Reason = OutcomeError, err.Error()
@@ -119,6 +124,43 @@ func (pl *planner) planOwn(rows []Row) []change {
 		}
 	}
 	return out
+}
+
+// ownDossier keeps an own export's order only when every task it names is in the
+// file, already visible to the importing account, or already in that dossier's
+// stored order. A reference that is none of those would become a permanently
+// unavailable member, so the row is reported instead of writing a dossier that
+// names nothing (resume-dossiers D2). Deleted tasks in the file stay valid: a
+// tombstone is still the author's task, and preserving it is how a deleted member
+// keeps its place. A re-import into the same account keeps a member whose task is
+// no longer visible, exactly as sync does after access loss.
+func (pl *planner) ownDossier(fields []field, fileTasks map[string]bool, dossierID string, res *RowResult) ([]field, bool) {
+	preserved := map[string]bool{}
+	if existing := pl.byKind[KindDossier][dossierID]; existing != nil {
+		var ids []string
+		if json.Unmarshal(existing["task_ids"], &ids) == nil {
+			for _, id := range ids {
+				preserved[id] = true
+			}
+		}
+	}
+	for _, f := range fields {
+		if f.name != "task_ids" {
+			continue
+		}
+		var ids []string
+		if json.Unmarshal(f.value, &ids) != nil {
+			return fields, true // validateFields reports the malformed list
+		}
+		for _, id := range ids {
+			if fileTasks[id] || pl.byKind[KindTask][id] != nil || preserved[id] {
+				continue
+			}
+			res.Outcome, res.Reason = OutcomeError, fmt.Sprintf("task %s is neither in the file nor in your account", id)
+			return nil, false
+		}
+	}
+	return fields, true
 }
 
 // ownAttachment adapts an exported attachment to this account (attachments D12):

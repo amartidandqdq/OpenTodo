@@ -137,6 +137,13 @@ OpenTodo syncs with a field-level, last-writer-wins operation log. It is a state
 | review | `focus_date`, `focus` | string: the local date (`YYYY-MM-DD`) today's focus was chosen on, and up to three comma-separated task ids |
 | review | `closed_at` | number (Unix ms: the latest Close the day; 0 = never) |
 | review | `tomorrow_note` | string: the one-line note for tomorrow written at that close (content: ciphertext for an encrypted account) |
+| review | `focus_dossiers` | up to three distinct non-empty dossier ids, chosen for `focus_date` beside the existing task focus |
+| dossier | `title`, `note`, `waiting_for` | personal user-written strings; encrypted content when E2EE is enabled |
+| dossier | `task_ids` | ordered list of at most 50 distinct task ids; new references must be visible to the author, existing unavailable references remain editable |
+| dossier | `waiting` | boolean, independent of the tasks' due dates |
+| dossier | `follow_up` | calendar date `YYYY-MM-DD` or null; when to review the waiting state, without scheduling a reminder |
+| dossier | `workspace_id` | workspace id or null for the default workspace |
+| dossier | `position`, `created_at`, `deleted_at` | ordering number, creation timestamp and tombstone timestamp (null while live) |
 
 `actor` on served ops (OpenSpec `comments-and-activity`) is the account that wrote the op, taken from `ops.user_id`, which the server always sets from the authenticated submitter; a value sent by a client is ignored. It is additive and optional: older clients ignore it, and ops from an older server simply lack it.
 

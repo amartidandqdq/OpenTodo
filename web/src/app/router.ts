@@ -59,6 +59,9 @@ export type Route =
   | { view: 'next' }
   | { view: 'waiting' }
   | { view: 'loop' }
+  // Dossiers (resume-dossiers): Pick up the thread, and one dossier page.
+  | { view: 'resume' }
+  | { view: 'dossier'; id: string }
   // Focus (focus-mode D7): one task and a timer; /focus takes the first task of today's focus.
   | { view: 'focus'; id?: string }
 
@@ -213,6 +216,11 @@ export function parseRoute(pathname: string): Route {
       return { view: 'waiting' }
     case 'loop':
       return { view: 'loop' }
+    case 'resume':
+      return { view: 'resume' }
+    case 'dossier':
+      // A missing id opens Pick up the thread rather than an error page.
+      return parts[1] ? { view: 'dossier', id: safeDecode(parts[1]) } : { view: 'resume' }
     case 'stats':
       return { view: 'stats' }
     case 'focus':
@@ -251,6 +259,8 @@ export function routePath(r: Route): string {
     case 'label':
     case 'task':
       return `/${r.view}/${r.id}`
+    case 'dossier':
+      return `/dossier/${encodeURIComponent(r.id)}`
     case 'view':
       return `/views/${r.id}`
     case 'place':

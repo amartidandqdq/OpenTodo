@@ -128,15 +128,15 @@ test('method.json: the app\'s own words in every shipped language (open-loops-me
   const m = methodVocabulary()
   assert.equal(m.schema, 1)
   assert.equal(m.name, 'Open Loops')
-  assert.deepEqual(m.languages, ['en', 'de', 'fr', 'es', 'it', 'pt'])
+  assert.deepEqual(m.languages, ['en', 'fr'])
   assert.deepEqual(m.moves.map((x) => x.id), ['catch', 'clarify', 'place', 'do', 'review'])
-  const it = JSON.parse(read('web/src/locales/it.json'))
+  const fr = JSON.parse(read('web/src/locales/fr.json'))
   const vocabulary = JSON.parse(read('web/src/lib/method/vocabulary.json'))
   for (const [i, move] of vocabulary.moves.entries()) {
-    // Same words on the website: the Italian name is the catalog's entry in the method context.
-    assert.equal(m.moves[i].name.it, it[`${move.name}|method`], move.id)
+    // Same words on the website: the French name is the catalog's entry in the method context.
+    assert.equal(m.moves[i].name.fr, fr[`${move.name}|method`], move.id)
     assert.equal(m.moves[i].name.en, move.name)
-    assert.equal(m.moves[i].description.it, it[move.description], move.id)
+    assert.equal(m.moves[i].description.fr, fr[move.description], move.id)
     assert.equal(m.moves[i].route, move.route)
   }
   for (const group of ['principles', 'places', 'rhythms', 'horizons']) {
@@ -159,7 +159,8 @@ test('the template library is in the bundle: index.json, one file per template, 
   assert.deepEqual(slugs, compiled.templates.map((t) => t.slug), 'the bundle ships exactly the library the app ships')
   const trip = index.templates.find((t) => t.slug === 'trip-planning')
   assert.equal(trip.title.en, 'Trip planning')
-  assert.equal(trip.title.it, 'Organizzare un viaggio')
+  assert.equal(trip.title.en, 'Trip planning')
+  assert.equal(trip.title.it, undefined)
   assert.equal(trip.category, 'personal')
   const file = Object.fromEntries(files)['trip-planning.json']
   assert.equal(file.schema, TEMPLATES_SCHEMA)

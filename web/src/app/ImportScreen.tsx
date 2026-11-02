@@ -117,6 +117,7 @@ function Totals({ t: item }: { t: ImportPreview['totals'] }) {
     item.newSections ? t('{n, plural, one {# new section} other {# new sections}}', { n: item.newSections }) : '', item.recurring ? t('{n} recurring', { n: item.recurring }) : '',
     item.reminders ? t('{n, plural, one {# reminder} other {# reminders}}', { n: item.reminders }) : '', item.deadlines ? t('{n} with deadlines', { n: item.deadlines }) : '',
     item.fields ? t('{n, plural, one {# new field} other {# new fields}}', { n: item.fields }) : '',
+    item.dossiers ? t('{n, plural, one {# dossier} other {# dossiers}}', { n: item.dossiers }) : '',
   ].filter(Boolean)
   return <p className="text-body text-muted">{t('{n, plural, one {# row} other {# rows}}: {summary}', { n: item.rows, summary: parts.join(' · ') })}</p>
 }

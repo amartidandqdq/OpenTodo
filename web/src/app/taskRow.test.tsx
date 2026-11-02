@@ -276,9 +276,9 @@ describe('one row language (rows-v2)', () => {
     expect(cell.querySelector('[aria-hidden="true"]')).toBeTruthy()
     expect(r.container.querySelector('[data-row-trailing] [data-project]')).toBeNull()
     await r.unmount()
-    // The row is its own size container, so the column follows the row's width, not the screen's.
+    // Mockup A keeps this metadata beneath the title at every width.
     const only = await row({}, { showProject: true, project: { id: 'p', name: 'Home renovation', color: '#f00' } as unknown as Project })
-    expect(only.container.querySelector('li')!.className).toContain('@container/row')
+    expect(only.container.querySelector('li')!.className).toContain('mockup-task')
     await only.unmount()
   })
 
@@ -413,18 +413,18 @@ describe('revealed row actions (rows-v2 D7)', () => {
   const row = (extra: Partial<TaskRowProps> = {}) =>
     render(<ul><TaskRow task={task({ priority: 3 })} selected={false} showProject={false} onToggle={() => {}} onOpen={() => {}} {...extra} /></ul>)
 
-  it('three real buttons after the open control, shown only on a fine pointer from 768 px, revealed on hover and focus', async () => {
+  it('four real buttons after the open control, shown only on a fine pointer from 768 px, revealed on hover and focus', async () => {
     const r = await row({ onMore: () => {}, progress: { done: 1, total: 2 } })
     const cluster = r.container.querySelector('[data-row-actions]')!
-    expect([...cluster.querySelectorAll('[data-row-action]')].map((b) => b.getAttribute('data-row-action'))).toEqual(['schedule', 'priority', 'more'])
+    expect([...cluster.querySelectorAll('[data-row-action]')].map((b) => b.getAttribute('data-row-action'))).toEqual(['focus', 'schedule', 'priority', 'more'])
     for (const cls of ['hidden', 'md:pointer-fine:flex', 'opacity-0', 'group-hover:opacity-100', 'group-focus-within:opacity-100']) expect(cluster.className.split(/\s+/)).toContain(cls)
     // The trailing group fades in its place but stays heard.
     const trailing = r.container.querySelector('[data-row-trailing]')!
     expect(trailing.className).toContain('md:pointer-fine:group-hover:opacity-0')
     expect(trailing.hasAttribute('aria-hidden')).toBe(false)
-    // Tab order: open control, then Schedule, Priority, More.
+    // Tab order: open control, then My day, Schedule, Priority, More.
     const order = [...r.container.querySelectorAll('li button')].map((b) => b.getAttribute('data-row-action') ?? (b.hasAttribute('data-row-open') ? 'open' : 'check'))
-    expect(order).toEqual(['check', 'open', 'schedule', 'priority', 'more'])
+    expect(order).toEqual(['check', 'open', 'focus', 'schedule', 'priority', 'more'])
     await r.unmount()
   })
 

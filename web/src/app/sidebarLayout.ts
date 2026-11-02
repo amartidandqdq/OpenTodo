@@ -1,12 +1,14 @@
-// Per-device sidebar layout (OpenSpec change ux-overhaul, app-shell "Resizable
-// sidebar"): its width between 15 and 22.5 rem, and whether it is collapsed to
-// icons. Device state, never synced.
+// Per-device sidebar layout (OpenSpec change original-mockup-a, spec
+// "Original mockup shell": the desktop shell's narrow sidebar): its width between
+// 10.5 and 22.5 rem, defaulting to 12 rem, and whether it is collapsed to icons.
+// Device state, never synced; a device that stored a wider span keeps it clamped
+// into the new limits.
 import { readString, removeItem, writeString } from '../lib/deviceStorage'
 import { createStore } from '../lib/store'
 
-export const SIDEBAR_MIN_REM = 15
+export const SIDEBAR_MIN_REM = 10.5
 export const SIDEBAR_MAX_REM = 22.5
-export const SIDEBAR_DEFAULT_REM = 16
+export const SIDEBAR_DEFAULT_REM = 12
 /** The icon rail while collapsed. */
 export const SIDEBAR_COLLAPSED_REM = 3.5
 

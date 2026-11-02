@@ -117,7 +117,7 @@ function useViewCounts(views: View[], today: string, labels: Label[], projects: 
   return useMemo(() => evaluateViews(views, { today, labels, projects, tasks, tracked, ...ws }, 0), [views, today, labels, projects, tasks, tracked, ws])
 }
 
-export function Sidebar({ route, user, onSearch, onShortcuts, onAssistant, onSignOut, collapsed = false, onToggleCollapse }: {
+export function Sidebar({ route, user, onSearch, onShortcuts, onAssistant, onSignOut, collapsed = false, onToggleCollapse, compact = false }: {
   route: Route
   user: User
   /** Opens the search and command palette (the footer's Search item). */
@@ -131,6 +131,10 @@ export function Sidebar({ route, user, onSearch, onShortcuts, onAssistant, onSig
   /** The icon rail (app-shell "Resizable sidebar"). */
   collapsed?: boolean
   onToggleCollapse?: () => void
+  /** The desktop top bar carries the brand and the search (original-mockup-a):
+   *  the sidebar header then shows the switcher's workspace name alone and no
+   *  search, so the two never appear twice. The phone drawer keeps its own. */
+  compact?: boolean
 }) {
   const instanceLabel = useInstanceName()
   const hints = useShortcutHints()
@@ -368,7 +372,8 @@ export function Sidebar({ route, user, onSearch, onShortcuts, onAssistant, onSig
   const item = (r: Route, label: string, icon: IconName, count?: number, badge?: ReactNode, tip?: string) => {
     // Day, Week, Month and Plan are one Calendar destination (ux-overhaul, planner-view).
     const calendar = (v: string) => v === 'day' || v === 'week' || v === 'month' || v === 'plan'
-    const active = calendar(r.view) ? calendar(route.view) : JSON.stringify(r) === JSON.stringify(route)
+    // A dossier page belongs to Pick up the thread (resume-dossiers): its section stays active.
+    const active = r.view === 'resume' ? route.view === 'resume' || route.view === 'dossier' : calendar(r.view) ? calendar(route.view) : JSON.stringify(r) === JSON.stringify(route)
     // With "Show shortcut hints" on, the destination prints its `g` key (keyboard-shortcuts "Hints preference").
     const go = hints && !collapsed && badge == null ? GO_KEYS[r.view] : undefined
     const node = <SidebarItem key={label} icon={icon} label={label} count={count} countLabel={openTasksLabel(count)} badge={go ? <kbd className="ui-kbd" data-go-hint>{go}</kbd> : badge} active={active} collapsed={collapsed} onClick={() => navigate(r)} data-destination={r.view} aria-description={tip && badge == null ? tip : undefined} {...(r.view === 'inbox' ? INBOX_DROP : {})} />
@@ -407,8 +412,8 @@ export function Sidebar({ route, user, onSearch, onShortcuts, onAssistant, onSig
     <div className="flex h-full flex-col" data-sidebar-collapsed={collapsed || undefined}>
       <div className={`shrink-0 pt-[max(0.75rem,env(safe-area-inset-top))] ${collapsed ? 'px-1.5' : 'px-3'}`}>
         {/* The header row is the workspace control (sidebar-v2 D1, workspaces D6); search beside it, in the rail's footer when collapsed. */}
-        <SidebarHeader left={<WorkspaceControl route={route} />} rail={<InstanceMark size={24} />} railLabel={instanceLabel}
-          collapsed={collapsed} onSearch={onSearch} searchLabel={t('Search and commands')} searchShortcut={keysOf('global.palette')} />
+        <SidebarHeader left={<WorkspaceControl route={route} compact={compact} />} rail={<InstanceMark size={24} />} railLabel={instanceLabel}
+          collapsed={collapsed} onSearch={compact ? undefined : onSearch} searchLabel={t('Search and commands')} searchShortcut={keysOf('global.palette')} />
         <nav className="space-y-0.5" aria-label={t('Primary')} data-sidebar-primary>
           {primary.map((d) => item(d.route, d.label, d.icon, d.count, d.badge, d.tip))}
           {primaryExtra.map((m) => <Fragment key={m.id}>{m.node}</Fragment>)}
@@ -642,14 +647,16 @@ const TAB_BAR_VIEWS = new Set<Route['view']>(['inbox', 'today', 'upcoming'])
 function primaryDestinations(first: boolean, calendarMode: Route['view'], counts: { inbox?: number; today?: number }, reviewDot: ReactNode, reviewText: string): { route: Route; label: string; icon: IconName; count?: number; badge?: ReactNode; tip?: string }[] {
   const inbox = { route: { view: 'inbox' } as Route, label: t('Inbox'), icon: 'inbox' as IconName, count: counts.inbox }
   const today = { route: { view: 'today' } as Route, label: t('Today'), icon: 'calendar-check' as IconName, count: counts.today }
+  // Pick up the thread is a primary destination in every mode (resume-dossiers, app-shell "Dossier destinations").
+  const resume = { route: { view: 'resume' } as Route, label: t('Pick up the thread'), icon: 'compass' as IconName }
   return first
     ? [
-        { route: { view: 'loop' }, label: t('Loop home'), icon: 'rotate-ccw' }, inbox, today,
+        resume, { route: { view: 'loop' }, label: t('Loop home'), icon: 'rotate-ccw' }, inbox, today,
         { route: { view: 'next' }, label: t('Next', { context: 'method' }), icon: 'arrow-right' },
         { route: { view: 'waiting' }, label: t('Waiting', { context: 'method' }), icon: 'hourglass' },
         { route: { view: 'review' }, label: t('Review'), icon: 'clipboard-check', badge: reviewDot, tip: reviewText },
       ]
-    : [inbox, today, { route: { view: 'upcoming' }, label: t('Upcoming'), icon: 'calendar-days' }, { route: { view: calendarMode } as Route, label: t('Calendar'), icon: 'calendar-range' }]
+    : [resume, inbox, today, { route: { view: 'upcoming' }, label: t('Upcoming'), icon: 'calendar-days' }, { route: { view: calendarMode } as Route, label: t('Calendar'), icon: 'calendar-range' }]
 }
 
 function MoreMenu({ entries, active, collapsed, hints, extra }: {

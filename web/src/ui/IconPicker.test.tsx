@@ -4,7 +4,7 @@
 // change, category names in the interface language.
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { applyCatalog } from '../lib/i18n/catalog'
-import it_ from '../locales/it.json'
+import fr from '../locales/fr.json'
 import { IconPicker } from './IconPicker'
 import { loadCatalogue } from './icons/catalogue'
 import { key, render, type, waitFor } from './test-utils'
@@ -59,13 +59,13 @@ describe('IconPicker', () => {
 
   it('matches category names in the interface language', async () => {
     await loadCatalogue()
-    applyCatalog('it', 'it', it_ as Record<string, string>)
+    applyCatalog('fr', 'fr', fr as Record<string, string>)
     const r = await render(<IconPicker value={null} onPick={() => {}} />)
     await waitFor(() => document.querySelector('[data-icon-option="briefcase"]') !== null, 'catalogue rendered')
-    await type(field(), 'cibo')
-    await waitFor(() => !!document.querySelector('[data-icon-picker] [role="listbox"] > [role="group"][aria-label="Cibo"]'), 'the Italian group')
+    await type(field(), 'nourriture')
+    await waitFor(() => !!document.querySelector('[data-icon-picker] [role="listbox"] > [role="group"][aria-label="Nourriture"]'), 'the French group')
     const groups = [...document.querySelectorAll('[data-icon-picker] [role="listbox"] > [role="group"]')].map((g) => g.getAttribute('aria-label'))
-    expect(groups).toContain('Cibo')
+    expect(groups).toContain('Nourriture')
     expect(document.querySelector('[data-icon-option="pizza"]')).not.toBeNull()
     await r.unmount()
   })

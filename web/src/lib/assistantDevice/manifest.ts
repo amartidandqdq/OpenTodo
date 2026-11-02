@@ -31,7 +31,7 @@ export interface Manifest {
   notice: string
   untrusted_note: string
   views: Record<string, string>
-  messages: { refusal: string; cut_off: string; round_limit: string }
+  messages: { refusal: string; cut_off: string; round_limit: string; round_limit_partial: string }
   limits: { max_rounds: number; max_output_tokens: number; max_entities: number; max_items: number }
   default_anthropic_model: string
   anthropic_models: string[]

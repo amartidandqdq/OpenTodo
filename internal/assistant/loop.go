@@ -34,6 +34,8 @@ const (
 	RefusalMessage    = "The model declined this request."
 	CutOffMessage     = "The answer was cut off because it reached the length limit. No changes were proposed from it."
 	RoundLimitMessage = "The assistant needed too many steps for this request and stopped. No changes were proposed; try a smaller request."
+	// RoundLimitPartialMessage goes with the changes drafted before the limit.
+	RoundLimitPartialMessage = "The assistant ran out of steps before finishing. Review what it prepared so far, then ask again to continue with the rest."
 )
 
 // callerTokenID names the in-app assistant in the registry's caller. Its
@@ -145,7 +147,10 @@ type Result struct {
 var idPattern = regexp.MustCompile(`^[A-Za-z0-9_-]{1,64}$`)
 
 var views = map[string]string{"inbox": "the Inbox", "today": "Today", "upcoming": "Upcoming", "completed": "Completed", "assigned": "Assigned to me",
-	"project": "a project", "label": "a label", "filter": "Filter", "view": "a saved view", "day": "the Day calendar", "week": "the Week calendar"}
+	"project": "a project", "label": "a label", "filter": "Filter", "view": "a saved view", "day": "the Day calendar", "week": "the Week calendar",
+	"resume":  "the Reprendre le fil page, which shows the user's dossiers (threads of existing tasks, not projects); a \"dossier\" or \"fil\" said here means one of these",
+	"waiting": "the En attente page, which lists the user's dossiers on hold (threads of existing tasks, not projects)",
+	"dossier": "one dossier of the Reprendre le fil page (a thread of existing tasks, not a project)"}
 
 // SystemRules is the fixed middle of every turn's system text: what the
 // assistant can and cannot do, untrusted data and the planning vocabulary. The
@@ -229,6 +234,8 @@ func statusFor(name string, args json.RawMessage) string {
 			return "Looking at Upcoming…"
 		}
 		return "Looking at tasks…"
+	case "list_dossiers":
+		return "Looking at your dossiers…"
 	case "get_task":
 		return "Reading a task…"
 	case "search_tasks":
@@ -319,6 +326,15 @@ func (l *Loop) Run(ctx context.Context, prov Provider, in TurnInput, ev Events) 
 		}
 	}
 	res.Stop, res.Message = StopRoundLimit, RoundLimitMessage
+	// What was drafted before the limit is still worth a review (same gate as at the end of a turn).
+	changes, err := l.finalise(ctx, in.UserID, draft)
+	if err != nil {
+		res.Err = err
+		return res
+	}
+	if len(changes) > 0 {
+		res.Changes, res.Message = changes, RoundLimitPartialMessage
+	}
 	return res
 }
 

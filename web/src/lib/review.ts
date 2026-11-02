@@ -12,9 +12,10 @@ import { canEditProject, canEditTasks, roleOf } from './sharing'
 import { compute, countedTasks, overdueOf, sharedIds, type StatsInput } from './stats'
 import { applyBatch } from './undo'
 import { db, type AssistantUndo } from './db'
+import { dossierState, focusDossiers } from './dossierModel'
 import { MethodRules, waitingTasks, type MethodInput } from './method/rules'
 import { qualifies } from './triage'
-import type { Membership, Project, Review, Task } from './types'
+import type { Dossier, Membership, Project, Review, Task } from './types'
 import { isSomeday, isStarted } from './views'
 import { t, msg, translatedMap } from './i18n'
 
@@ -165,18 +166,58 @@ export function focusTasks(review: Pick<Review, 'focus' | 'focus_date'> | null |
   return storedFocus(review, today).map((id) => byId.get(id)).filter((x): x is Task => !!x && !x.deleted_at && !x.completed_at)
 }
 
+/** What My day shows on Today (resume-dossiers D5): the chosen dossiers, their next real step, and the chosen tasks. */
+export interface TodayFocus {
+  /** The dossiers chosen for today, live and in their stored order. */
+  dossiers: Dossier[]
+  /** The first live, open task of each chosen thread that is still moving, once each. */
+  steps: Task[]
+  /** The tasks chosen with the sun, in their stored order. */
+  tasks: Task[]
+  /** Every task My day shows, once: the dossier steps first, then the chosen tasks. */
+  all: Task[]
+  /** The ids My day shows; Today's ordinary groups leave them out so no task is shown twice. */
+  ids: ReadonlySet<string>
+}
+
+/**
+ * My day's contents from the live rows: the chosen dossiers, the next step of each
+ * thread still moving, and the tasks chosen with the sun. A waiting thread shows its
+ * hold, never its next task as an action, so that step stays in Today's ordinary
+ * groups rather than posing as chosen work. A focus from another day is empty.
+ */
+export function todayFocusOf(review: Pick<Review, 'focus' | 'focus_date' | 'focus_dossiers'> | null | undefined, today: string, tasks: readonly Task[], dossiers: readonly Dossier[]): TodayFocus {
+  const chosenDossiers = focusDossiers(review, today, dossiers)
+  const steps: Task[] = []
+  const stepIds = new Set<string>()
+  for (const dossier of chosenDossiers) {
+    if (dossier.waiting) continue
+    const next = dossierState(dossier, tasks).next
+    if (!next || stepIds.has(next.id)) continue
+    stepIds.add(next.id)
+    steps.push(next)
+  }
+  const chosenTasks = focusTasks(review, today, tasks)
+  const all = [...steps, ...chosenTasks.filter((task) => !stepIds.has(task.id))]
+  return { dossiers: chosenDossiers, steps, tasks: chosenTasks, all, ids: new Set(all.map((task) => task.id)) }
+}
+
 /**
  * Toggles a task in today's focus; 'full' when it would be a fourth. Completed or
  * deleted tasks no longer count, so they free their place without a write of their own.
  */
 export async function toggleFocus(review: Pick<Review, 'focus' | 'focus_date'> | null | undefined, today: string, tasks: readonly Task[], id: string): Promise<'added' | 'removed' | 'full'> {
-  const current = focusTasks(review, today, tasks).map((x) => x.id)
+  // An undefined row means the snapshot has not arrived: read the stored one, so a
+  // click cannot mistake loading for a new day and wipe the dossier focus.
+  const row = review === undefined ? (await db.review.get(REVIEW_ID)) ?? null : review
+  const current = focusTasks(row, today, tasks).map((x) => x.id)
   if (current.includes(id)) {
     await mutate('review', REVIEW_ID, { focus_date: today, focus: current.filter((x) => x !== id).join(',') })
     return 'removed'
   }
   if (current.length >= FOCUS_MAX) return 'full'
-  await mutate('review', REVIEW_ID, { focus_date: today, focus: [...current, id].join(',') })
+  // A selection from another day must not resurrect the old dossier focus.
+  await mutate('review', REVIEW_ID, { focus_date: today, focus: [...current, id].join(','), ...(row?.focus_date === today ? {} : { focus_dossiers: [] }) })
   return 'added'
 }
 

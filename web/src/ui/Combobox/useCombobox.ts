@@ -183,8 +183,9 @@ export function useCombobox<T>(cfg: ComboboxConfig<T>) {
       await cfg.onPick(opt.item)
       if (cfg.rankContext) void recordPick(cfg.rankContext, opt.key.replace(/^recent:/, '')).catch(() => {})
     }
-    if (cfg.multiple) setQuery('')
-    else cfg.onClose?.()
+    // A single pick closes the list and leaves the field empty for the next search.
+    setQuery('')
+    if (!cfg.multiple) cfg.onClose?.()
   }
 
   const onKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {

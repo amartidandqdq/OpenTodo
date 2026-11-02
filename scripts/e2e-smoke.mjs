@@ -253,7 +253,7 @@ await page.keyboard.press('Escape')
 await page.locator('[data-triage-start]').waitFor()
 
 step('Open Loops (open-loops-method): first, the Loop home, the walk, a focus, back to Lists only')
-const primary = () => page.locator('nav[data-sidebar-primary] [data-sidebar-item]').evaluateAll((els) => els.map((e) => e.getAttribute('data-destination')))
+const primary = () => page.locator('nav[data-sidebar-primary] [data-sidebar-item]').evaluateAll((els) => els.map((e) => e.getAttribute('data-destination')).filter((d) => d !== 'resume'))
 await page.goto(`${base}/settings/account/profile`)
 await page.locator('[data-method-mode="first"]').click()
 await page.locator('[data-offer="start"]').getByRole('button', { name: 'Keep my start view' }).click()

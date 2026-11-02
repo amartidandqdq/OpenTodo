@@ -733,6 +733,30 @@ var Schema = map[string]map[string]Field{
 		// before, after}]} so Reopen the day can put it back on any device; "" =
 		// none. Task ids, field names and dates only, never user-written text.
 		"carry_over": {Kind: kString, Default: `""`},
+		// The dossiers chosen for today's focus (OpenSpec change
+		// resume-dossiers), an ordered id list beside the task focus and dated by
+		// the same focus_date. Ids only, never content.
+		"focus_dossiers": {Kind: kIDList, Default: `[]`},
+	},
+	// dossier: a personal, ordered thread of existing tasks (OpenSpec change
+	// resume-dossiers, design D1). It lives in the author's personal scope like a
+	// label and is partitioned by workspace_id; it never moves a task or changes
+	// its list, due date or completion. task_ids is the order, and the current
+	// step and progress are derived from those live tasks. waiting, waiting_for
+	// and follow_up are the thread's own hold, never a task due date. title, note
+	// and waiting_for are user-written content, so an encrypted account encrypts
+	// them.
+	"dossier": {
+		"title":        {Kind: kString, Default: `""`, Content: true},
+		"note":         {Kind: kString, Default: `""`, Content: true},
+		"task_ids":     {Kind: kIDList, Default: `[]`},
+		"waiting":      {Kind: kBool, Default: `false`},
+		"waiting_for":  {Kind: kString, Default: `""`, Content: true},
+		"follow_up":    {Kind: kDate, Default: `null`},
+		"workspace_id": {Kind: kNullableString, Default: `null`},
+		"position":     {Kind: kNumber, Default: `0`},
+		"created_at":   {Kind: kNumber, Default: `0`},
+		"deleted_at":   {Kind: kNullableNumber, Default: `null`},
 	},
 }
 
@@ -779,6 +803,9 @@ func Validate(op Op) error {
 	}
 	if k == kIDList && slices.Contains(idList(op.Value), op.EntityID) {
 		return fmt.Errorf("%w: %s.%s cannot name the task itself", ErrInvalidOp, op.Entity, op.Field)
+	}
+	if op.Entity == "review" && op.Field == "focus_dossiers" && len(idList(op.Value)) > 3 {
+		return fmt.Errorf("%w: review.focus_dossiers accepts at most three dossiers", ErrInvalidOp)
 	}
 	if op.Entity == "attachment" {
 		if err := checkAttachment(op.Field, op.Value); err != nil {

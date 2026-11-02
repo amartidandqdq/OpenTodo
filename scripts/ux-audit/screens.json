@@ -1130,5 +1130,31 @@
   "story": "Settings/App",
   "layoutCheck": "voice-consent",
   "on": "settings-capture-voice"
+ },
+ {
+  "id": "resume",
+  "route": "resume",
+  "kind": "screen",
+  "seed": "layout-check",
+  "frequency": "weekly",
+  "core": true,
+  "layoutCheck": null,
+  "layoutCheckReason": "a Reprendre le fil view; added to the tour, not yet to the layout check",
+  "story": "Screens/Resume",
+  "path": "/resume",
+  "ready": "main h1"
+ },
+ {
+  "id": "dossier",
+  "route": "dossier",
+  "kind": "screen",
+  "seed": "layout-check",
+  "frequency": "weekly",
+  "core": true,
+  "layoutCheck": null,
+  "layoutCheckReason": "a Reprendre le fil view; added to the tour, not yet to the layout check",
+  "story": "Screens/Resume",
+  "path": "/dossier",
+  "ready": "main h1"
  }
 ]

@@ -8,19 +8,23 @@
     "assigned": "Assigned to me",
     "completed": "Completed",
     "day": "the Day calendar",
+    "dossier": "one dossier of the Reprendre le fil page (a thread of existing tasks, not a project)",
     "filter": "Filter",
     "inbox": "the Inbox",
     "label": "a label",
     "project": "a project",
+    "resume": "the Reprendre le fil page, which shows the user's dossiers (threads of existing tasks, not projects); a \"dossier\" or \"fil\" said here means one of these",
     "today": "Today",
     "upcoming": "Upcoming",
     "view": "a saved view",
+    "waiting": "the En attente page, which lists the user's dossiers on hold (threads of existing tasks, not projects)",
     "week": "the Week calendar"
   },
   "messages": {
     "cut_off": "The answer was cut off because it reached the length limit. No changes were proposed from it.",
     "refusal": "The model declined this request.",
-    "round_limit": "The assistant needed too many steps for this request and stopped. No changes were proposed; try a smaller request."
+    "round_limit": "The assistant needed too many steps for this request and stopped. No changes were proposed; try a smaller request.",
+    "round_limit_partial": "The assistant ran out of steps before finishing. Review what it prepared so far, then ask again to continue with the rest."
   },
   "limits": {
     "max_entities": 50,

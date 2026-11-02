@@ -35,10 +35,14 @@ describe('the tree of a library template', () => {
     expect(tree.projects[0].icon).toBe('plane')
   })
   it('is in the interface language where translated, English elsewhere', () => {
-    const italian = libraryTree(trip, 'it', '2026-01-05')
-    expect(italian.projects[0].name).toBe('Viaggio')
-    expect(italian.labels.map((l) => l.name)).toEqual(['prenotazione', 'valigia'])
-    expect(italian.projects[0].sections[2].tasks[0].labels).toEqual(['valigia'])
+    const translated = structuredClone(trip)
+    translated.projects[0].name.fr = 'Voyage'
+    translated.labels[0].name.fr = 'réservation'
+    translated.labels[1].name.fr = 'valise'
+    const french = libraryTree(translated, 'fr', '2026-01-05')
+    expect(french.projects[0].name).toBe('Voyage')
+    expect(french.labels.map((l) => l.name)).toEqual(['réservation', 'valise'])
+    expect(french.projects[0].sections[2].tasks[0].labels).toEqual(['valise'])
     expect(libraryTree(trip, 'de', '2026-01-05').projects[0].name).toBe('Trip')
     expect(pick(trip.text.title, 'pt')).toBe('Trip planning')
   })
@@ -50,8 +54,10 @@ describe('searchLibrary', () => {
   })
   it('needs every word, in the interface language or English', () => {
     expect(searchLibrary(templates, 'things done', 'en').map((x) => x.slug)).toEqual(['gtd-setup'])
-    expect(searchLibrary(templates, 'valigia', 'it').map((x) => x.slug)).toEqual(['trip-planning'])
-    expect(searchLibrary(templates, 'valigia', 'en')).toEqual([])
+    const translated = structuredClone(templates)
+    translated.find((x) => x.slug === 'trip-planning')!.text.summary.fr = 'Préparer la valise'
+    expect(searchLibrary(translated, 'valise', 'fr').map((x) => x.slug)).toEqual(['trip-planning'])
+    expect(searchLibrary(translated, 'valise', 'en')).toEqual([])
     expect(searchLibrary(templates, '  ', 'en')).toHaveLength(templates.length)
   })
   it('groups by category in the library order', () => {

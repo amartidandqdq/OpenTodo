@@ -36,11 +36,27 @@ afterEach(() => { window.matchMedia = original; vi.unstubAllGlobals() })
 const primary = () => [...document.querySelectorAll('nav[data-sidebar-primary] [data-sidebar-item]')].map((b) => b.textContent ?? '')
 
 describe('the phone drawer at 390 px', () => {
+  it('closes when the already active project is chosen', async () => {
+    const id = await createProject({ name: 'Home' })
+    navigate({ view: 'project', id })
+    const r = await render(<Shell user={user} onLogout={() => {}} />)
+    const project = () => document.querySelector<HTMLElement>(`[data-project-row="${id}"] [data-sidebar-item]`)
+    await waitFor(() => !!project())
+    await click(document.querySelector('[data-phone-bar] button[aria-label="Open menu"]')!)
+    const aside = document.querySelector('[data-sidebar]')!
+    expect(aside.className).not.toContain('-translate-x-full')
+    await click(project()!)
+    await waitFor(() => aside.className.includes('-translate-x-full'))
+    expect(location.pathname).toBe(`/project/${id}`)
+    await r.unmount()
+  })
+
   it('Companion: Calendar first, and no Today, Inbox or Upcoming (the tab bar has them)', async () => {
     await setMethodMode('companion')
     const r = await render(<Sidebar route={{ view: 'inbox' }} user={user} />)
     await waitFor(() => primary().length > 0)
-    expect(primary()[0]).toMatch(/^Calendar/)
+    expect(primary()[0]).toMatch(/^Pick up the thread/)
+    expect(primary()[1]).toMatch(/^Calendar/)
     for (const name of ['Today', 'Inbox', 'Upcoming']) expect(primary().some((p) => p.startsWith(name)), name).toBe(false)
     await r.unmount()
   })
@@ -48,8 +64,8 @@ describe('the phone drawer at 390 px', () => {
   it('Open Loops first: Loop home, Next, Waiting and Review', async () => {
     await setMethodMode('first')
     const r = await render(<Sidebar route={{ view: 'inbox' }} user={user} />)
-    await waitFor(() => primary().length >= 4)
-    expect(primary().map((p) => p.split(',')[0].replace(/\d+$/, ''))).toEqual(['Loop home', 'Next', 'Waiting', 'Review'])
+    await waitFor(() => primary().some((p) => p.startsWith('Loop home')))
+    expect(primary().map((p) => p.split(',')[0].replace(/\d+$/, ''))).toEqual(['Pick up the thread', 'Loop home', 'Next', 'Waiting', 'Review'])
     await r.unmount()
   })
 

@@ -1,5 +1,6 @@
 import 'fake-indexeddb/auto'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { formatShort } from './dates'
 import { db, useDatabase } from './db'
 import { applyOps, createTask, getDeviceId, mutate, resetDeviceId } from './ops'
 import {
@@ -123,6 +124,28 @@ describe('review', () => {
     await applyChanges(fresh.items.filter((i) => i.checked).map((i) => i.change))
     expect((await db.tasks.get(b))!.due).toEqual(due('2026-10-20'))
     expect((await db.tasks.get(a))!.due).toEqual(due('2026-10-16'))
+  })
+})
+
+describe('dossiers', () => {
+  it('describes a new dossier with its steps, applies it, and describes putting it on hold', async () => {
+    const a = await task('Order the tyres')
+    const b = await task('Book the garage')
+    const id = crypto.randomUUID()
+    const create: ProposedChange = { entity: 'dossier', entityId: id, create: true, patch: { title: 'Tyres', note: '', task_ids: [a, b], waiting: false, waiting_for: '', follow_up: null, position: 1, created_at: 1, deleted_at: null } }
+    const r = await reviewChangeSet([create])
+    expect(r.items).toHaveLength(1)
+    expect(r.items[0].title).toBe('New dossier: Tyres')
+    expect(r.items[0].lines).toEqual(['Steps: Order the tyres, Book the garage'])
+    await applyChanges([create])
+    expect((await db.dossiers.get(id))!.task_ids).toEqual([a, b])
+    const hold = await reviewChangeSet([{ entity: 'dossier', entityId: id, patch: { waiting: true, waiting_for: 'the delivery', follow_up: '2026-11-02' }, base: { waiting: false, waiting_for: '', follow_up: null } }])
+    expect(hold.items[0].title).toBe('Tyres')
+    expect(hold.items[0].lines).toEqual(['Put on hold', 'Waiting for the delivery', `Look again on ${formatShort('2026-11-02')}`])
+    const note = await reviewChangeSet([{ entity: 'dossier', entityId: id, patch: { note: 'Call the\nsyndic before Friday' }, base: { note: '' } }])
+    expect(note.items[0].lines).toEqual(['Note: Call the syndic before Friday'])
+    const added = await reviewChangeSet([{ entity: 'dossier', entityId: id, patch: { note: 'Photos done, then find a replacement. Asked the agency for a quote.' }, base: { note: 'Photos done, then find a replacement.' } }])
+    expect(added.items[0].lines).toEqual(['Note: … Asked the agency for a quote.'])
   })
 })
 

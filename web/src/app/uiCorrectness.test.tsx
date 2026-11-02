@@ -95,8 +95,8 @@ describe('midnight while the app is open (UI-17)', () => {
 })
 
 describe('selectors in another language (UI-5)', () => {
-  it('moving through the list leaves a focused sidebar project in German', async () => {
-    await loadLanguage('de')
+  it('moving through the list leaves a focused sidebar project in French', async () => {
+    await loadLanguage('fr')
     await createTask({ title: 'Report' })
     const r = await render(<>
       <SidebarGroup title="Projekte"><ul role="tree"><li role="treeitem" data-project-row="p1"><button type="button">Arbeit</button></li></ul></SidebarGroup>
@@ -114,13 +114,13 @@ describe('selectors in another language (UI-5)', () => {
 
 describe('Logbook note (UI-20)', () => {
   it('counts a day\'s completions in the interface language', async () => {
-    await loadLanguage('de')
+    await loadLanguage('fr')
     const ms = new Date(2026, 9, 14, 9).getTime()
     const changes: Change[] = [0, 1].map((i) => ({ entity: 'task', entityId: `t-${i}`, patch: { title: `Done ${i}`, priority: 4, labels: [], position: i, created_at: ms - 1000, completed_at: ms, deleted_at: null } }))
     await mutateMany(changes)
     const r = await render(<TaskListView route={{ view: 'completed' }} />)
     await waitFor(() => r.container.textContent!.includes('Done 1'), 'the logbook')
-    expect([...r.container.querySelectorAll('[data-group-note]')].map((e) => e.textContent)).toEqual(['2 erledigt'])
+    expect([...r.container.querySelectorAll('[data-group-note]')].map((e) => e.textContent)).toEqual(['2 terminées'])
     await r.unmount()
   })
 })

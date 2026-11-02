@@ -2,11 +2,12 @@
 // server offers, the device's working day for "Plan my week", and how pasted
 // text is told apart from a typed question. The skills' instructions stay on
 // the server; the client only names a skill by id.
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { api } from './api'
 import { DEFAULT_GRID_PREFS, GRID_PREFS_META_KEY, normalizeGridPrefs, type GridPrefs } from './calendar'
 import { getMeta } from './db'
 import { assistantStatus } from './assistantStatus'
+import { t } from './i18n'
 
 export interface AssistantSkill {
   id: string
@@ -40,6 +41,21 @@ export async function loadSkills(): Promise<AssistantSkill[]> {
   return cache
 }
 
+/**
+ * A built-in skill's name, description and example in the user's language. The
+ * server and the manifest send English; an id it does not know is shown as sent.
+ */
+export function localizeSkill(s: AssistantSkill): AssistantSkill {
+  switch (s.id) {
+    case 'idea-to-project': return { ...s, name: t('Turn an idea into a project'), description: t('Turns an idea or pasted notes into a project with phases and estimated tasks.'), example: t('Plan a garden makeover in spring, budget 2000') }
+    case 'plan-week': return { ...s, name: t('Plan my week'), description: t('Proposes due dates and times for your open work within your working hours.'), example: t('Plan my week around the Q4 launch') }
+    case 'weekly-review': return { ...s, name: t('Weekly review'), description: t('Walks your inbox, earlier and stale tasks and proposes what to reschedule, move or complete.'), example: t('Run my weekly review') }
+    case 'triage-inbox': return { ...s, name: t('Triage my inbox'), description: t('Proposes a project, labels, priority and date for each task in your inbox.'), example: t('Triage my inbox') }
+    case 'break-down': return { ...s, name: t('Break this down'), description: t('Turns one task into subtasks with estimates.'), example: t('Break this task into steps') }
+  }
+  return s
+}
+
 /** The skills, loaded once per session and shared. */
 export function useAssistantSkills(enabled = true): AssistantSkill[] {
   const [skills, setSkills] = useState<AssistantSkill[]>(cache ?? [])
@@ -50,7 +66,8 @@ export function useAssistantSkills(enabled = true): AssistantSkill[] {
     else setSkills(cache)
     return () => { listeners.delete(setSkills) }
   }, [enabled])
-  return enabled ? skills : []
+  const shown = useMemo(() => skills.map(localizeSkill), [skills])
+  return enabled ? shown : []
 }
 
 /** Test hook. */

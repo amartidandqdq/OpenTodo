@@ -20,4 +20,5 @@ var ContentFields = map[string][]string{
 	"rule":       {"name"},
 	"place":      {"name", "address", "geo"},
 	"review":     {"tomorrow_note"},
+	"dossier":    {"title", "note", "waiting_for"},
 }

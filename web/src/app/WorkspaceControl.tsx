@@ -60,7 +60,9 @@ function useWorkspaceCounts(): Counts {
 }
 
 /** The sidebar header's control. `collapsed` is the icon rail: the mark alone, the name in the tooltip. */
-export function WorkspaceControl({ route, collapsed = false }: { route: Route; collapsed?: boolean }) {
+// `compact` (original-mockup-a): the desktop app bar now carries the brand and the
+// search, so the workspace control stops naming the app and stays one workspace line.
+export function WorkspaceControl({ route, collapsed = false, compact = false }: { route: Route; collapsed?: boolean; compact?: boolean }) {
   const state = useWorkspaceState()
   const counts = useWorkspaceCounts()
   const current = state.list.find((w) => w.id === state.current)
@@ -69,7 +71,10 @@ export function WorkspaceControl({ route, collapsed = false }: { route: Route; c
   const elsewhere = state.list.filter((w) => w.id !== state.current && (counts.get(w.id)?.unread ?? 0) > 0)
   const updates = elsewhere.length > 0 ? t('Updates in {names}', { names: elsewhere.map((w) => workspaceLabel(w.name, w.default)).join(', ') }) : ''
   const app = useInstanceName()
-  const label = single ? `${app} · ${name}` : name
+  // When compact, the visible trigger is the workspace name alone: the accessible
+  // label keeps the visible text, so a screen reader never hears a second name
+  // (the app bar carries the app's wordmark).
+  const label = single && !compact ? `${app} · ${name}` : name
   return (
     <div data-workspace-control className="flex min-w-0 flex-1">
       <Menu kind="menu" label={updates ? t('Workspace: {name}, {updates}', { name: label, updates }) : t('Workspace: {name}', { name: label })} title={t('Workspaces')}
@@ -82,7 +87,7 @@ export function WorkspaceControl({ route, collapsed = false }: { route: Route; c
               (sidebar-title-lines, GitHub issue 492); the accessible label keeps "app · name".
               The space after the wordmark keeps the visible text "app name", so it still
               matches the label for speech input (axe label-content-name-mismatch). */}
-          {!collapsed && (single
+          {!collapsed && (single && !compact
             ? <span className="flex min-w-0 flex-1 flex-col" data-workspace-lines>
               <span className="truncate font-semibold leading-5 text-strong" data-workspace-app><InstanceWordmark />{' '}</span>
               <span className="truncate text-meta text-muted" data-workspace-name>{name}</span>

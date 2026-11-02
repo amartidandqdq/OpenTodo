@@ -270,18 +270,18 @@ describe('service worker texts in the stored language (app-localization D9)', ()
     }
   })
 
-  it('a pushed reminder is German when the synced language is German', async () => {
+  it('a pushed reminder is French when the synced language is French', async () => {
     const year = new Date().getFullYear()
     const taskId = await createTask({ title: 'Miete zahlen', due: { date: `${year}-11-03`, time: '15:00' } })
     const reminderId = await addReminder(taskId, { kind: 'absolute', fire_at: Date.now() - 1000 })
-    await setUserPref('language', 'de')
+    await setUserPref('language', 'fr')
     await setUserPref('time_format', '24h')
     db.close()
     await db.open()
     const sw = loadWorker()
     await dispatch(sw, 'push', pushEvent({ type: 'reminder', reminderId, taskId, fireAt: Date.now() - 1000 }))
-    expect(sw.shown[0].options.body).toBe('Fällig 3. Nov., 15:00')
-    expect((sw.shown[0].options.actions as { title: string }[]).map((a) => a.title)).toEqual(['10 Min. später', 'Verwerfen'])
+    expect(sw.shown[0].options.body).toBe('Échéance 3 nov., 15:00')
+    expect((sw.shown[0].options.actions as { title: string }[]).map((a) => a.title)).toEqual(['Reporter de 10 min', 'Ignorer'])
   })
 
   it('without a preferences row the texts stay English', async () => {

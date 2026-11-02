@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { useDatabase } from '../../lib/db'
 import { recordPick } from '../../lib/pickRank'
 import { flush, key, render, type, waitFor } from '../test-utils'
-import { ComboboxPanel } from './Combobox'
+import { Combobox, ComboboxPanel } from './Combobox'
 
 type Item = { id: string; name: string; email?: string; path?: string[] }
 const PEOPLE: Item[] = [
@@ -147,6 +147,24 @@ describe('ComboboxPanel', () => {
     const active = document.getElementById(activeId)!
     expect(active.getAttribute('aria-posinset')).toBe('10000')
     expect(rows().length).toBeLessThan(60)
+    await unmount()
+  })
+})
+
+describe('Combobox', () => {
+  it('opens again when typing after a pick, with the field emptied', async () => {
+    useDatabase(`cb-${Date.now()}-reopen`)
+    const onPick = vi.fn()
+    const { container, unmount } = await render(<Combobox {...base} source={PEOPLE} onPick={onPick} />)
+    await type(input(container), 'ada')
+    await waitFor(() => document.querySelectorAll('[role="option"]').length === 1)
+    await key(input(container), 'Enter')
+    await flush()
+    expect(onPick).toHaveBeenCalledWith(PEOPLE[0])
+    expect(input(container).value).toBe('')
+    expect(document.querySelectorAll('[role="option"]').length).toBe(0)
+    await type(input(container), 'bob')
+    await waitFor(() => document.querySelectorAll('[role="option"]').length === 1)
     await unmount()
   })
 })

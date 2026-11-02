@@ -156,7 +156,7 @@ export function projectMenuGroups(project: Project, o: { role: ProjectRole; shar
 const ACTIVITY_PANEL = 'project-activity'
 const HISTORY_PANEL = 'project-history'
 
-export function ProjectHeader({ project, userId, actions, layout, subtitle, phone }: {
+export function ProjectHeader({ project, userId, actions, layout, subtitle, phone, eyebrow }: {
   project: Project
   userId?: string
   /** Below 768 px, a line under the title in the shell's bar (the board's current column). */
@@ -167,6 +167,8 @@ export function ProjectHeader({ project, userId, actions, layout, subtitle, phon
   layout?: ReactNode
   /** Below 768 px (phone-v2 D1): the bar's visible slots, and items for the project menu (Layout, Share, the list's own). */
   phone?: { slots: ReactNode; groups: ActionGroup[] }
+  /** A quiet context line above the title (mockup A): a name; the project mark is added here. */
+  eyebrow?: ReactNode
 }) {
   const [editing, setEditing] = useState(false)
   const [sharing, setSharing] = useState<false | true | 'public'>(false)
@@ -226,6 +228,13 @@ export function ProjectHeader({ project, userId, actions, layout, subtitle, phon
   }
 
   const [dialog, setDialog] = useState<'duplicate' | 'template' | 'fields' | null>(null)
+  // The quiet context line above the title (mockup A): the project mark, then the name the page passed.
+  const eyebrowNode = eyebrow === undefined ? undefined : (
+    <span className="flex min-w-0 items-center gap-1.5">
+      <ProjectMark project={project} size="sm" />
+      <span>{eyebrow}</span>
+    </span>
+  )
   const otherWorkspaces = useOtherWorkspaces()
   const panels: ActionGroup = { items: [
     ...(listLayout ? [{ kind: 'check' as const, id: 'show-completed', label: t('Show completed tasks'), icon: 'circle-check-big' as const, checked: showCompleted, onSelect: () => saveShowCompleted(project.id, !showCompleted) }] : []),
@@ -290,7 +299,7 @@ export function ProjectHeader({ project, userId, actions, layout, subtitle, phon
 
   return (
     <>
-      <PageHeader title={title} subtitle={phone ? (subtitle ?? phoneMeta) : subtitle} leading={<ProjectMark project={project} size="md" />} meta={meta} help="project"
+      <PageHeader title={title} step="display" titleInPage={!!phone} eyebrow={eyebrowNode} subtitle={phone ? (subtitle ?? phoneMeta) : subtitle} leading={eyebrowNode ? undefined : <ProjectMark project={project} size="md" />} meta={meta} help="project"
         barActions={!!phone}
         actions={phone ? phone.slots : <>
           {layout}

@@ -27,6 +27,18 @@
       "parent_id",
       "task_id"
     ],
+    "dossier": [
+      "created_at",
+      "deleted_at",
+      "follow_up",
+      "note",
+      "position",
+      "task_ids",
+      "title",
+      "waiting",
+      "waiting_for",
+      "workspace_id"
+    ],
     "field": [
       "created_at",
       "deleted_at",
@@ -95,6 +107,7 @@
       "daily_at",
       "focus",
       "focus_date",
+      "focus_dossiers",
       "monthly_at",
       "tomorrow_note"
     ],
@@ -228,6 +241,11 @@
     "comment": [
       "body",
       "guest_name"
+    ],
+    "dossier": [
+      "note",
+      "title",
+      "waiting_for"
     ],
     "field": [
       "name",

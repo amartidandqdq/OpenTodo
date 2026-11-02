@@ -340,7 +340,7 @@ func TestUserExportExcludesAudit(t *testing.T) {
 			// time_entries and the exporting account's userId (time-tracking).
 			"time_entries", "userId",
 			// saved locations (task-locations).
-			"places",
+			"places", "dossiers",
 			// automation rules (automation-rules).
 			"rules",
 			// the caller's workspaces (workspaces).

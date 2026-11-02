@@ -47,6 +47,8 @@ export interface PanelViewProps {
   onApply: () => void
   onDiscard: () => void
   onUndo: () => void
+  /** Sends "Continue with the rest." after a round-limit stop (assistant-review-actions). */
+  onContinue?: () => void
   onDraft: (s: string) => void
   onSend: () => void
   onStop: () => void
@@ -61,6 +63,11 @@ export interface PanelViewProps {
   layout?: 'page' | 'sheet'
   /** The on-device assistant of an encrypted account (assistant-on-device). */
   device?: DeviceMode
+}
+
+/** A proposal from a turn that stopped at the round limit can be continued: the last message says so and a proposal is on screen. */
+export function canContinueRound(messages: AssistantMessage[], review: Review | null): boolean {
+  return !!review && messages[messages.length - 1]?.stop === 'round_limit'
 }
 
 /** The panel's content without state (rendered to markup in tests). */
@@ -116,15 +123,17 @@ export function AssistantPanelBody(p: PanelViewProps) {
               {p.messages.map((m, i) => <MessageItem key={i} m={m} />)}
               {p.streaming && (
                 <AnswerItem busy>
-                  {p.streaming.status.length > 0 && <p className="text-meta text-muted">{p.streaming.status[p.streaming.status.length - 1]}</p>}
+                  {p.streaming.status.length > 0 && <p className="text-meta text-muted">{statusLabel(p.streaming.status[p.streaming.status.length - 1])}</p>}
                   {p.streaming.text ? <Markdown source={p.streaming.text} /> : <p className="text-muted">{t('Thinking…')}</p>}
+                  <span className="assistant-working" aria-hidden="true"><i /><i /><i /></span>
                 </AnswerItem>
               )}
             </ol>
           )}
           {(p.review || p.result) && (
             <div className="sm:pl-9">
-              <ChangeSetReview review={p.review} result={p.result} busy={p.reviewBusy} onToggle={p.onToggle} onApply={p.onApply} onDiscard={p.onDiscard} onUndo={p.onUndo} regionRef={p.reviewRef} />
+              <ChangeSetReview review={p.review} result={p.result} busy={p.reviewBusy} onToggle={p.onToggle} onApply={p.onApply} onDiscard={p.onDiscard} onUndo={p.onUndo} regionRef={p.reviewRef}
+                onContinue={canContinueRound(p.messages, p.review) ? p.onContinue : undefined} />
             </div>
           )}
         </>
@@ -137,10 +146,37 @@ export function AssistantPanelBody(p: PanelViewProps) {
 }
 
 /** An answer: the assistant's mark at the left, the text beside it (assistant-surface D2). */
+/** The progress lines the server and the device send (statusFor), in the user's language. */
+function statusLabel(line: string): string {
+  const known: Record<string, string> = {
+    'Looking at Today…': t('Looking at Today…'),
+    'Looking at the Inbox…': t('Looking at the Inbox…'),
+    'Looking at Upcoming…': t('Looking at Upcoming…'),
+    'Looking at your projects…': t('Looking at your projects…'),
+    'Looking at your dossiers…': t('Looking at your dossiers…'),
+    'Looking at tasks…': t('Looking at tasks…'),
+    'Reading a task…': t('Reading a task…'),
+    'Searching tasks…': t('Searching tasks…'),
+    'Preparing changes…': t('Preparing changes…'),
+  }
+  return known[line] ?? line
+}
+
+/** The fixed messages the server and the device end a turn with (assistant loop), in the user's language. */
+function messageLabel(text: string): string {
+  const known: Record<string, string> = {
+    'The model declined this request.': t('The model declined this request.'),
+    'The answer was cut off because it reached the length limit. No changes were proposed from it.': t('The answer was cut off because it reached the length limit. No changes were proposed from it.'),
+    'The assistant needed too many steps for this request and stopped. No changes were proposed; try a smaller request.': t('The assistant needed too many steps for this request and stopped. No changes were proposed; try a smaller request.'),
+    'The assistant ran out of steps before finishing. Review what it prepared so far, then ask again to continue with the rest.': t('The assistant ran out of steps before finishing. Review what it prepared so far, then ask again to continue with the rest.'),
+  }
+  return known[text] ?? text
+}
+
 function AnswerItem({ busy, children }: { busy?: boolean; children: ReactNode }) {
   return (
     <li className="flex gap-3 text-body" aria-busy={busy || undefined}>
-      <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-control border border-default" aria-hidden="true"><BrandMark size={16} /></span>
+      <span className={`mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-control border border-default${busy ? ' assistant-working-mark' : ''}`} aria-hidden="true"><BrandMark size={16} /></span>
       <div className="min-w-0 flex-1 space-y-1">{children}</div>
     </li>
   )
@@ -162,7 +198,7 @@ function MessageItem({ m }: { m: AssistantMessage }) {
       <span className="sr-only">{t('Assistant:')}{' '}</span>
       {m.text && <Markdown source={m.text} />}
       {m.stop === 'max_tokens' && <p className="text-meta font-medium text-on-warning-soft">{t('Cut off: the answer reached its length limit.')}</p>}
-      {m.error && <p className="text-danger">{m.error}</p>}
+      {m.error && <p className="text-danger">{messageLabel(m.error)}</p>}
       {m.note && <p className="text-meta text-muted">{m.note}</p>}
       {m.usage && <p className="text-meta text-faint">{usageLine(m.usage)}</p>}
     </AnswerItem>

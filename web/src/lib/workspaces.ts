@@ -11,7 +11,7 @@
 //   from another account's workspace) reads as the default workspace.
 // The current workspace is device state in the `meta` table, never synced.
 import { db, getMeta, setMeta, tableOf } from './db'
-import type { Label, Project, Task, View, Workspace, WorkspaceEntry, WorkspaceGroup, WorkspaceMember } from './types'
+import type { Project, Task, Workspace, WorkspaceEntry, WorkspaceGroup, WorkspaceMember } from './types'
 
 /** The meta key of this device's current workspace. */
 export const CURRENT_WORKSPACE_KEY = 'currentWorkspace'
@@ -73,7 +73,7 @@ export class Partition {
 }
 
 /** The entity kinds that belong to a workspace. */
-export type PartitionedKind = 'project' | 'task' | 'label' | 'view'
+export type PartitionedKind = 'project' | 'task' | 'label' | 'view' | 'dossier'
 
 /** The workspace an entity belongs to under the partition. */
 export function workspaceOf(kind: PartitionedKind, entity: { id: string; workspace_id?: string | null } & Partial<TaskLike>, partition: Partition): string {
@@ -184,8 +184,8 @@ export function tasksIn<T extends TaskLike>(state: WorkspaceState, projects: rea
   return tasks.filter((x) => p.taskRow(x) === here)
 }
 
-/** Labels or views of the current workspace: their own workspace_id decides. */
-export function ownIn<T extends Label | View>(state: WorkspaceState, rows: readonly T[]): T[] {
+/** Labels, views or dossiers of the current workspace: their own workspace_id decides. */
+export function ownIn<T extends { workspace_id?: string | null }>(state: WorkspaceState, rows: readonly T[]): T[] {
   if (!partitioned(state)) return rows as T[]
   const p = new Partition(state.defaultId, state.list.map((w) => w.id))
   const here = p.own(state.current)
@@ -211,7 +211,7 @@ export async function keepWorkspaceFor(): Promise<KeepWorkspace> {
   }
 }
 
-/** The workspace_id a new project, label, view or project-less task gets here: null in the default workspace. */
+/** The workspace_id a new project, label, view, dossier or project-less task gets here: null in the default workspace. */
 export async function newWorkspaceId(): Promise<string | null> {
   const state = await readWorkspaceState()
   return workspaceIdFor(state.current, state.list)

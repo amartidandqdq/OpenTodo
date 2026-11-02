@@ -20,7 +20,7 @@ Every account starts with one workspace, **Personal**, which holds everything yo
 
 ## Switch
 
-Select the workspace name at the top of the sidebar to open the switcher. It lists your workspaces with their Inbox and Today counts. Pick one and every list, count, search and quick add shows that workspace. A dot on the name means another workspace has updates.
+Select a workspace button below the sidebar header to switch in one click. The highlighted button marks the current workspace. Select the workspace name above the buttons to open the menu with Inbox and Today counts and management actions. Every list, count, search and quick add shows the selected workspace. A dot on the name means another workspace has updates.
 
 Your choice is remembered on each device. From the keyboard, open search with <kbd>Ctrl</kbd>+<kbd>K</kbd> and type **Switch to workspace**. Opening a link or a notification from another workspace switches for you.
 

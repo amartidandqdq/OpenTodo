@@ -15,7 +15,7 @@ describe('ShortcutHelp', () => {
     expect(off).not.toContain('Vim keybindings</h3>')
     expect(off).not.toContain('>Delete task<')
     expect(off).toContain('data-vim-hint')
-    expect(off).toContain('Vim keybindings can be enabled in Settings')
+    expect(off).toContain('Advanced keyboard shortcuts (vim) can be turned on in Settings')
     // The default list is unchanged.
     expect(off).toContain('Toggle this cheat sheet')
   })

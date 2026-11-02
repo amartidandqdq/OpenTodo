@@ -189,7 +189,7 @@ export function ShortcutHelp({ onClose, extraSections = [], context, vim = extra
         </div>
       </div>
       {!vim && (
-        <p className="mt-3 text-meta text-muted" data-vim-hint>{t('Prefer modal editing? Vim keybindings can be enabled in Settings → General → Keyboard.')}</p>
+        <p className="mt-3 text-meta text-muted" data-vim-hint>{t('Prefer modal editing? Advanced keyboard shortcuts (vim) can be turned on in Settings → General → Keyboard.')}</p>
       )}
       <p className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-meta">
         <a className="touch-target inline-flex items-center text-muted underline" href="/help/quick-add"

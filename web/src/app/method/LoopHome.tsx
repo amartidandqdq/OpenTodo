@@ -25,6 +25,7 @@ import { MethodLink } from '../help/MethodLink'
 import { setPanelTaskId } from '../panel'
 import { QuickAdd } from '../QuickAdd'
 import { navigate, routePath, type Route } from '../router'
+import { useReviewReminders } from '../reviewReminders'
 import { TaskRow } from '../TaskRow'
 import { useMethodInput } from './useMethodInput'
 
@@ -60,6 +61,7 @@ export function LoopHome() {
   const labels = useAllLabels()
   const review = useReviewRow()
   const reviewedAt = useReviewedAt()
+  const reminders = useReviewReminders()
   const weekStart = useDateTimeFormat().resolved.weekStart
   const data = useMemo(() => {
     if (!input) return null
@@ -72,8 +74,9 @@ export function LoopHome() {
     const contexts = nextGroups(input, labels)
     const nextCount = new Set(contexts.flatMap((g) => g.tasks.map((x) => x.id))).size
     const waiting = waitingTasks(input).length
+    // Completion is independent of whether this device shows reminders.
     const rhythms = { daily: dailyDue(review?.daily_at, input.today), weekly: reviewDue(review?.completed_at, now), monthly: monthlyDue(review?.monthly_at, now) }
-    const rhythmDue = rhythms.daily || rhythms.weekly || rhythms.monthly
+    const rhythmDue = reminders && (rhythms.daily || rhythms.weekly || rhythms.monthly)
     const byId = new Map(live.map((x) => [x.id, x]))
     const focus = storedFocus(review, input.today).map((id) => byId.get(id)).filter((x): x is Task => !!x)
     const stats = { tasks: input.tasks, projects: input.projects, shared: sharedIds([...input.memberships.values()]), me: input.me, today: input.today }
@@ -86,8 +89,8 @@ export function LoopHome() {
     }
     const stamps = { weekly: review?.completed_at ?? null, monthly: review?.monthly_at ?? null }
     const closedAt = review && dayClosed(review, input.today) ? review.closed_at : null
-    return { inbox, withoutNext, stalled, contexts, nextCount, waiting, rhythms, rhythmDue, stamps, closedAt, focus, pulse, up: nextMove({ inbox, withoutNext, rhythmDue, nextCount }) }
-  }, [input, labels, review, reviewedAt, weekStart]) // eslint-disable-line react-hooks/exhaustive-deps -- reviewedAt: the walk's stamps change what Place counts
+    return { inbox, withoutNext, stalled, contexts, nextCount, waiting, reminders, rhythms, rhythmDue, stamps, closedAt, focus, pulse, up: nextMove({ inbox, withoutNext, rhythmDue, nextCount }) }
+  }, [input, labels, review, reviewedAt, weekStart, reminders]) // eslint-disable-line react-hooks/exhaustive-deps -- reviewedAt: the walk's stamps change what Place counts
   const labelMap = useMemo(() => new Map(labels.map((l) => [l.id, l])), [labels])
   const projectMap = useMemo(() => new Map((input?.projects ?? []).map((p) => [p.id, p])), [input])
   const projects = useMemo(() => (input?.projects ?? []).filter((p) => !p.deleted_at && !p.archived), [input])
@@ -123,6 +126,7 @@ interface Data {
   contexts: { heading: string; tasks: Task[] }[]
   nextCount: number
   waiting: number
+  reminders: boolean
   rhythms: Record<RhythmId, boolean>
   stamps: { weekly: number | null; monthly: number | null }
   /** When the day was closed on the logical today, else null. */
@@ -139,8 +143,8 @@ function movesOf(d: Data): Move[] {
   const reviewRoute: Route = d.rhythms.daily ? { view: 'review', step: 'daily' } : d.rhythms.weekly ? { view: 'review' } : d.rhythms.monthly ? { view: 'review', step: 'monthly' } : { view: 'review' }
   const rhythmLines = RHYTHMS.map((r) => {
     const due = d.rhythms[r.id]
-    const when = due ? t('due') : r.id === 'daily' ? t('done today') : reviewAgo(d.stamps[r.id])
-    return { id: r.id, name: termName(r), due, when }
+    const when = d.reminders && due ? t('due') : r.id === 'daily' ? (due ? '' : t('done today')) : reviewAgo(d.stamps[r.id])
+    return { id: r.id, name: termName(r), due: due ? (d.reminders ? true : null) : false, when }
   })
   return [
     { id: 'catch', icon: ICONS.catch, route: { view: 'inbox' }, sentence: inboxSentence, count: d.inbox || null, unit: t('in the Inbox'), lines: [d.inbox ? termDescription(inboxPlace) : inboxSentence], action: t('Open the Inbox') },
@@ -178,10 +182,10 @@ function Chips({ groups }: { groups: { heading: string; tasks: Task[] }[] }) {
   )
 }
 
-function Rhythm({ name, due, when, lit }: { name: string; due: boolean; when: string; lit: boolean }) {
+function Rhythm({ name, due, when, lit }: { name: string; due: boolean | null; when: string; lit: boolean }) {
   return (
     <span className="flex flex-wrap items-center gap-x-1.5">
-      <span aria-hidden="true" className={`h-2 w-2 shrink-0 rounded-full ${due ? 'bg-warning' : 'bg-success'}`} />
+      {due !== null && <span aria-hidden="true" className={`h-2 w-2 shrink-0 rounded-full ${due ? 'bg-warning' : 'bg-success'}`} />}
       <span>{name}{' '}</span>
       <span className={due ? (lit ? 'font-semibold' : 'font-semibold text-warning') : undefined}>{when}</span>
     </span>

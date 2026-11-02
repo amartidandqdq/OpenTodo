@@ -10,6 +10,7 @@ import { click, key, render, spokenText, type, waitFor } from '../../ui/test-uti
 import { resetPanel } from '../panel'
 import { navigate } from '../router'
 import { Shell } from '../Shell'
+import { REMINDERS_KEY, setReviewReminders } from '../reviewReminders'
 
 const user = { id: 'u1', email: 'a@example.com', name: 'Ada', role: 'owner', createdAt: 0 } as User
 const NOW = new Date(2026, 9, 14, 8, 0)
@@ -40,7 +41,30 @@ const actions = () => [...document.querySelectorAll<HTMLButtonElement>('[data-lo
 const open = async () => { navigate({ view: 'loop' }); return render(<Shell user={user} onLogout={() => {}} />) }
 
 describe('Loop home', () => {
+  it('with Review reminders off (the default) the Loop home names no rhythm as due (declutter)', async () => {
+    await db.review.put({ ...REVIEW_DEFAULTS, id: 'me', completed_at: NOW.getTime() - 9 * DAY, _clock: {} })
+    const r = await open()
+    await waitFor(() => says('review') !== '')
+    expect(says('review')).not.toContain('due')
+    expect(says('review')).not.toContain('done today')
+    expect(tile('review').querySelector('.bg-success')).toBeNull()
+    expect(tile('review').querySelector('.bg-warning')).toBeNull()
+    expect(tile('review').hasAttribute('data-loop-up')).toBe(false)
+    await act(async () => { setReviewReminders(true) })
+    expect(says('review')).toContain('Daily check due')
+    expect(tile('review').hasAttribute('data-loop-up')).toBe(true)
+    await act(async () => { setReviewReminders(false) })
+    expect(says('review')).not.toContain('done today')
+    expect(says('review')).not.toContain('due')
+    // Completing on another device still updates the actual status with reminders off.
+    await applyOps([{ id: 'daily-done', entity: 'review', entityId: 'me', field: 'daily_at', value: NOW.getTime(), ts: NOW.getTime(), device: 'phone' }] as Op[])
+    await waitFor(() => says('review').includes('Daily check done today'))
+    expect(tile('review').hasAttribute('data-loop-up')).toBe(false)
+    await r.unmount()
+  })
+
   it('Morning on the Loop home: numerals per move, Clarify is the next move and opens triage', async () => {
+    localStorage.setItem(REMINDERS_KEY, '1')
     for (let i = 0; i < 7; i++) await createTask({ title: `Idea ${i}` })
     await createProject({ name: 'Garage' })
     await createProject({ name: 'Garden' })

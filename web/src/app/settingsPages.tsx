@@ -39,7 +39,7 @@ import { IssuesPanel } from './IssuesPanel'
 import { CalendarSyncPanel } from './CalendarSyncPanel'
 import { ConfigWarningsNotice } from './ConfigWarnings'
 import { EmailInboxPanel } from './EmailInboxPanel'
-import { BriefingSection, FocusSection, KeyboardSection, LanguageSection, StartViewSection } from './PreferencesPanels'
+import { BriefingSection, FocusSection, KeyboardSection, LanguageSection, ReviewRemindersSection, StartViewSection } from './PreferencesPanels'
 import { AutoArchiveSection } from './ProjectsSettings'
 import { CaptureSection } from './CaptureSettings'
 import { AttachmentSettingsPanel } from './AttachmentSettingsPanel'
@@ -79,7 +79,7 @@ const PAGES: Record<string, (p: PageProps) => ReactNode> = {
   'account/activity': () => <Anchor id="sessions"><ActivityPanel /></Anchor>,
   'account/invitations': ({ demo }) => <Anchor id="invitations"><DemoDisabled on={demo}><InvitationsPanel /></DemoDisabled></Anchor>,
   'account/encryption': ({ demo }) => <Anchor id="encryption"><DemoDisabled on={demo}><EncryptionPanel /></DemoDisabled></Anchor>,
-  'general/start': () => <><StartViewSection /><BriefingSection /></>,
+  'general/start': () => <><StartViewSection /><BriefingSection /><ReviewRemindersSection /></>,
   'general/keyboard': () => <KeyboardSection />,
   'general/focus': () => <FocusSection />,
   'general/maps': () => <MapsUserSection />,

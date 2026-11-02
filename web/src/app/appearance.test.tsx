@@ -64,6 +64,18 @@ describe('AppearanceProvider', () => {
 })
 
 describe('Appearance → Sidebar', () => {
+  it('Show all sections in More is off by default and is a device switch, never written to the account (declutter)', async () => {
+    const r = await render(<SidebarSection />)
+    await waitFor(() => !!document.querySelector('[data-more-show-all] button'), 'the Show all switch')
+    const sw = document.querySelector<HTMLButtonElement>('#more-show-all-switch')!
+    expect(sw.getAttribute('aria-checked')).toBe('false')
+    await click(sw)
+    await waitFor(() => document.querySelector('#more-show-all-switch')?.getAttribute('aria-checked') === 'true', 'the switch on')
+    expect(localStorage.getItem('opentodo.sidebar.allSections')).toBe('1')
+    expect(await db.outbox.count()).toBe(0)
+    await r.unmount()
+  })
+
   it('one switch per destination of the More group, each written as the synced list', async () => {
     const r = await render(<SidebarSection />)
     await waitFor(() => document.querySelectorAll('[data-setting-row^="sidebar-"]').length === 10, 'the switches')

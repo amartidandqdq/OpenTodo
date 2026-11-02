@@ -38,7 +38,7 @@ and "Reopen the day" behaviour of a closed day is unchanged.
 
 - Removing or changing the Close the day page or its steps.
 - A "See" link to Upcoming from the footer.
-- Dossiers in My day (only the tasks chosen with the sun are offered).
+- Moving every task of a dossier (only its current actionable step is offered).
 - Changes to the design tokens or any new colour.
 
 ## Roadmap

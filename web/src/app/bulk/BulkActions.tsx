@@ -191,22 +191,42 @@ export function BulkActionsMenu({ ids, open, onOpenChange, trigger, triggerClass
   const [review, setReview] = useState<{ title: string; plan: ReviewPlan } | null>(null)
   const [dating, setDating] = useState(false)
   // The sun on a fourth task asks which of the three to replace, placed at the menu (my-day-replace).
+  const [menuOpen, setMenuOpen] = useState(false)
   const [replacing, setReplacing] = useState<Task | null>(null)
+  const focusPending = useRef(false)
+  const changeOpen = (next: boolean) => {
+    if (!next && focusPending.current) return
+    setMenuOpen(next)
+    onOpenChange?.(next)
+  }
+  const closeReplacement = () => {
+    focusPending.current = false
+    setReplacing(null)
+    changeOpen(false)
+  }
   const wrap = useRef<HTMLSpanElement>(null)
   const besideRow = !!anchor?.current
   const touch = !useFinePointer()
   // "Ma journée" (fork change `my-day-sun`): one open task, added to or taken out of the
   // focus of the day. The focus is the method's own row, synced like any other edit; the
   // menu only offers the gesture, and a toast says what changed.
-  const focus = useMemo(() => {
+  const focus = (() => {
     const task = ids.length === 1 ? data.tasks.find((x) => x.id === ids[0]) : undefined
     if (!task || task.completed_at || task.deleted_at || !liveTasks) return undefined
     const inFocus = storedFocus(reviewRow, today).includes(task.id)
     return {
       inFocus,
-      toggle: () => act(toggleTodayFocus(reviewRow, today, liveTasks, task).then((o) => { if (o === 'full') setReplacing(task) })),
+      toggle: () => {
+        // Row menus are unmounted by their parent on close. Keep this owner alive
+        // while the async focus write decides whether replacement is needed.
+        focusPending.current = true
+        act(toggleTodayFocus(reviewRow, today, liveTasks, task).then((o) => {
+          if (o === 'full') setReplacing(task)
+          else closeReplacement()
+        }).catch((error) => { closeReplacement(); throw error }))
+      },
     }
-  }, [ids, data.tasks, reviewRow, today, liveTasks])
+  })()
   const groups = useMemo(() => bulkMenuGroups(ids, data, {
     review: (title, plan) => { void plan.then((p) => setReview({ title, plan: p })) },
     pickDate: () => setDating(true),
@@ -217,10 +237,10 @@ export function BulkActionsMenu({ ids, open, onOpenChange, trigger, triggerClass
   return (
     <>
       <span ref={wrap} className="inline-flex">
-        <ActionMenu label={t('Actions for {tasks}', { tasks: tasksWord(n) })} title={tasksWord(n)} groups={groups} open={open} onOpenChange={onOpenChange}
+        <ActionMenu label={t('Actions for {tasks}', { tasks: tasksWord(n) })} title={tasksWord(n)} groups={groups} open={open ?? menuOpen} onOpenChange={changeOpen}
           trigger={trigger} triggerClassName={triggerClassName} startPicker={startPicker} width="sm:w-72" anchor={anchor} />
       </span>
-      {replacing && liveTasks && <FocusReplace task={replacing} review={reviewRow} today={today} tasks={liveTasks} anchor={anchor ?? wrap} onClose={() => setReplacing(null)} />}
+      {replacing && liveTasks && <FocusReplace task={replacing} review={reviewRow} today={today} tasks={liveTasks} anchor={anchor ?? wrap} onClose={closeReplacement} />}
       {review && <BulkReview title={review.title} plan={review.plan} onClose={() => setReview(null)} onApplied={onApplied} />}
       {dating && (
         <Dialog title={t('Date for {tasks}', { tasks: tasksWord(n) })} onClose={() => setDating(false)}>

@@ -1,6 +1,7 @@
 // The one-line summary under the Today title (OpenSpec change `today-home`, today-summary):
 // what the day holds, computed from the local rows. No AI, nothing stored, nothing written.
 import { earlierIds, withoutArchived } from './dayLists'
+import type { TodayFocus } from './review'
 import type { Project, Task } from './types'
 
 export interface TodaySummary {
@@ -14,7 +15,7 @@ export interface TodaySummary {
 
 /**
  * The summary for `today` at wall-clock `now` (HH:MM). `chosen` is My day's own list
- * (`todayFocusOf(...).all`). A zoned due time is left out of the appointment part: its
+ * (`todayFocusOf(...)`). A zoned due time is left out of the appointment part: its
  * wall clock is the zone's, not the viewer's.
  */
 export function todaySummary(o: {
@@ -22,7 +23,7 @@ export function todaySummary(o: {
   now: string
   tasks: readonly Task[]
   projects: readonly Pick<Project, 'id' | 'archived'>[]
-  chosen: readonly Task[]
+  chosen: TodayFocus
 }): TodaySummary {
   const open = withoutArchived(o.tasks.filter((t) => !t.deleted_at && !t.completed_at), o.projects)
   const timed = open
@@ -30,8 +31,8 @@ export function todaySummary(o: {
     .sort((a, b) => (a.due!.time! < b.due!.time! ? -1 : a.due!.time! > b.due!.time! ? 1 : 0))
   const first = timed[0]
   return {
-    chosen: o.chosen.length,
+    chosen: o.chosen.dossiers.length + o.chosen.tasks.length,
     next: first ? { time: first.due!.time!, title: first.title } : null,
-    earlier: earlierIds(o.tasks, o.projects, o.today).length,
+    earlier: earlierIds(o.tasks, o.projects, o.today).filter((id) => !o.chosen.ids.has(id)).length,
   }
 }

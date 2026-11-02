@@ -22,3 +22,9 @@
 - [x] 4.1 `node scripts/i18n/extract.mjs --write` and `node scripts/i18n-check.mjs` pass
 - [x] 4.2 `cd web && node_modules/.bin/vitest run` on the touched suites; `node_modules/.bin/tsc --noEmit -p .` passes; eslint on touched files
 - [x] 4.3 `make openspec-validate` (or the cached openspec 1.13.2 with `validate --all --strict`) passes
+
+## PR review regressions
+
+- [x] Verified chosen counts use selected threads and tasks, while Earlier excludes all actionable My day tasks.
+- [x] Verified row Actions survives async replacement, completes or cancels without leaving the menu open.
+- [x] Updated saved-view E2E assertions for the count-free sidebar.

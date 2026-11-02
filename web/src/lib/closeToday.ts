@@ -11,7 +11,7 @@ import type { Change } from './ops'
 import { t } from './i18n'
 import { applyBatch } from './undo'
 import {
-  carryOverOf, planCarryOver, REVIEW_ID, storedFocus,
+  carryOverOf, joinItems, planCarryOver, REVIEW_ID, storedFocus,
   type CarryDecision, type CarryOverItem, type CarryOverRecord, type CarryTask,
 } from './review'
 import type { Project, Review, Task } from './types'
@@ -29,12 +29,12 @@ export function movedDate(d: CarryDecision | undefined, tomorrow: string): strin
  * The changes of closing the day (pure): the due dates the choices move, the My day
  * selection without the decided tasks, and the close stamp on the `review` row.
  */
-export function planCloseToday(o: { decisions: ReadonlyMap<string, CarryDecision>; rows: readonly CarryTask[]; review: Pick<Review, 'focus' | 'focus_date'> | null | undefined; today: string; now?: number }): Change[] {
+export function planCloseToday(o: { decisions: ReadonlyMap<string, CarryDecision>; rows: readonly CarryTask[]; review: Pick<Review, 'focus' | 'focus_date'> & Partial<Pick<Review, 'focus_dossiers' | 'closed_day' | 'tomorrow_note'>> | null | undefined; today: string; now?: number }): Change[] {
   const now = o.now ?? Date.now()
   const due = planCarryOver(o.decisions, o.rows, o.today, o.rows.map((x) => x.task), now)
   const decided = new Set(o.rows.map((x) => x.task.id))
   const focus = storedFocus(o.review, o.today).filter((id) => !decided.has(id))
-  const review: Change = { entity: 'review', entityId: REVIEW_ID, patch: { focus: focus.join(','), focus_date: o.today, closed_at: now, closed_day: o.today } }
+  const review: Change = { entity: 'review', entityId: REVIEW_ID, patch: { focus: focus.join(','), focus_date: o.today, focus_dossiers: [], closed_at: now, closed_day: o.today, ...(o.review?.closed_day === o.today ? {} : { tomorrow_note: '' }) } }
   return mergeChanges([...due, review])
 }
 
@@ -42,14 +42,14 @@ export function planCloseToday(o: { decisions: ReadonlyMap<string, CarryDecision
  * Writes the close as one undoable batch. The carry-over record goes on the same row,
  * so "Reopen the day" can put the moved due dates back as it does for the Review step.
  */
-export async function closeToday(o: { decisions: ReadonlyMap<string, CarryDecision>; rows: readonly CarryTask[]; review: Pick<Review, 'focus' | 'focus_date'> | null | undefined; today: string; now?: number }): Promise<AssistantUndo | null> {
+export async function closeToday(o: { decisions: ReadonlyMap<string, CarryDecision>; rows: readonly CarryTask[]; review: Pick<Review, 'focus' | 'focus_date'> & Partial<Pick<Review, 'focus_dossiers' | 'closed_day' | 'tomorrow_note'>> | null | undefined; today: string; now?: number }): Promise<AssistantUndo | null> {
   const changes = planCloseToday(o)
   const proposed = await toProposed(changes.filter((c) => c.entity === 'task'))
   const reviewChange = changes.find((c) => c.entity === 'review')!
   const current = await db.review.get(REVIEW_ID)
   const items: CarryOverItem[] = proposed.flatMap((c) => Object.entries(c.patch).map(([field, after]) => ({ id: c.entityId, field, before: c.base?.[field] ?? null, after: after ?? null })))
   const previous = carryOverOf(current)
-  const record: CarryOverRecord = { date: o.today, items: previous?.date === o.today ? [...previous.items, ...items] : items }
+  const record: CarryOverRecord = { date: o.today, items: previous?.date === o.today ? joinItems(previous.items, items) : items }
   const patch = { ...reviewChange.patch, carry_over: JSON.stringify(record) }
   const base = Object.fromEntries(Object.keys(patch).map((f) => [f, (current as Record<string, unknown> | undefined)?.[f] ?? null]))
   proposed.push({ entity: 'review', entityId: REVIEW_ID, patch, base })

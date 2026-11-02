@@ -18,7 +18,7 @@ The app SHALL offer Close the day at `/review/close`, reachable in every mode fr
 ## ADDED Requirements
 
 ### Requirement: Close the day from Today
-Closing the day from Today SHALL be one small dialog over the open tasks of My day for the user's local today. Each task SHALL have one choice: **Tomorrow** moves its due date to tomorrow and keeps its time; **Another day** opens the date picker and moves its due date to the chosen day; **Not now** leaves its due date untouched. Every choice SHALL take the task out of My day. Done SHALL stay disabled until every task has a choice; with nothing in My day, Done SHALL be available at once. A task the person may not edit SHALL offer Not now only.
+Closing the day from Today SHALL be one small dialog over the open tasks of My day for the user's local today. The closing logical day SHALL be captured when the dialog opens. My day SHALL use the same selection model as Today, including deduplicated actionable dossier steps. Closing SHALL clear the selected dossiers, including waiting or empty threads, and any stale selection from an earlier day. Each task SHALL have one choice: **Tomorrow** moves its due date to tomorrow and keeps its time; **Another day** opens the date picker and moves its due date to the chosen day; **Not now** leaves its due date untouched. Every choice SHALL take the task out of My day. Done SHALL stay disabled until every task has a choice; with nothing in My day, Done SHALL be available at once. A task the person may not edit SHALL offer Not now only.
 
 Done SHALL write every choice, the My day selection and the close stamp on the `review` row as ONE undoable batch through the bulk path, so one Undo offer reverts the whole close. The same batch SHALL record the carry-over so that "Reopen the day" restores the moved due dates. The write SHALL be local and offline-safe and SHALL sync as ordinary ops; the My day selection and the close stamp are the personal `review` row. After Done the dialog SHALL read "See you tomorrow" with tomorrow's preview.
 
@@ -55,3 +55,15 @@ The footer strip at the end of Today SHALL read "Tomorrow: N things · nothing p
 #### Scenario: Offline close
 - **WHEN** the device has no connection and the person closes the day
 - **THEN** the batch is written to the local outbox, the dialog confirms, and the close reaches other devices when the connection returns
+
+#### Scenario: Selected dossiers and a day boundary
+- **WHEN** two selected dossiers share a next step and the dialog stays open across the logical day boundary
+- **THEN** that step is offered once, its choices and closing day remain unchanged, and Done clears both dossier selections in the undoable batch
+
+#### Scenario: Close again and reopen
+- **WHEN** a task is carried twice during the same closing day and the person reopens the day
+- **THEN** its original due date is restored without a conflict caused by the repeated carry
+
+#### Scenario: Notes belong to their closing day
+- **WHEN** the person closes a later day without a note
+- **THEN** the earlier close's note is cleared, while a note from the same closing day is preserved on Close again

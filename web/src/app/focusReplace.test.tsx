@@ -53,6 +53,38 @@ describe('Replace which one?', () => {
     expect((await db.review.get('me'))?.focus).toBe(ids.join(','))
   })
 
+  it('keeps the row Actions owner alive through replacement, then closes it', async () => {
+    const { ids, fourth } = await fullFocus()
+    const r = await render(<TaskListView route={{ view: 'today' }} />)
+    const more = () => r.container.querySelector<HTMLButtonElement>(`[data-task-id="${fourth}"] [data-row-action="more"]`)
+    await waitFor(() => !!more(), 'the row menu button')
+    await act(async () => { more()!.click() })
+    const add = () => [...document.querySelectorAll<HTMLElement>('[role="menuitem"]')].find((x) => x.textContent?.includes('Add to today’s focus'))
+    await waitFor(() => !!add(), 'the focus action')
+    await act(async () => { add()!.click() })
+    await waitFor(() => !!popover(), 'replacement from row menu')
+    await act(async () => { popover()!.querySelector<HTMLButtonElement>(`[data-focus-replace-out="${ids[0]}"]`)!.click() })
+    await waitFor(() => !popover(), 'replacement closes')
+    expect((await db.review.get('me'))?.focus).toBe([...ids.slice(1), fourth].join(','))
+    expect(document.querySelector('[role="menu"]')).toBeNull()
+  })
+
+  it('cancels replacement from Actions with Escape without changing the selection', async () => {
+    const { ids, fourth } = await fullFocus()
+    const r = await render(<TaskListView route={{ view: 'today' }} />)
+    const more = () => r.container.querySelector<HTMLButtonElement>(`[data-task-id="${fourth}"] [data-row-action="more"]`)
+    await waitFor(() => !!more(), 'the row menu button')
+    await act(async () => { more()!.click() })
+    const add = () => [...document.querySelectorAll<HTMLElement>('[role="menuitem"]')].find((x) => x.textContent?.includes('Add to today’s focus'))
+    await waitFor(() => !!add(), 'the focus action')
+    await act(async () => { add()!.click() })
+    await waitFor(() => !!popover(), 'replacement from row menu')
+    await key(popover()!, 'Escape')
+    await waitFor(() => !popover(), 'replacement cancelled')
+    expect((await db.review.get('me'))?.focus).toBe(ids.join(','))
+    expect(document.querySelector('[role="menu"]')).toBeNull()
+  })
+
   it('takes the chosen task out and puts the new one in, in one batch with one Undo', async () => {
     const { ids, fourth } = await fullFocus()
     const r = await render(<TaskListView route={{ view: 'today' }} />)

@@ -7,13 +7,14 @@ import { formatTime } from '../lib/dates'
 import { t } from '../lib/i18n'
 import { useLiveProjects } from '../lib/liveData'
 import { useLiveTasks } from '../lib/liveTasks'
-import { useMembershipMap, useReviewRow } from '../lib/localData'
+import { useDossiers, useMembershipMap, useReviewRow } from '../lib/localData'
 import { closeToday, movedDate, NOT_NOW, tomorrowOf, tomorrowPreview } from '../lib/closeToday'
-import { focusTasks, type CarryDecision, type CarryTask } from '../lib/review'
+import { todayFocusOf, type CarryDecision, type CarryTask } from '../lib/review'
 import { canEditTasks, roleOf } from '../lib/sharing'
 import type { Project, Task } from '../lib/types'
 import { Button, Dialog } from '../ui'
 import { act } from './actionError'
+import { showBulkToast } from './bulk/toastStore'
 import { DateField } from './datetime/DateField'
 import { useToday } from './useViews'
 
@@ -41,13 +42,15 @@ export function CloseTodayDialog({ onClose }: { onClose: () => void }) {
   const projects = useLiveProjects()
   const review = useReviewRow()
   const memberships = useMembershipMap()
-  const today = useToday()
+  const liveToday = useToday()
+  const [today] = useState(liveToday)
+  const dossiers = useDossiers()
   const tomorrow = tomorrowOf(today)
   const [decisions, setDecisions] = useState<Map<string, CarryDecision>>(() => new Map())
   const [picking, setPicking] = useState<CarryTask | null>(null)
   // Set once Done has written the batch: the dialog then shows the confirmation.
   const [closed, setClosed] = useState(false)
-  const rows = useMemo<CarryTask[]>(() => (tasks ? focusTasks(review, today, tasks).map((task) => ({ task, editable: canEditTasks(roleOf(task.project_id, memberships)) })) : []), [tasks, review, today, memberships])
+  const rows = useMemo<CarryTask[]>(() => (tasks ? todayFocusOf(review, today, tasks, dossiers).all.map((task) => ({ task, editable: canEditTasks(roleOf(task.project_id, memberships)) })) : []), [tasks, review, today, memberships, dossiers])
   const moves = useMemo(() => {
     const out = new Map<string, string>()
     for (const [id, d] of decisions) {
@@ -64,7 +67,8 @@ export function CloseTodayDialog({ onClose }: { onClose: () => void }) {
     else decide(x, c === 'tomorrow' ? TOMORROW_DECISION : NOT_NOW)
   }
   const finish = async () => {
-    await closeToday({ decisions, rows, review, today })
+    const entry = await closeToday({ decisions, rows, review, today })
+    if (entry) showBulkToast(t('Day closed'), entry.id)
     setClosed(true)
   }
 

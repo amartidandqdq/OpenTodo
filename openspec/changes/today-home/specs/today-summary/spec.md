@@ -14,3 +14,7 @@ Under the Today title SHALL be one computed line of the day, with no AI and no s
 #### Scenario: A passed appointment
 - **WHEN** the only timed task due today was at 09:00 and it is 12:00
 - **THEN** no appointment part is shown
+
+#### Scenario: Threads count as selected work
+- **WHEN** My day contains selected threads, including waiting or empty threads, and selected tasks
+- **THEN** the chosen count counts those selections and Earlier excludes every actionable task already shown in My day

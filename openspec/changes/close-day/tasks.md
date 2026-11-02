@@ -22,3 +22,9 @@
 - [x] 4.1 Messages extracted (`node scripts/i18n/extract.mjs --write`); French values inserted in `fr.json`; `node scripts/i18n-check.mjs` passes
 - [x] 4.2 `tsc --noEmit -p web`, eslint on the touched files, `vitest run` on the three test files
 - [x] 4.3 `make openspec-validate` (the pinned openspec 1.13.2) passes
+
+## PR review regressions
+
+- [x] Verified one Undo offer restores due dates, task and dossier selections, close stamp and note.
+- [x] Verified repeated closes merge carry-over by task and field; reopening restores the original date.
+- [x] Verified dossier-step deduplication, waiting/empty and stale dossier clearing, frozen closing day and note ownership.

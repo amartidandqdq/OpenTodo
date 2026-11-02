@@ -95,8 +95,8 @@ await sidebarViews.getByText('Work tomorrow').waitFor()
 await pageA.waitForFunction(() => document.querySelector('[data-page-meta]')?.textContent === '4', null, { timeout: 5000 }).catch(() => undefined)
 const viewCount = await pageA.locator('[data-page-meta]').first().textContent()
 assert(viewCount === '4', 'view result count ' + viewCount)
-// A filter row shows no number (quiet-sidebar): its name and data-open-count, the count read by assistive technology.
-await pageA.waitForFunction(() => [...document.querySelectorAll('nav[aria-label="Views"] button[data-view-id]')].some((b) => (b.querySelector('.truncate')?.textContent ?? '') + (b.querySelector('[data-open-count]')?.getAttribute('data-open-count') ?? '') === 'Work tomorrow4'))
+// Today home keeps sidebar views free of task counts; the results header owns the count.
+await pageA.waitForFunction(() => [...document.querySelectorAll('nav[aria-label="Views"] button[data-view-id]')].some((b) => (b.querySelector('.truncate')?.textContent ?? '') === 'Work tomorrow'))
 await shot(pageA, 'views-saved.png')
 
 step('Edit a saved query: / then add "& !@waiting", Enter')
@@ -153,12 +153,12 @@ await pageA.getByRole('heading', { name: 'Waiting' }).waitFor()
 await sidebarViews.getByLabel('Menu for view Waiting').click()
 await pageA.locator('[data-overlay]').getByRole('menuitem', { name: 'Move up' }).click() // menus open in the overlay layer
 await pageA.waitForFunction(() => {
-  const t = [...document.querySelectorAll('nav[aria-label="Views"] button[data-view-id]')].map((b) => (b.querySelector('.truncate')?.textContent ?? '') + (b.querySelector('[data-open-count]')?.getAttribute('data-open-count') ?? ''))
-  return t[0] === 'Waiting2' && t[1] === 'Work tomorrow3'
+  const t = [...document.querySelectorAll('nav[aria-label="Views"] button[data-view-id]')].map((b) => (b.querySelector('.truncate')?.textContent ?? ''))
+  return t[0] === 'Waiting' && t[1] === 'Work tomorrow'
 })
 await shot(pageA, 'views-sidebar-order.png')
 
-step('Device B signs in and sees the same order and counts after sync')
+step('Device B signs in and sees the same order after sync')
 const B = await device('B')
 const pageB = B.page
 r = await B.ctx.request.post(`${base}/api/v1/auth/login`, { data: { email: 'ada@example.com', password: 'correct horse battery staple' } })
@@ -166,8 +166,8 @@ assert(r.ok(), 'login B')
 await pageB.goto(base)
 const sidebarB = pageB.getByRole('navigation', { name: 'Views' })
 await pageB.waitForFunction(() => {
-  const t = [...document.querySelectorAll('nav[aria-label="Views"] button[data-view-id]')].map((b) => (b.querySelector('.truncate')?.textContent ?? '') + (b.querySelector('[data-open-count]')?.getAttribute('data-open-count') ?? ''))
-  return t[0] === 'Waiting2' && t[1] === 'Work tomorrow3'
+  const t = [...document.querySelectorAll('nav[aria-label="Views"] button[data-view-id]')].map((b) => (b.querySelector('.truncate')?.textContent ?? ''))
+  return t[0] === 'Waiting' && t[1] === 'Work tomorrow'
 }, null, { timeout: 15000 })
 // The edited query arrived on B too.
 await sidebarB.getByText('Work tomorrow').click()
@@ -321,8 +321,8 @@ const converged = async (p) => p.waitForFunction(() => {
 }, null, { timeout: 30000 })
 await converged(pageA)
 await converged(pageB)
-const sideCounts = (p) => p.evaluate(() => [...document.querySelectorAll('nav[aria-label="Views"] button[data-view-id]')].map((b) => (b.querySelector('.truncate')?.textContent ?? '') + (b.querySelector('[data-open-count]')?.getAttribute('data-open-count') ?? '')))
-const ca = await sideCounts(pageA), cb = await sideCounts(pageB)
+const sideNames = (p) => p.evaluate(() => [...document.querySelectorAll('nav[aria-label="Views"] button[data-view-id]')].map((b) => (b.querySelector('.truncate')?.textContent ?? '')))
+const ca = await sideNames(pageA), cb = await sideNames(pageB)
 assert(JSON.stringify(ca) === JSON.stringify(cb), `identical sidebars ${ca} / ${cb}`)
 const ha = await pageA.locator('[aria-label="View results"] [data-group-label]').allTextContents()
 const hb = await pageB.locator('[aria-label="View results"] [data-group-label]').allTextContents()

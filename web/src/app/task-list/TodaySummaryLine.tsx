@@ -32,7 +32,7 @@ export function TodaySummaryLine() {
   const now = useClock()
   const summary = useMemo(() => {
     if (!tasks) return null
-    const chosen = todayFocusOf(review, today, tasks, dossiers).all
+    const chosen = todayFocusOf(review, today, tasks, dossiers)
     return todaySummary({ today, now, tasks, projects, chosen })
   }, [tasks, projects, review, dossiers, today, now])
   if (!summary) return null

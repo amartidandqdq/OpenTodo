@@ -1,8 +1,9 @@
 // The Today summary line (OpenSpec change `today-home`): the counts it reports come
 // from the same rows the list shows, and an empty part is left out by the caller.
 import { describe, expect, it } from 'vitest'
+import { todayFocusOf } from './review'
 import { todaySummary } from './todaySummary'
-import type { Project, Task } from './types'
+import type { Dossier, Project, Task } from './types'
 
 const TODAY = '2026-10-14'
 let n = 0
@@ -15,7 +16,7 @@ function task(over: Partial<Task> = {}): Task {
   } as Task
 }
 const projects: Pick<Project, 'id' | 'archived'>[] = [{ id: 'p-live', archived: false }, { id: 'p-old', archived: true }]
-const summary = (tasks: Task[], chosen: Task[] = [], now = '12:00') => todaySummary({ today: TODAY, now, tasks, projects, chosen })
+const summary = (tasks: Task[], chosen: Task[] = [], now = '12:00') => todaySummary({ today: TODAY, now, tasks, projects, chosen: todayFocusOf({ focus: chosen.map((t) => t.id).join(','), focus_date: TODAY, focus_dossiers: [] }, TODAY, [...tasks, ...chosen], []) })
 
 describe('todaySummary', () => {
   it('counts what is chosen, the next timed task still ahead, and nothing earlier', () => {
@@ -51,4 +52,19 @@ describe('todaySummary', () => {
   it('reports nothing when the day is empty', () => {
     expect(summary([])).toEqual({ chosen: 0, next: null, earlier: 0 })
   })
+})
+
+// Selected threads count as work even without distinct actionable next steps.
+it('counts shared, waiting, empty and completed dossiers while excluding chosen steps from Earlier', () => {
+  const a = task({ id: 'a', due: { date: '2026-10-10' } })
+  const done = task({ id: 'done', completed_at: 1 })
+  const dossiers = [
+    { id: 'one', task_ids: ['a'] }, { id: 'two', task_ids: ['a'] },
+    { id: 'waiting', task_ids: ['a'], waiting: true }, { id: 'empty', task_ids: [] },
+    { id: 'done', task_ids: ['done'] },
+  ] as Dossier[]
+  for (const selected of [dossiers.slice(0, 3), dossiers.slice(2)]) {
+    const chosen = todayFocusOf({ focus: 'a', focus_date: TODAY, focus_dossiers: selected.map((d) => d.id) }, TODAY, [a, done], dossiers)
+    expect(todaySummary({ today: TODAY, now: '12:00', tasks: [a, done], projects, chosen })).toEqual({ chosen: 4, earlier: 0, next: null })
+  }
 })

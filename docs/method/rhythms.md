@@ -25,9 +25,11 @@ A day here ends at your [day start](../dates-and-times.md#when-a-day-ends): with
 
 ## Close the day
 
+From the end of Today, **Close the day** opens a small dialog for My day’s unfinished tasks, including the next steps of selected threads. Choose Tomorrow, Another day or Not now for each task, then Done. The selection clears and one Undo offer restores the whole close. The dialog keeps the day it opened on even across your day boundary.
+
 <picture><source srcset="../images/close-day-dark.webp" media="(prefers-color-scheme: dark)"><img src="../images/close-day-light.webp" alt="Close the day on its Carry over step: one unfinished task on a card with Tomorrow, Pick a day, Someday, Keep in Today and Done already, and the decisions so far below."></picture>
 
-A few minutes in the evening: open it from the end of the Today list, the Review move on the Loop home, the command palette or <kbd>g</kbd> <kbd>Shift+D</kbd>. It has three steps; <kbd>[</kbd> and <kbd>]</kbd> move between them. The day you close is the day you opened it on: start at 23:59 and finish after midnight, and it is still that evening that gets closed.
+For the full review, open it from the Review move on the Loop home, the command palette or <kbd>g</kbd> <kbd>Shift+D</kbd>. It has three steps; <kbd>[</kbd> and <kbd>]</kbd> move between them. The day you close is the day you opened it on: start at 23:59 and finish after midnight, and it is still that evening that gets closed.
 
 1. **How the day went**: one sentence with how many tasks were planned (what Today lists plus what you finished), how many you completed (the same count as [Statistics](../review-and-statistics.md)) and how much of today's focus is done.
 2. **Carry over**: the unfinished tasks of Today, one at a time, each with its whole title. Choose **Tomorrow** (the default), **Pick a day**, **Someday**, **Keep in Today** or **Done already** with <kbd>t</kbd>, <kbd>p</kbd>, <kbd>y</kbd>, <kbd>h</kbd> or <kbd>d</kbd>, and the next task comes up. The list below the card shows your decisions; select a line to change one. Nothing changes until you move on to the next step; then every task moves at once and **Undo** (or <kbd>Ctrl</kbd>+<kbd>Z</kbd>) puts them all back in one step.

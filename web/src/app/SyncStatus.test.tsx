@@ -2,7 +2,7 @@
 // compact mode and the detail shows beside it; other states keep the quiet pill.
 // @vitest-environment happy-dom
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { useSyncExternalStore } from 'react'
+import { act, useSyncExternalStore } from 'react'
 import { render, waitFor } from '../ui/test-utils'
 
 let status = {
@@ -45,6 +45,8 @@ describe('SyncStatus in error state', () => {
     await waitFor(() => document.querySelector('[role="alert"]') !== null, 'the visible error')
     const alert = document.querySelector('[role="alert"]')!
     expect(alert.textContent).toContain('bad cursor')
+    await act(async () => { (alert as HTMLElement).focus() })
+    await waitFor(() => document.querySelector('[role="tooltip"]')?.textContent === status.error, 'full error on keyboard focus')
     const pill = document.querySelector('[data-sync-status="error"]')!
     expect(pill.textContent).toContain('Sync error')
     await r.unmount()

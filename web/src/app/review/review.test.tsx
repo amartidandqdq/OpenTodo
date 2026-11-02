@@ -15,7 +15,7 @@ import { resetPanel } from '../panel'
 import { navigate } from '../router'
 import { Shell } from '../Shell'
 import { Sidebar } from '../Sidebar'
-import { REMINDERS_KEY } from '../reviewReminders'
+import { REMINDERS_KEY, setReviewReminders } from '../reviewReminders'
 import { setMethodMode } from '../../lib/method/mode'
 
 const user = { id: 'u1', email: 'a@example.com', name: 'Ada', role: 'owner', createdAt: 0 } as User
@@ -176,6 +176,27 @@ describe('Weekly review stepper', () => {
 })
 
 describe('sidebar Review entry', () => {
+  it.each(['this tab', 'another tab'])('turning reminders off in %s removes an active Daily check offer', async (source) => {
+    await setMethodMode('first')
+    navigate({ view: 'inbox' })
+    const r = await render(<Shell user={user} onLogout={() => {}} />)
+    await waitFor(() => !!document.querySelector('[data-daily-toast]'))
+    const before = await db.outbox.count()
+    await act(async () => {
+      if (source === 'this tab') setReviewReminders(false)
+      else {
+        localStorage.removeItem(REMINDERS_KEY)
+        window.dispatchEvent(new StorageEvent('storage', { key: REMINDERS_KEY, oldValue: '1', newValue: null, storageArea: localStorage }))
+      }
+    })
+    expect(document.querySelector('[data-daily-toast]')).toBeNull()
+    await act(async () => { setReviewReminders(true) })
+    // It was already offered today; enabling reminders must not offer it twice.
+    expect(document.querySelector('[data-daily-toast]')).toBeNull()
+    expect(await db.outbox.count()).toBe(before)
+    await r.unmount()
+  })
+
   it('with Review reminders off (the default) nothing is due: no dot, the words name the last review (declutter)', async () => {
     localStorage.removeItem(REMINDERS_KEY)
     await db.review.put({ ...REVIEW_DEFAULTS, id: 'me', completed_at: NOW.getTime() - 9 * 86_400_000, _clock: {} })

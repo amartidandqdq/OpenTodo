@@ -1450,4 +1450,6 @@ html:root[data-contrast="high"] .quick-add-tint { background-color: transparent;
 .page-frame { margin-left: 0; margin-right: 0; }
 
 /* Coloured section group bars use the theme-aware soft hue. */
-.section-header-tint { background-color: var(--hue-soft); }
+@layer components {
+  .section-header-tint { background-color: var(--hue-soft); }
+}

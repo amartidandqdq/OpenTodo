@@ -617,7 +617,7 @@ html:root[data-contrast="high"][data-theme="dark"], html[data-contrast="high"] [
   --ot-hue-slate-soft: oklch(0 0 0); --ot-hue-slate-text: oklch(0.869 0.0198 252.89);
 }
 /* Soft tints read as the surface in high contrast; an outline keeps the shape. */
-html:root[data-contrast="high"] :is(.bg-accent-soft, .bg-success-soft, .bg-warning-soft, .bg-danger-soft, .bg-info-soft, .bg-hue-soft, .bg-p1-soft, .bg-p2-soft, .bg-p3-soft, .bg-p4-soft) {
+html:root[data-contrast="high"] :is(.bg-accent-soft, .bg-success-soft, .bg-warning-soft, .bg-danger-soft, .bg-info-soft, .bg-hue-soft, .section-header-tint, .bg-p1-soft, .bg-p2-soft, .bg-p3-soft, .bg-p4-soft) {
   outline: 2px solid currentColor;
   outline-offset: -2px;
 }
@@ -1293,3 +1293,6 @@ html:root[data-contrast="high"] .quick-add-tint { background-color: transparent;
 /* The frame (precision-shell D3): the whole content surface, from its left edge, so the
    docked panel narrows it from the right and nothing moves. */
 .page-frame { margin-left: 0; margin-right: 0; }
+
+/* Coloured section group bars use the theme-aware soft hue. */
+.section-header-tint { background-color: var(--hue-soft); }

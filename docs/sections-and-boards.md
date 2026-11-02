@@ -31,7 +31,7 @@ Select the **+** on a section heading and type: the task goes straight into that
 Use the **⋯** menu on a section heading (or press <kbd>.</kbd> with the heading focused):
 
 - **Rename** (<kbd>F2</kbd>)
-- **Colour…** and **Icon…** mark the section before its name.
+- **Colour…** and **Icon…** mark the section before its name. A colour also softly tints its list heading.
 - **Move** it up or down (left or right on the board).
 - **Delete section…** asks first and says how many open tasks move to **No section**. The tasks aren't deleted.
 

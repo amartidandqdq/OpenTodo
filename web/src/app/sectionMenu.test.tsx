@@ -90,6 +90,26 @@ describe('section style', () => {
     await r.unmount()
   })
 
+  it('tints only coloured list section headers and updates when the colour changes', async () => {
+    const id = await createSection('p1', 'Doing')
+    await setSectionStyle(id, { color: '#22c55e' })
+    const header = (layout: 'list' | 'board', section = (db.sections.get(id))) => section.then(s => <SectionHeader section={s!} count={0} layout={layout} editable first last />)
+    const r = await render(await header('list'))
+    expect(r.container.querySelector('[data-section-heading]')?.getAttribute('data-hue')).toBe('green')
+    expect(r.container.querySelector('[data-group-header]')?.classList.contains('section-header-tint')).toBe(true)
+    await setSectionStyle(id, { color: '#3b82f6' })
+    await r.rerender(await header('list'))
+    expect(r.container.querySelector('[data-section-heading]')?.getAttribute('data-hue')).toBe('blue')
+    await r.rerender(await header('board'))
+    expect(r.container.querySelector('[data-group-header]')?.classList.contains('section-header-tint')).toBe(false)
+    await setSectionStyle(id, { color: null })
+    await r.rerender(await header('list'))
+    expect(r.container.querySelector('.section-header-tint')).toBeNull()
+    await r.rerender(<SectionHeader section={null} count={0} layout="list" editable first last />)
+    expect(r.container.querySelector('.section-header-tint')).toBeNull()
+    await r.unmount()
+  })
+
   it('a viewer sees the style but gets no menu to change it', async () => {
     const id = await createSection('p1', 'Waiting')
     await setSectionStyle(id, { icon: 'hourglass', color: '#eab308' })

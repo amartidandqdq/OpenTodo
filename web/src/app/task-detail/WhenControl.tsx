@@ -172,7 +172,7 @@ export function WhenControl({ task, readOnly = false, focus = 'due', segment, on
   focus?: WhenSegment
   /** Show only this segment (the When popover, task-panel-facets D3); all of them when absent. */
   segment?: WhenSegmentId
-  /** The footer's Done (the chip closes its editor). */
+  /** The footer's Close (the chip closes its editor). */
   onDone?: () => void
   /** Open another task (a detached occurrence). */
   onOpen?: (id: string) => void
@@ -227,7 +227,7 @@ export function WhenControl({ task, readOnly = false, focus = 'due', segment, on
 
       {onDone && (
         <div className="flex justify-end border-t border-default pt-2">
-          <Button size="sm" onClick={onDone}>{t('Done')}</Button>
+          <Button size="sm" onClick={onDone}>{t('Close')}</Button>
         </div>
       )}
     </div>

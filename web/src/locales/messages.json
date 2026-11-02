@@ -2459,6 +2459,7 @@
     "web/src/app/sidePanel.tsx",
     "web/src/app/task-detail/TaskDetail.tsx",
     "web/src/app/task-detail/TaskPageView.tsx",
+    "web/src/app/task-detail/WhenControl.tsx",
     "web/src/ui/overlay/Dialog.tsx",
     "web/src/ui/overlay/Popover.tsx"
   ],
@@ -3794,7 +3795,6 @@
     "web/src/app/review/StatsView.tsx",
     "web/src/app/task-detail/FacetEditor.tsx",
     "web/src/app/task-detail/TaskPageDialog.tsx",
-    "web/src/app/task-detail/WhenControl.tsx",
     "web/src/app/task-list/ListChrome.tsx",
     "web/src/page/TaskPageScreen.tsx"
   ],

@@ -18,6 +18,7 @@ import type { Priority, Task } from '../../lib/types'
 import { t } from '../../lib/i18n'
 import { Icon, IconButton, Menu, MenuItem } from '../../ui'
 import { toggleTodayFocus } from '../todayFocusAction'
+import { FocusReplace } from '../FocusReplace'
 
 const RowSchedule = lazy(() => import('./RowSchedule'))
 
@@ -40,7 +41,9 @@ export function RowActionCluster({ task, onMore, force = false, editable = true,
   force?: boolean
 }) {
   const [scheduling, setScheduling] = useState(false)
+  const [replacing, setReplacing] = useState(false)
   const schedule = useRef<HTMLButtonElement>(null)
+  const sun = useRef<HTMLButtonElement>(null)
   const review = useReviewRow()
   const tasks = useLiveTasks()
   // "Ma journée" (fork change `my-day-sun`): the sun adds or removes the task in the day's
@@ -49,13 +52,14 @@ export function RowActionCluster({ task, onMore, force = false, editable = true,
   const today = logicalToday()
   const inFocus = storedFocus(review, today).includes(task.id)
   const canFocus = editable && !task.completed_at && !task.deleted_at
+  // A fourth task opens "Replace which one?" instead of a refusal (my-day-replace).
   const focus = () => act((async () => {
     if (!tasks) return
-    await toggleTodayFocus(review, today, tasks, task)
+    if (await toggleTodayFocus(review, today, tasks, task) === 'full') setReplacing(true)
   })())
   // Esc on an action goes back to the row's open control.
   const onKeyDown = (e: KeyboardEvent<HTMLSpanElement>) => {
-    if (e.key !== 'Escape' || scheduling) return
+    if (e.key !== 'Escape' || scheduling || replacing) return
     const open = e.currentTarget.closest('li')?.querySelector<HTMLElement>('[data-row-open]')
     if (!open) return
     e.preventDefault()
@@ -63,7 +67,7 @@ export function RowActionCluster({ task, onMore, force = false, editable = true,
     open.focus()
   }
   // Hidden actions take no clicks: the trailing group's origin link stays under the pointer.
-  const shown = force || scheduling ? 'opacity-100' : 'pointer-events-none opacity-0 group-hover:pointer-events-auto group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:opacity-100'
+  const shown = force || scheduling || replacing ? 'opacity-100' : 'pointer-events-none opacity-0 group-hover:pointer-events-auto group-hover:opacity-100 group-focus-within:pointer-events-auto group-focus-within:opacity-100'
   return (
     <span data-row-actions="" onKeyDown={onKeyDown} onFocus={(e) => reveal(e.target as HTMLElement)}
       className={`mockup-row-actions absolute right-0 hidden items-center gap-0.5 rounded-control px-0.5 transition-opacity duration-(--duration-ui) md:pointer-fine:flex ${shown}`}>
@@ -75,7 +79,7 @@ export function RowActionCluster({ task, onMore, force = false, editable = true,
       )}
       {editable && <>
       {canFocus && (
-        <IconButton icon="sun" size="sm" label={inFocus ? t('Remove from today’s focus') : t('Add to today’s focus')}
+        <IconButton ref={sun} icon="sun" size="sm" label={inFocus ? t('Remove from today’s focus') : t('Add to today’s focus')}
           aria-pressed={inFocus} data-row-action="focus" onClick={focus} className={inFocus ? 'text-accent' : undefined} />
       )}
       <IconButton ref={schedule} icon="calendar-days" size="sm" label={t('Schedule')} aria-haspopup="dialog" aria-expanded={scheduling}
@@ -95,6 +99,7 @@ export function RowActionCluster({ task, onMore, force = false, editable = true,
           <RowSchedule task={task} anchor={schedule} onClose={() => setScheduling(false)} />
         </Suspense>
       )}
+      {replacing && tasks && <FocusReplace task={task} review={review} today={today} tasks={tasks} anchor={sun} onClose={() => setReplacing(false)} />}
     </span>
   )
 }

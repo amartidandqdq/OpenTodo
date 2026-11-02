@@ -64,6 +64,8 @@ import { noteTodayOpened } from '../lib/firstDay'
 import { InboxMenu } from './SampleNotice'
 import { TodayAgenda, useTodayAgenda } from './calendar/TodayAgenda'
 import { TodayFocus } from './task-list/TodayFocus'
+import { TodaySummaryLine } from './task-list/TodaySummaryLine'
+import { TodayResume } from './task-list/TodayResume'
 
 export { BLOCKED_OPEN_KEY } from '../lib/listGroups'
 
@@ -343,7 +345,7 @@ export function TaskListView({ route, userId, userRole }: { route: ListRoute; us
           )}
 
           {route.view === 'project' && currentProject && <ProjectNote project={currentProject} phone={phone} />}
-          {route.view === 'project' && !board && <SubProjects projectId={route.id} />}{route.view === 'today' && <TodayFocus />}
+          {route.view === 'project' && !board && <SubProjects projectId={route.id} />}{route.view === 'today' && <TodayFocus />}{route.view === 'today' && <TodayResume />}
           {/* The Completed tab answers with its own quiet line, not the open-task empty view. */}
           {m.doneTab && rows.length === 0 && <p className="mockup-empty" data-completed-tab-empty>{t('Nothing completed yet.')}</p>}
           {own.length === 0 && !m.doneTab && !(board || m.liveSections.length > 0) && (m.duration
@@ -422,6 +424,7 @@ function ListHeader({ route, title, label, meta, subtitle, actions, phone, agend
       overflow={phoneItems || toggle ? <>{phoneItems}{phoneItems && toggle && <MenuSeparator />}{toggle}{agendaItem}</> : undefined}
       leading={label && <span className="h-3 w-3 rounded-full" style={{ backgroundColor: label.color }} />}
       meta={meta} subtitle={subtitle} menu={menu} kind={route.view === 'today' || route.view === 'upcoming' ? 'day' : 'tool'}
+      summary={route.view === 'today' ? <TodaySummaryLine /> : undefined}
       briefing={briefing && <BriefingText briefing={briefing} />}>
       {route.view === 'anytime' || route.view === 'someday' ? <HorizonSwitch view={route.view} /> : null}
     </PageHeader>

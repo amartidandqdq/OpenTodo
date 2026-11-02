@@ -436,7 +436,7 @@ export async function applyCarryOver(decisions: ReadonlyMap<string, CarryDecisio
 }
 
 /** Two batches' items as one record: a field in both keeps the first value before and the latest value after. */
-function joinItems(first: readonly CarryOverItem[], later: readonly CarryOverItem[]): CarryOverItem[] {
+export function joinItems(first: readonly CarryOverItem[], later: readonly CarryOverItem[]): CarryOverItem[] {
   const out = first.map((it) => ({ ...it }))
   for (const it of later) {
     const seen = out.find((x) => x.id === it.id && x.field === it.field)

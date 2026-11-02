@@ -97,6 +97,7 @@ describe('section style', () => {
     const r = await render(await header('list'))
     expect(r.container.querySelector('[data-section-heading]')?.getAttribute('data-hue')).toBe('green')
     expect(r.container.querySelector('[data-group-header]')?.classList.contains('section-header-tint')).toBe(true)
+    expect(r.container.querySelector('[data-group-header]')?.classList.contains('bg-raised')).toBe(false)
     await setSectionStyle(id, { color: '#3b82f6' })
     await r.rerender(await header('list'))
     expect(r.container.querySelector('[data-section-heading]')?.getAttribute('data-hue')).toBe('blue')

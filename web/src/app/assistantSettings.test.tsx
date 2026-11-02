@@ -129,7 +129,7 @@ describe('UserAssistantSettings', () => {
 
 describe('UserAssistantSettings suggest-after-add row (assistant-suggest-after-add)', () => {
   const props = (suggestAfterAdd: boolean, onSuggestAfterAdd: (on: boolean) => void): ComponentProps<typeof UserAssistantSettings> => ({
-    status, usage: null, autoApply: false, suggestAfterAdd, onSuggestAfterAdd, connected: true, busy: false, error: null, cleared: false,
+    status, usage: null, autoApply: false, suggestAfterAdd, onSuggestAfterAdd, classifyAfterAdd: true, onClassifyAfterAdd: noop, connected: true, busy: false, error: null, cleared: false,
     onWithdraw: noop, onOwnKey: noop, onAutoApply: noop, onClear: noop,
   })
 

@@ -145,7 +145,7 @@ describe('the tab bar while the list scrolls', () => {
   }
   const add = () => document.querySelector('[data-add-button]')!
 
-  it('scrolling down more than 24 px drops the labels and slides the add button out; scrolling up restores both', async () => {
+  it('keeps add available while scrolling minimises and restores the tab labels', async () => {
     const r = await render(<Shell user={user} onLogout={() => {}} />)
     await waitFor(() => !!bar() && !!document.querySelector('#content'), 'the tab bar')
     await scrollTo(10)
@@ -155,8 +155,9 @@ describe('the tab bar while the list scrolls', () => {
     expect(tab('today').className).toContain('min-h-10')
     expect(tab('today').querySelector('span')!.className).toContain('sr-only')
     expect(tab('today').textContent).toBe('Today')
-    expect(add().getAttribute('data-away')).toBe('true')
-    expect(add().getAttribute('tabindex')).toBe('-1')
+    expect(add().hasAttribute('data-away')).toBe(false)
+    expect(add().hasAttribute('aria-hidden')).toBe(false)
+    expect(add().getAttribute('tabindex')).not.toBe('-1')
     await scrollTo(40)
     expect(bar()!.hasAttribute('data-minimised')).toBe(false)
     expect(tab('today').className).toContain('min-h-14')

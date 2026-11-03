@@ -1,1 +1,4 @@
 *.tsbuildinfo
+
+# Artefact de run vitest (--reporter=json), pas source.
+.vitest/

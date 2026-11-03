@@ -295,15 +295,18 @@ describe('on a phone (390 px)', () => {
     }
   })
 
-  it('the bar holds Process the Inbox; its overflow lists Select tasks, and Today\'s lists Display mode', async () => {
+  it('the phone bar keeps Ask and the duration chip; Process the Inbox and Select tasks are in the overflow, as is Today\'s Display mode', async () => {
     await seed()
     navigate({ view: 'inbox' })
     const r = await render(<Shell user={user} onLogout={() => {}} />)
-    await waitFor(() => !!document.querySelector('[data-phone-bar] [data-triage-start]'))
+    // mobile-task-focus: processing the Inbox moved off the bar into the overflow menu.
+    await waitFor(() => !!document.querySelector('[data-phone-bar] button[aria-label="More actions"], [data-phone-bar] [data-inbox-menu]'))
     expect(document.querySelector('[data-list-page] [data-triage-start]')).toBeNull()
+    expect(document.querySelector('[data-phone-bar] [data-triage-start]')).toBeNull()
     const more = () => document.querySelector<HTMLButtonElement>('[data-phone-bar] [data-inbox-menu], [data-phone-bar] button[aria-label="More actions"]')
     await waitFor(() => !!more())
     more()!.click()
+    await waitFor(() => !!document.querySelector('[data-phone-item="process"]'))
     await waitFor(() => !!document.querySelector('[data-phone-item="select"]'))
     await r.unmount()
     navigate({ view: 'today' })

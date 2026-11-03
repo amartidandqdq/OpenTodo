@@ -407,13 +407,20 @@ async function generationChanged(generation: string | undefined): Promise<boolea
   return stored !== generation
 }
 
+/** Device ids only the server writes (mirrors `ReservedDevice` in internal/sync/devices.go); /api/v1/sync refuses a batch that carries one. */
+const SERVER_ONLY_DEVICES = ['agent:', 'caldav:', 'public:', 'issues:', 'page:', 'rule:', 'calsync:']
+export function isServerOnlyDevice(device: string): boolean {
+  return device === 'server' || device.startsWith('server:') || SERVER_ONLY_DEVICES.some((p) => device.startsWith(p))
+}
+
 /**
  * Re-emit every locally known field as a new op carrying the field's stored
  * clock `(ts, device)`, reset the cursor to 0 and adopt the new generation, in
  * one transaction. The outbox keeps any edits still waiting to upload. Because
  * the clocks are the original ones, the server converges to exactly what this
  * device has, and two devices re-seeding at once converge by the normal rule.
- * Entity ids are unchanged, so nothing is duplicated.
+ * Entity ids are unchanged, so nothing is duplicated. Fields last written by the
+ * server itself are not re-sent (see `isServerOnlyDevice`).
  */
 export async function reseedAfterRestore(generation: string): Promise<number> {
   // Never re-send an encrypted account's content while it cannot be encrypted.
@@ -447,6 +454,9 @@ export async function reseedAfterRestore(generation: string): Promise<number> {
           if (!(field in row)) continue
           // uploaded_at is the server's word (attachments D3); a device never sends it.
           if (entity === 'attachment' && field === 'uploaded_at') continue
+          // A field the server (REST, an assistant, CalDAV, a rule...) wrote cannot be sent back by a device:
+          // the server refuses the whole batch, and one such op would block sync for good.
+          if (isServerOnlyDevice(c.device)) continue
           chunk.push({ id: uuid(), entity, entityId: row.id as string, field, value: raw[field] ?? row[field], ts: c.ts, device: c.device })
           if (chunk.length >= RESEED_CHUNK) await flush()
         }

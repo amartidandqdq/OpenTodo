@@ -47,14 +47,16 @@ export function SyncStatus({ compact = false }: { compact?: boolean } = {}) {
       onClick={() => (s.state === 'restricted' ? window.dispatchEvent(new Event(ENROLMENT_EVENT)) : requestSync(0))}
       aria-label={quiet ? name : `${name}. ${detail}`}
       data-sync-status={s.state}
-      className={`flex min-h-9 items-center gap-2 rounded-control text-meta text-muted hover:bg-sunken dark:hover:bg-raised ${compact ? 'justify-center px-0' : 'px-2 py-1'}`}
+      className={`flex min-h-9 min-w-0 max-w-full items-center gap-2 rounded-control text-meta text-muted hover:bg-sunken dark:hover:bg-raised ${compact ? 'justify-center px-0' : 'px-2 py-1'}`}
     >
       <span className={`h-2 w-2 shrink-0 rounded-full ${map.dot}`} />
       {(!quiet && !compact || failed) && <span className="min-w-0 truncate">{map.text}</span>}
     </button>
   )
+  // min-w-0 always: a flex item never shrinks below its label's width otherwise, and in the closed phone
+  // drawer the error pill pushed out of the row and showed 14 px over the tab bar.
   return (
-    <div className={failed ? 'flex min-w-0 flex-col' : undefined}>
+    <div className={failed ? 'flex min-w-0 flex-col' : 'min-w-0'}>
       <Tooltip label={quiet ? name : detail} side={compact ? 'right' : 'top'}>{button}</Tooltip>
       {failed && <p role="alert" className="max-w-full truncate px-2 pb-1 text-meta text-danger" title={s.error!}>{s.error}</p>}
     </div>

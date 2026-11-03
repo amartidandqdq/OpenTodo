@@ -1070,6 +1070,7 @@ button.ui-column-add { @apply flex-row items-start justify-start px-3 py-2.5 hov
     [data-row-time] { width: auto; margin-inline-end: 0.25rem; }
     [data-row-open] { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; column-gap: 0.75rem; }
     [data-row-head] { grid-area: 1 / 1; }
+    [data-row-source] { grid-area: 2 / 1 / 3 / 3; }
     [data-row-title] { font-size: 0.90625rem; }
     [data-row-meta="row"] { display: contents; }
     [data-row-props] { grid-area: 1 / 2; display: flex; align-items: center; white-space: nowrap; }

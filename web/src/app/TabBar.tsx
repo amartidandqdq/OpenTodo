@@ -3,8 +3,8 @@
 // add button that opens quick add as a bottom sheet; the drawer opens from the top
 // bar's menu button (precision-phone D3). Both hide while a sheet is open and on the
 // task page; tabs are at least 48 px tall and sit above the bottom safe area. While the
-// list scrolls down the bar drops its labels to 40 px of icons and the button slides
-// out (phone-v2 D6). The current tab is marked in the strong text tone, not the accent,
+// list scrolls down the bar drops its labels to 40 px of icons; the add button stays
+// available. The current tab is marked in the strong text tone, not the accent,
 // as the sidebar marks its current page (precision-phone D3).
 import { Icon, type IconName } from '../ui'
 import { forwardRef } from 'react'

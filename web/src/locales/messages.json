@@ -2457,9 +2457,12 @@
     "web/src/app/help/HelpPanel.tsx",
     "web/src/app/palette/CommandPalette.tsx",
     "web/src/app/sidePanel.tsx",
+    "web/src/app/task-detail/Facets.tsx",
     "web/src/app/task-detail/TaskDetail.tsx",
     "web/src/app/task-detail/TaskPageView.tsx",
     "web/src/app/task-detail/WhenControl.tsx",
+    "web/src/app/task-list/InlineEditor.tsx",
+    "web/src/app/task-list/RowSchedule.tsx",
     "web/src/ui/overlay/Dialog.tsx",
     "web/src/ui/overlay/Popover.tsx"
   ],

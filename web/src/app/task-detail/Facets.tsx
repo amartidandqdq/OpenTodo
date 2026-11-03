@@ -167,7 +167,7 @@ export function PartEditor({ id, props, m, anchor, segment, onSegment, onClose }
   onClose: () => void
 }) {
   const { task, readOnly, userId, childCount, onOpen } = props
-  const frame = (icon: IconName, title: string, body: ReactNode, onClear?: () => void, extra: { header?: ReactNode; width?: string } = {}) => (
+  const frame = (icon: IconName, title: string, body: ReactNode, onClear?: () => void, extra: { header?: ReactNode; width?: string; dismissLabel?: string } = {}) => (
     <FacetEditor anchor={anchor} icon={icon} title={title} onClose={onClose} onClear={onClear} {...extra}>{body}</FacetEditor>
   )
 
@@ -179,7 +179,7 @@ export function PartEditor({ id, props, m, anchor, segment, onSegment, onClose }
       repeat: task.recurrence ? () => act(setRecurrence(task.id, null)) : undefined,
     }
     return frame('calendar-days', t('When'), <WhenControl task={task} readOnly={readOnly} segment={segment} onOpen={onOpen} />, clear[segment],
-      { header: <WhenSegmentPicker value={segment} onChange={onSegment} />, width: 'sm:w-[28rem]' })
+      { header: <WhenSegmentPicker value={segment} onChange={onSegment} />, width: 'sm:w-[28rem]', dismissLabel: t('Close') })
   }
 
   switch (id) {

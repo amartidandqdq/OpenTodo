@@ -1,7 +1,8 @@
 // The frame of every facet editor (OpenSpec change task-panel-facets, design D2): a
 // popover anchored to the part that opened it (a bottom sheet below 640 px), titled
 // with the facet's icon and name, with the property's editor and a footer offering
-// Clear (when the part has a value) and Done. The panel never re-flows.
+// Clear (when the part has a value) and a dismissal button, Done unless the editor names
+// another. The panel never re-flows.
 import type { ReactNode, RefObject } from 'react'
 import { Button, Icon, type IconName, Popover } from '../../ui'
 import { t } from '../../lib/i18n'
@@ -18,10 +19,12 @@ export interface FacetEditorProps {
   header?: ReactNode
   /** Width from 640 px up. */
   width?: string
+  /** The dismissal button's label, when Done could be mistaken for acting on the task. */
+  dismissLabel?: string
   children: ReactNode
 }
 
-export function FacetEditor({ anchor, icon, title, onClose, onClear, header, width = 'sm:w-80', children }: FacetEditorProps) {
+export function FacetEditor({ anchor, icon, title, onClose, onClear, header, width = 'sm:w-80', dismissLabel, children }: FacetEditorProps) {
   return (
     <Popover open onClose={onClose} anchor={anchor} label={title} align="start" width={width} className="p-0">
       <div className="flex flex-col" data-facet-editor>
@@ -32,7 +35,7 @@ export function FacetEditor({ anchor, icon, title, onClose, onClear, header, wid
         <div className="min-w-0 p-3">{children}</div>
         <div className="flex items-center justify-between gap-2 border-t border-default px-3 py-2">
           {onClear ? <Button variant="ghost" size="sm" onClick={() => { onClear(); onClose() }} data-facet-clear>{t('Clear')}</Button> : <span />}
-          <Button size="sm" onClick={onClose} data-facet-done>{t('Done')}</Button>
+          <Button size="sm" onClick={onClose} data-facet-done>{dismissLabel ?? t('Done')}</Button>
         </div>
       </div>
     </Popover>

@@ -131,7 +131,7 @@ export function EditBar({ task, projects, labelMap, onDetails }: { task: Task; p
       </span>
       <IconButton icon="chevron-right" size="sm" label={t('Open details')} shortcut="Shift+Enter" onClick={onDetails} className="ml-auto" data-open-details />
       {open === 'date' && (
-        <FacetEditor anchor={dateAnchor} icon="calendar-days" title={t('Do on')} onClose={() => setOpen(null)} width="sm:w-[28rem]">
+        <FacetEditor anchor={dateAnchor} icon="calendar-days" title={t('Do on')} onClose={() => setOpen(null)} width="sm:w-[28rem]" dismissLabel={t('Close')}>
           <WhenControl task={task} segment="due" />
         </FacetEditor>
       )}

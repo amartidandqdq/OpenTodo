@@ -10,7 +10,7 @@ import { WhenControl } from '../task-detail/WhenControl'
 
 export default function RowSchedule({ task, anchor, onClose }: { task: Task; anchor: RefObject<HTMLButtonElement | null>; onClose: () => void }) {
   return (
-    <FacetEditor anchor={anchor} icon="calendar-days" title={t('Do on')} onClose={onClose} width="sm:w-[28rem]">
+    <FacetEditor anchor={anchor} icon="calendar-days" title={t('Do on')} onClose={onClose} width="sm:w-[28rem]" dismissLabel={t('Close')}>
       <WhenControl task={task} segment="due" />
     </FacetEditor>
   )

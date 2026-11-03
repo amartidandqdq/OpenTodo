@@ -81,6 +81,23 @@ describe('popover editors', () => {
     await unmount()
   })
 
+  it('the When popover names its dismissal Close, which closes without completing; other editors keep Done', async () => {
+    const project_id = await createProject({ name: 'Home' })
+    const id = await createTask({ title: 'Plan', project_id, due: { date: '2026-10-15' } })
+    const { valueButton, editor, unmount } = await open(id)
+    await click(valueButton('due'))
+    await waitFor(() => !!editor(), 'the popover')
+    const dismiss = editor()!.querySelector<HTMLElement>('[data-facet-done]')!
+    expect(dismiss.textContent).toBe('Close')
+    await click(dismiss)
+    await waitFor(() => !editor(), 'the popover closed')
+    expect((await db.tasks.get(id))?.completed_at ?? null).toBeNull()
+    await click(valueButton('project'))
+    await waitFor(() => !!editor(), 'the project popover')
+    expect(editor()!.querySelector('[data-facet-done]')!.textContent).toBe('Done')
+    await unmount()
+  })
+
   it('activating the open part again closes it, every time (no flicker)', async () => {
     const id = await createTask({ title: 'Plan', due: { date: '2026-10-15' } })
     const { valueButton, editor, unmount } = await open(id)

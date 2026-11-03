@@ -40,12 +40,12 @@ async function queuedFields(id: string, from: number): Promise<Record<string, un
 const queued = (id: string, from: number) => waitFor(async () => Object.keys(await queuedFields(id, from)).length > 0, 'the write queued')
 
 describe('WhenControl', () => {
-  it('shows six segments under one header, focuses the asked one, and Done calls back', async () => {
+  it('shows six segments under one header, focuses the asked one, and Close calls back', async () => {
     const id = await createTask({ title: 'Plan' })
     const { container, seg, onDone, unmount } = await mount(id, 'deadline')
     expect([...container.querySelectorAll('[data-when-segment]')].map((s) => s.getAttribute('data-when-segment'))).toEqual(['due', 'start', 'deadline', 'evening', 'repeat', 'reminders'])
     expect(seg('deadline').contains(document.activeElement)).toBe(true)
-    await click([...container.querySelectorAll('button')].find((b) => b.textContent === 'Done')!)
+    await click([...container.querySelectorAll('button')].find((b) => b.textContent === 'Close')!)
     expect(onDone).toHaveBeenCalled()
     await unmount()
   })

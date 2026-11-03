@@ -5,7 +5,7 @@
 // workspace it shows "OpenTodo" with "Personal" below it (sidebar-title-lines).
 // Switching is device state.
 import { useMemo } from 'react'
-import { CatalogueIcon, hueFor, Icon, isCatalogueIcon, Menu, MenuItem, MenuSeparator, StatusDot } from '../ui'
+import { CatalogueIcon, hueFor, Icon, isCatalogueIcon, Menu, MenuItem, MenuSeparator, StatusDot, Tooltip } from '../ui'
 import { t } from '../lib/i18n'
 import { inboxParents, isInboxTask } from '../lib/inbox'
 import { useTasksOfEveryWorkspace } from '../lib/liveTasks'
@@ -105,5 +105,27 @@ export function WorkspaceControl({ route, collapsed = false }: { route: Route; c
         <MenuItem icon="settings" label={t('Manage workspaces')} onSelect={() => navigate({ view: 'settings', section: 'workspaces' })} data-manage-workspaces />
       </Menu>
     </div>
+  )
+}
+
+/** Direct selection stays available in the expanded sidebar and the icon rail. */
+export function WorkspaceButtons({ route, collapsed = false }: { route: Route; collapsed?: boolean }) {
+  const state = useWorkspaceState()
+  if (state.list.length <= 1) return null
+  return (
+    <nav aria-label={t('Workspaces')} data-workspace-buttons
+      className={collapsed ? 'mb-2 flex max-h-40 flex-col items-center gap-1 overflow-y-auto' : 'mb-2 flex gap-1 overflow-x-auto'}>
+      {state.list.map((w) => {
+        const name = workspaceLabel(w.name, w.default)
+        const active = w.id === state.current
+        return <Tooltip key={w.id} label={name} side={collapsed ? 'right' : 'bottom'}><button type="button" aria-label={name} aria-pressed={active}
+          data-workspace-button={w.id}
+          className={`flex min-h-9 shrink-0 items-center gap-1.5 rounded-control px-2 text-meta focus-visible:outline focus-visible:outline-2 ${active ? 'bg-accent-soft font-semibold text-strong' : 'text-muted hover:bg-sunken dark:hover:bg-raised'}`}
+          onClick={() => { if (!active) void switchWorkspace(w.id, route, true) }}>
+          <WorkspaceMark workspace={w} size={24} />
+          {!collapsed && <span>{name}</span>}
+        </button></Tooltip>
+      })}
+    </nav>
   )
 }

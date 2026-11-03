@@ -17,7 +17,7 @@ import { dailyDue, dayClosed, monthlyDue, reviewAgo, reviewDue } from '../lib/re
 import { formatInstant } from '../lib/dates'
 import { readMethodMode, type MethodMode } from '../lib/method/mode'
 import { SidebarFooter } from './SidebarFooter'
-import { WorkspaceControl } from './WorkspaceControl'
+import { WorkspaceButtons, WorkspaceControl } from './WorkspaceControl'
 import { InstanceMark, useInstanceName } from './InstanceBrand'
 import { buildProjectTree, collapseAllProjects, expandAllProjects, expandAncestorsOf, openCountsByProject, projectPath, siblingEdges, toggleCollapsedProject, visibleProjects, type ProjectNode, useCollapsedProjects } from '../lib/projects'
 import { flattenTree } from '../lib/tree'
@@ -409,6 +409,7 @@ export function Sidebar({ route, user, onSearch, onShortcuts, onAssistant, onSig
         {/* The header row is the workspace control (sidebar-v2 D1, workspaces D6); search beside it, in the rail's footer when collapsed. */}
         <SidebarHeader left={<WorkspaceControl route={route} />} rail={<InstanceMark size={24} />} railLabel={instanceLabel}
           collapsed={collapsed} onSearch={onSearch} searchLabel={t('Search and commands')} searchShortcut={keysOf('global.palette')} />
+        <WorkspaceButtons route={route} collapsed={collapsed} />
         <nav className="space-y-0.5" aria-label={t('Primary')} data-sidebar-primary>
           {primary.map((d) => item(d.route, d.label, d.icon, d.count, d.badge, d.tip))}
           {primaryExtra.map((m) => <Fragment key={m.id}>{m.node}</Fragment>)}

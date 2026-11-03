@@ -38,12 +38,14 @@ export interface ListGroupHeaderProps {
   className?: string
   /** The filled group bar of a list; a board column passes false (its column is the surface). */
   bar?: boolean
+  /** Background class for the filled bar. */
+  barBackground?: string
 }
 
 /** The label's classes (precision-rows D4): one style whether the view or the user named the group; `kind` stays a hook for tests and drop targets. */
 const GROUP_LABEL = 'min-w-0 truncate text-meta font-medium text-default'
 
-export function ListGroupHeader({ title, count, countLabel, countTone = 'faint', kind = 'generated', collapsed, onToggle, actions, actionsAlwaysVisible = false, note, level = 2, testId, className = '', bar = true }: ListGroupHeaderProps) {
+export function ListGroupHeader({ title, count, countLabel, countTone = 'faint', kind = 'generated', collapsed, onToggle, actions, actionsAlwaysVisible = false, note, level = 2, testId, className = '', bar = true, barBackground = 'bg-raised' }: ListGroupHeaderProps) {
   const H = level === 2 ? 'h2' : 'h3'
   const collapsible = onToggle !== undefined
   const text = (
@@ -53,7 +55,7 @@ export function ListGroupHeader({ title, count, countLabel, countTone = 'faint',
     </>
   )
   return (
-    <div className={`group flex items-center gap-1.5 ${bar ? 'mt-2 mb-0.5 min-h-8 rounded-chip bg-raised px-2' : 'min-h-9 px-1'} ${actionsAlwaysVisible ? 'flex-wrap' : ''} ${className}`} data-group-header data-group-bar={bar || undefined} data-testid={testId} data-collapsed={collapsed || undefined}>
+    <div className={`group flex items-center gap-1.5 ${bar ? `mt-2 mb-0.5 min-h-8 rounded-chip px-2 ${barBackground}` : 'min-h-9 px-1'} ${actionsAlwaysVisible ? 'flex-wrap' : ''} ${className}`} data-group-header data-group-bar={bar || undefined} data-testid={testId} data-collapsed={collapsed || undefined}>
       <H className="flex min-w-0 flex-1 items-center">
         {collapsible ? (
           // Named by its visible title and count (WCAG 2.5.3 Label in Name); aria-expanded says whether it is open.

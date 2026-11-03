@@ -62,7 +62,7 @@ describe('Settings → Backups', () => {
     expect(html).not.toContain('name="s3-bucket"')
     expect(html).not.toContain('name="webdav-url"')
     expect(html).toContain('Every day at 03:00')
-    expect(html).toContain('178.1 KB')
+    expect(html).toContain('178 KB')
   })
 
   it('renders the S3 form with secret presence, never a value', () => {
@@ -144,6 +144,6 @@ describe('Settings → Backups', () => {
     expect(html).toContain('>Succeeded<')
     expect(html).toContain('>Failed<')
     expect(html).toContain('disk full')
-    expect(html).toContain('178.1 KB')
+    expect(html).toContain('178 KB')
   })
 })

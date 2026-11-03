@@ -622,6 +622,8 @@ export const api = {
   /** Your own provider's "Test connection" (assistant-member-provider; sessions only, rate limited). */
   testMyAssistant: (draft: MyAssistantTestDraft = {}) => request<AssistantTestResult>('POST', '/api/v1/me/assistant/test', draft),
   assistantUsage: () => request<AssistantUsage>('GET', '/api/v1/me/assistant/usage'),
+  /** The list the assistant proposes for a new task, among the lists given (fork change `assistant-classify-card`); null when none fits. */
+  assistantClassify: (title: string, projects: { id: string; name: string }[]) => request<{ project_id: string | null; confidence: number }>('POST', '/api/v1/assistant/classify', { title, projects }),
 }
 
 function auditQuery(f: AuditFilters): URLSearchParams {

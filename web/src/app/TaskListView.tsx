@@ -68,6 +68,7 @@ import { useListShortcuts, type ListUi } from './task-list/useListShortcuts'
 import { noteTodayOpened } from '../lib/firstDay'
 import { InboxMenu } from './SampleNotice'
 import { TodayAgenda, useTodayAgenda } from './calendar/TodayAgenda'
+import { TodayFocus } from './task-list/TodayFocus'
 import { RoutinesInboxSlot } from './routines/InboxSlot'
 import { closedListMeta } from './task-list/useClosedList'
 import { ClosedListMenuItems } from './task-list/ClosedListActions'
@@ -335,7 +336,7 @@ export function TaskListView({ route, userId, userRole }: { route: ListRoute; us
   // The Open Loops move this screen serves (open-loops "References to the method").
   const methodMove = route.view === 'inbox' ? 'catch' as const : route.view === 'someday' ? 'place' as const : undefined
   // Today's planned and tracked totals sit in the header's meta, not a new row (time-tracking D4).
-  const listedTasks = useMemo(() => (route.view === 'today' ? m.ownRows.map((r) => r.task) : []), [route.view, m.ownRows])
+  const listedTasks = useMemo(() => (route.view === 'today' ? [...new Map([...m.ownRows.map((r) => r.task), ...(m.focus?.all ?? [])].map((task) => [task.id, task])).values()] : []), [route.view, m.ownRows, m.focus])
   const totals = useDayTotals(listedTasks, today, route.view === 'today')
   const todayMeta /* with the closed list's "3 of 5 · 4 done" (today-closed-list D1, D6) */ = [m.dt.formatDate(today, 'heading'), closedListMeta(m.closed), dayTotalsText(totals.planned, totals.tracked)].filter(Boolean).join(' · ')
   const meta = useWithMethod(methodMove, route.view === 'today' ? todayMeta : route.view === 'label' ? rows.length : route.view === 'inbox' ? inbox.meta : undefined)
@@ -385,6 +386,7 @@ export function TaskListView({ route, userId, userRole }: { route: ListRoute; us
 
           {route.view === 'inbox' && <RoutinesInboxSlot />}{route.view === 'project' && currentProject && <ProjectNote project={currentProject} phone={phone} />}
           {route.view === 'project' && !board && <SubProjects projectId={route.id} />}
+          {route.view === 'today' && <TodayFocus />}
           {m.offerColumns && (
             // The list's columns layout (custom-fields): per project, on this device only.
             <div className="mb-1 flex justify-end">

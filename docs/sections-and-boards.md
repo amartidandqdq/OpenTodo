@@ -24,19 +24,19 @@ Each heading shows how many open tasks it holds. Tasks without a section are lis
 
 ## Add tasks to a section
 
-Select the **+** on a section heading and type: the task goes straight into that section. You can also open any task and choose a **Section** in its panel.
+Select the **+** on a section heading and type: the task goes straight into that section. Or open a task and choose a **Section** in its panel.
 
 ## Rename, reorder or delete a section
 
 Use the **⋯** menu on a section heading (or press <kbd>.</kbd> with the heading focused):
 
 - **Rename** (<kbd>F2</kbd>)
-- **Colour…** and **Icon…** mark the section before its name.
+- **Colour…** and **Icon…** mark the section before its name. A colour also tints its heading.
 - **Flow…**: one at a time or together ([flows](project-flows.md)).
 - **Move** it up or down (left or right on the board).
-- **Delete section…** asks first and says how many open tasks move to **No section**. The tasks aren't deleted.
+- **Delete section…** asks first and says how many open tasks move to **No section**. Tasks aren't deleted.
 
-Fold a section with the small arrow next to its name. Folding is remembered on that device only.
+Fold a section with the arrow next to its name. Folding is remembered on that device only.
 
 ## Switch to a board
 

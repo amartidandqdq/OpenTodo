@@ -33,6 +33,7 @@ describe('the workspace control', () => {
     const r = await render(<Sidebar route={{ view: 'inbox' }} user={user} onSearch={() => {}} />)
     await waitFor(() => visibleText(r.container.querySelector('[data-workspace-trigger]')!).includes('Personal'))
     expect(visibleText(r.container.querySelector('[data-workspace-trigger]')!)).toContain('OpenTodo')
+    expect(r.container.querySelector('[data-workspace-buttons]')).toBeNull()
     await r.unmount()
   })
 
@@ -75,11 +76,25 @@ describe('the workspace control', () => {
     const r = await render(<Sidebar route={{ view: 'today' }} user={user} onSearch={() => {}} />)
     await waitFor(() => r.container.textContent!.includes('Garden'))
     expect(r.container.textContent).not.toContain('Website')
-    await click(r.container.querySelector('[data-workspace-trigger]')!)
-    await waitFor(() => !!document.querySelector('[data-workspace-item="w-work"]'))
-    await click(document.querySelector('[data-workspace-item="w-work"]')!)
+    const workButton = () => r.container.querySelector<HTMLElement>('[data-workspace-button="w-work"]')!
+    await waitFor(() => !!workButton())
+    expect(workButton().getAttribute('aria-pressed')).toBe('false')
+    await click(workButton())
     await waitFor(() => r.container.textContent!.includes('Website'))
     expect(r.container.textContent).not.toContain('Garden')
+    expect(await getMeta(CURRENT_WORKSPACE_KEY, '')).toBe('w-work')
+    await waitFor(() => workButton().getAttribute('aria-pressed') === 'true')
+    await r.unmount()
+  })
+
+  it('offers named direct buttons in the collapsed rail', async () => {
+    await storeWorkspaces([entry('w-p', { default: true, name: 'Personal' }), entry('w-work', { name: 'Work' })])
+    const r = await render(<Sidebar collapsed route={{ view: 'inbox' }} user={user} onSearch={() => {}} />)
+    const button = () => r.container.querySelector<HTMLElement>('[data-workspace-button="w-work"]')!
+    await waitFor(() => !!button())
+    expect(button().getAttribute('aria-label')).toBe('Work')
+    await click(button())
+    await waitFor(() => button().getAttribute('aria-pressed') === 'true')
     expect(await getMeta(CURRENT_WORKSPACE_KEY, '')).toBe('w-work')
     await r.unmount()
   })

@@ -230,6 +230,23 @@
         "idempotentHint": true,
         "openWorldHint": false,
         "readOnlyHint": true,
+        "title": "List dossiers"
+      },
+      "description": "List the user's dossiers, the threads shown on the Reprendre le fil page: each is an ordered list of existing tasks with its state (active, waiting, finished or empty), progress, next action, waiting reason and follow-up date. A dossier is not a project: projects are listed with list_projects.",
+      "inputSchema": {
+        "additionalProperties": false,
+        "properties": {},
+        "type": "object"
+      },
+      "name": "list_dossiers",
+      "title": "List dossiers"
+    },
+    {
+      "annotations": {
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false,
+        "readOnlyHint": true,
         "title": "List frames"
       },
       "description": "List the occurrences of the user's calendar frames (recurring windows such as \"Deep work\" on weekdays 09:00-11:00) on the days from..to, with floating wall times and the planning source (project:, label: or view: id) that says which tasks belong in each. Default: the seven days from today in timezone; at most 31 days. Frames guide planning: propose ordinary due dates and times inside them.",

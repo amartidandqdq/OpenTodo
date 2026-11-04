@@ -2,7 +2,7 @@
 // actions, the layout switch, the duration filter, empty views, the "complete the
 // parent too?" prompt and the label and assignee dialogs. Each is a small
 // component with props only; TaskListView decides when they show.
-import type { ReactNode } from 'react'
+import { useMemo, type ReactNode } from 'react'
 import { DURATION_FILTERS, type DurationFilter } from '../../lib/filters'
 import { msg, t, translatedMap } from '../../lib/i18n'
 import type { ProjectViewMode } from '../../lib/sections'
@@ -16,6 +16,10 @@ import { LabelPicker } from '../LabelPicker'
 import type { ActionGroup, ActionItem } from '../menus/ActionMenu'
 import { Dialog, Menu } from '../../ui'
 import { navigate } from '../router'
+import { useDossiers, useReviewRow } from '../../lib/localData'
+import { useLiveTasks } from '../../lib/liveTasks'
+import { todayFocusOf } from '../../lib/review'
+import { useToday } from '../useViews'
 import { requestProjectNote } from '../ProjectNote'
 import { FilterQueryChip } from '../calendar/queryFilter'
 import { RowScheduleHost } from './RowSwipe'
@@ -295,6 +299,14 @@ export function EmptyState({ view, waiting = 0, readOnly = false, completed = 0,
   completed?: number
   onShowCompleted?: () => void
 }) {
+  const review = useReviewRow()
+  const dossiers = useDossiers()
+  const liveTasks = useLiveTasks()
+  const today = useToday()
+  const focus = useMemo(() => (view === 'today' && liveTasks ? todayFocusOf(review, today, liveTasks, dossiers) : null), [view, liveTasks, review, today, dossiers])
+  // Today's ordinary groups leave My day's tasks out (resume-dossiers D5): when those
+  // were all it held, saying Nothing due today under them would contradict the page.
+  if (view === 'today' && focus && (focus.dossiers.length > 0 || focus.tasks.length > 0)) return null
   const copy = EMPTY_COPY[view]
   const blocked = view === 'today' && waiting > 0
   const action = emptyAction(view === 'project' && readOnly ? 'inbox' : copy.action)

@@ -61,6 +61,9 @@ func (opentodoProfile) Read(r io.Reader, opts Options) (*Parsed, error) {
 		// Objectives are the account's quarterly and weekly objectives
 		// (plan-objectives D7), tombstones included.
 		Objectives []map[string]json.RawMessage `json:"objectives"`
+		// Dossiers are the exporting account's personal threads of existing tasks
+		// (OpenSpec change resume-dossiers); task_ids name tasks in this export.
+		Dossiers []map[string]json.RawMessage `json:"dossiers"`
 		// UserID is the exporting account.
 		UserID string `json:"userId"`
 		// UserPrefs is the exporting account's date and time preferences row
@@ -150,6 +153,7 @@ func (opentodoProfile) Read(r io.Reader, opts Options) (*Parsed, error) {
 	add(KindField, "name", doc.Fields)
 	add(KindTask, "title", doc.Tasks)
 	add(KindNote, "title", doc.Notes)
+	add(KindDossier, "title", doc.Dossiers)
 	add(KindReminder, "", doc.Reminders)
 	add(KindView, "name", doc.Views)
 	add(KindRule, "name", doc.Rules)

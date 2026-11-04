@@ -26,6 +26,29 @@ afterEach(() => {
   setDateTime({ date_format: 'system', time_format: 'system', week_start: 'system' })
 })
 
+describe('Today summary line', () => {
+  it('reads what is chosen, the next timed task and what is earlier under the title', async () => {
+    const id = await createTask({ title: 'Appeler le garage' })
+    await mutate('review', 'me', { focus_date: '2026-10-14', focus: id })
+    await createTask({ title: 'Dentiste', due: { date: '2026-10-14', time: '14:30' } })
+    await createTask({ title: 'Facture', due: { date: '2026-10-10' } })
+    const r = await render(<TaskListView route={{ view: 'today' }} />)
+    await waitFor(() => r.container.querySelector('[data-today-summary]')?.textContent?.includes('1 earlier') ?? false, 'the summary line')
+    const line = r.container.querySelector('[data-today-summary]')!.textContent!
+    expect(line).toContain('1 chosen for today')
+    expect(line).toContain('next appointment 14:30 Dentiste')
+    expect(line).not.toContain('nothing earlier')
+  })
+
+  it('says nothing earlier when no open task is earlier, and leaves out an empty part', async () => {
+    await createTask({ title: 'Plus tard', due: { date: '2026-10-20' } })
+    const r = await render(<TaskListView route={{ view: 'today' }} />)
+    await waitFor(() => r.container.querySelector('[data-today-summary]')?.textContent?.includes('nothing earlier') ?? false, 'the summary line')
+    expect(r.container.querySelector('[data-today-summary]')!.textContent).not.toContain('chosen')
+    expect(r.container.querySelector('[data-today-summary]')!.textContent).not.toContain('appointment')
+  })
+})
+
 describe('Ma journée', () => {
   it('shows a task chosen with the sun above Today, without giving it a due date', async () => {
     const id = await createTask({ title: 'Appeler le garage' })

@@ -77,6 +77,7 @@ import { closedListOffered } from '../lib/closedListPrefs'
 import { dayPartsOn, setDayParts } from '../lib/dayParts'
 import { readMethodMode } from '../lib/method/mode'
 import { addManyToList, createUnlessReused } from './reuseAdd'
+import { TodaySummaryLine } from './task-list/TodaySummaryLine'
 
 export { BLOCKED_OPEN_KEY } from '../lib/listGroups'
 
@@ -487,7 +488,7 @@ function ListHeader({ route, title, label, meta, subtitle, actions, phone, agend
       overflow={phoneItems || toggle ? <>{phoneItems}{phoneItems && toggle && <MenuSeparator />}{toggle}{startItem}{route.view === 'upcoming' && <ProjectionsMenuItem surface="upcoming" />}{agendaItem}{partsItem}{closedItems}{route.view === 'today' && <ReplanTodayItem />}</> : undefined}
       leading={label && <span className="h-3 w-3 rounded-full" style={{ backgroundColor: label.color }} />}
       meta={meta} subtitle={subtitle} menu={menu} kind={route.view === 'today' || route.view === 'upcoming' ? 'day' : 'tool'}
-      briefing={briefing && <BriefingText briefing={briefing} />} />
+      briefing={route.view === 'today' || briefing ? <>{route.view === 'today' && <TodaySummaryLine />}{briefing && <BriefingText briefing={briefing} />}</> : undefined} />
   )
 }
 

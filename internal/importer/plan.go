@@ -390,6 +390,20 @@ func BuildPlan(parsed *Parsed, opts Options, st *State, now time.Time, newID fun
 			p.Totals.Warnings++
 		}
 	}
+	countTotals(p)
+	seenHint := map[string]bool{}
+	for _, h := range parsed.ViewHints {
+		if id, ok := pl.createdBySource[h.ProjectSourceID]; ok && !seenHint[id] {
+			seenHint[id] = true
+			p.ViewHints = append(p.ViewHints, PlanViewHint{ProjectID: id, View: h.View})
+		}
+	}
+	p.Rows, p.Truncated = previewRows(pl.results)
+	return p
+}
+
+// countTotals fills the additive counters of a built plan.
+func countTotals(p *Plan) {
 	for _, c := range p.changes {
 		if c.created && c.entity == KindProject {
 			p.Totals.NewProjects++
@@ -428,15 +442,6 @@ func BuildPlan(parsed *Parsed, opts Options, st *State, now time.Time, newID fun
 		}
 	}
 	p.Totals.Entities = len(p.changes)
-	seenHint := map[string]bool{}
-	for _, h := range parsed.ViewHints {
-		if id, ok := pl.createdBySource[h.ProjectSourceID]; ok && !seenHint[id] {
-			seenHint[id] = true
-			p.ViewHints = append(p.ViewHints, PlanViewHint{ProjectID: id, View: h.View})
-		}
-	}
-	p.Rows, p.Truncated = previewRows(pl.results)
-	return p
 }
 
 func nonNil(s []string) []string {

@@ -22658,6 +22658,9 @@
   "your display name, today's date and your time zone": [
     "web/src/lib/assistantDisclosure.ts"
   ],
+  "your dossiers and their notes": [
+    "web/src/lib/assistantDisclosure.ts"
+  ],
   "your email address is not verified": [
     "web/src/lib/rules/catalogue.ts"
   ],

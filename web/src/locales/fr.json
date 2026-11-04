@@ -7227,5 +7227,6 @@
   "{n, plural, one {# chosen for today} other {# chosen for today}}": "{n, plural, one {# chose pour aujourd’hui} other {# choses pour aujourd’hui}}",
   "{n, plural, one {# earlier} other {# earlier}}": "{n, plural, one {# plus ancienne} other {# plus anciennes}}",
   "nothing earlier": "rien de plus ancien",
-  "next appointment {time} {title}": "prochain rendez-vous {time} {title}"
+  "next appointment {time} {title}": "prochain rendez-vous {time} {title}",
+  "your dossiers and their notes": "vos dossiers et leurs notes"
 }

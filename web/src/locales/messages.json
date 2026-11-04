@@ -1239,6 +1239,9 @@
   "Add to OpenTodo": [
     "web/src/app/CaptureSettings.tsx"
   ],
+  "Add to a dossier": [
+    "web/src/app/bulk/BulkActions.tsx"
+  ],
   "Add to a note": [
     "web/src/lib/rules/sentence.ts"
   ],
@@ -2973,7 +2976,8 @@
     "web/src/lib/fields.ts"
   ],
   "Choose": [
-    "web/src/app/palette/BarParts.tsx"
+    "web/src/app/palette/BarParts.tsx",
+    "web/src/app/task-list/TodayFocus.tsx"
   ],
   "Choose a PNG or JPEG image.": [
     "web/src/app/BrandingPanel.tsx"
@@ -4950,6 +4954,7 @@
     "web/src/app/review/DailyCheck.tsx"
   ],
   "Dossier": [
+    "web/src/app/assistant/AssistantPanel.tsx",
     "web/src/app/resume/DossierLinkCard.tsx",
     "web/src/app/resume/DossierView.tsx"
   ],
@@ -6209,6 +6214,7 @@
     "web/src/app/menus/stylePickers.tsx"
   ],
   "Find a dossier…": [
+    "web/src/app/bulk/BulkActions.tsx",
     "web/src/app/resume/DossierLinkCard.tsx"
   ],
   "Find a flow…": [
@@ -9619,6 +9625,9 @@
   "Mutes the health warnings; deadlines still show": [
     "web/src/app/menus/reviewMenu.ts"
   ],
+  "My day": [
+    "web/src/app/task-list/TodayFocus.tsx"
+  ],
   "My day starts at": [
     "web/src/app/settingsIndex.ts",
     "web/src/lib/settingsCopy.ts"
@@ -12275,6 +12284,7 @@
   ],
   "Pick up the thread": [
     "web/src/app/Sidebar.tsx",
+    "web/src/app/assistant/AssistantPanel.tsx",
     "web/src/app/resume/DossierView.tsx",
     "web/src/app/resume/ResumeView.tsx"
   ],
@@ -19233,6 +19243,7 @@
     "web/src/page/TaskPageScreen.tsx"
   ],
   "Untitled dossier": [
+    "web/src/app/bulk/BulkActions.tsx",
     "web/src/app/resume/DossierCard.tsx",
     "web/src/app/resume/DossierLinkCard.tsx",
     "web/src/app/resume/DossierView.tsx",
@@ -23060,6 +23071,7 @@
     "web/src/lib/listGroups.ts"
   ],
   "{n, plural, one {# dossier} other {# dossiers}}": [
+    "web/src/app/ImportScreen.tsx",
     "web/src/app/resume/ResumeView.tsx"
   ],
   "{n, plural, one {# earlier version deleted.} other {# earlier versions deleted.}}": [
@@ -24028,6 +24040,7 @@
     "web/src/app/ProjectHeader.tsx"
   ],
   "{task} added to {dossier}": [
+    "web/src/app/bulk/BulkActions.tsx",
     "web/src/app/resume/DossierLinkCard.tsx",
     "web/src/lib/dossiers.ts"
   ],

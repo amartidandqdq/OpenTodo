@@ -7221,5 +7221,7 @@
   "{n, plural, one {# unavailable task} other {# unavailable tasks}}: {names}": "{n, plural, one {# nicht verfügbare Aufgabe} other {# nicht verfügbare Aufgaben}}: {names}",
   "{n} lists": "{n} Listen",
   "{task} added to {dossier}": "{task} zu {dossier} hinzugefügt",
-  "{task} removed from {dossier}": "{task} aus {dossier} entfernt"
+  "{task} removed from {dossier}": "{task} aus {dossier} entfernt",
+  "Add to a dossier": "Zu einem Dossier hinzufügen",
+  "My day": "Mein Tag"
 }

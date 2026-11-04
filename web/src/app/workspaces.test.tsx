@@ -86,6 +86,8 @@ describe('the workspace control', () => {
 
   it('a project view is left for the Inbox; Today stays Today', () => {
     expect(routeAfterSwitch({ view: 'project', id: 'p1' })).toEqual({ view: 'inbox' })
+    expect(routeAfterSwitch({ view: 'dossier', id: 'd1' })).toEqual({ view: 'inbox' })
+    expect(routeAfterSwitch({ view: 'resume' })).toEqual({ view: 'resume' })
     expect(routeAfterSwitch({ view: 'today' })).toEqual({ view: 'today' })
   })
 })

@@ -54,6 +54,8 @@ export function contextName(view: string | undefined, selected: number): string 
     case 'inbox': return t('Inbox')
     case 'project': return t('This project')
     case 'view': return t('This view')
+    case 'resume': return t('Pick up the thread')
+    case 'dossier': return t('Dossier')
     default: return undefined
   }
 }

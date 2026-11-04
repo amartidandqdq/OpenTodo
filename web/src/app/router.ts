@@ -71,6 +71,9 @@ export type Route =
   | { view: 'next' }
   | { view: 'waiting' }
   | { view: 'loop' }
+  // Dossiers (resume-dossiers): Pick up the thread, and one dossier page.
+  | { view: 'resume' }
+  | { view: 'dossier'; id: string }
   // Focus (focus-mode D7): one task and a timer; /focus takes the first task of today's focus.
   | { view: 'focus'; id?: string }
   // Notes (notes-overview D7): every note, /notes/<id> one standalone note; `create` (/notes?new=1) starts a new note.
@@ -89,6 +92,7 @@ export const VIEW_QUICK_ADD: Readonly<Record<Route['view'], boolean>> = {
   completed: true, assigned: true, project: true, task: true, label: true, labels: true,
   places: true, place: true, projects: true, filter: true, views: true, view: true,
   triage: true, review: true, next: true, waiting: true, loop: true, focus: true, notes: true,
+  resume: false, dossier: false,
   rules: false, settings: false, 'theme-editor': false, import: false, help: false,
   invite: false, 'project-invite': false, 'workspace-invite': false, reset: false,
   'confirm-email': false, forgot: false, verify: false, public: false, share: false,
@@ -266,6 +270,11 @@ export function parseRoute(pathname: string): Route {
       return { view: 'waiting' }
     case 'loop':
       return { view: 'loop' }
+    case 'resume':
+      return { view: 'resume' }
+    case 'dossier':
+      // A missing id opens Pick up the thread rather than an error page.
+      return parts[1] ? { view: 'dossier', id: safeDecode(parts[1]) } : { view: 'resume' }
     case 'stats':
       return { view: 'stats' }
     case 'focus':
@@ -306,6 +315,8 @@ export function routePath(r: Route): string {
     case 'label':
     case 'task':
       return `/${r.view}/${r.id}`
+    case 'dossier':
+      return `/dossier/${encodeURIComponent(r.id)}`
     case 'view':
       return `/views/${r.id}`
     case 'place':

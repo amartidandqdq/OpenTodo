@@ -40,6 +40,7 @@ import { DailyCheckToast } from './method/DailyCheckToast'
 import { PanelBoundary } from './PanelBoundary'
 import { TemplateDialogHost } from './TemplateDialogs'
 import { setCurrentUserId } from '../lib/sharing'
+import { useDossierLinkOffer } from '../lib/dossiers'
 import { type HelpSection, ShortcutHelp } from './ShortcutHelp'
 import { Spotlight } from './shortcuts/Spotlight'
 import { useVimEnabled } from './vim/prefs'
@@ -84,6 +85,10 @@ const StatsView = lazy(() => import('./review/ReviewBundle').then((m) => ({ defa
 const DailyCheck = lazy(() => import('./review/ReviewBundle').then((m) => ({ default: m.DailyCheck })))
 const MonthlyLook = lazy(() => import('./review/ReviewBundle').then((m) => ({ default: m.MonthlyLook })))
 const CloseDay = lazy(() => import('./review/ReviewBundle').then((m) => ({ default: m.CloseDay })))
+// Dossiers (resume-dossiers): the pages are one lazy chunk.
+const ResumeView = lazy(() => import('./resume/ResumeBundle').then((m) => ({ default: m.ResumeView })))
+const DossierView = lazy(() => import('./resume/ResumeBundle').then((m) => ({ default: m.DossierView })))
+const DossierLinkCard = lazy(() => import('./resume/DossierLinkCard').then((m) => ({ default: m.DossierLinkCard })))
 const NextView = lazy(() => import('./method/MethodListView').then((m) => ({ default: m.NextView })))
 const WaitingView = lazy(() => import('./method/MethodListView').then((m) => ({ default: m.WaitingView })))
 // Focus (focus-mode D6): its own chunk; the engine that ends a session on time is the break reminder, always mounted.
@@ -216,6 +221,9 @@ export function Shell({ user, onLogout }: { user: User; onLogout: () => void }) 
   // The routine editor page keeps its own action bar at the bottom (routines-editor-page D2).
   const routinePage = route.view === 'rules' && !!(route.id || route.create)
   const phoneChrome = !sheetOpen && !panelOpen && !routinePage && !['share', 'invite', 'project-invite', 'workspace-invite', 'reset', 'task'].includes(route.view)
+  // The local dossier offer follows the person across screens (resume-dossiers D6):
+  // a capture on any quick-add line keeps its card until it is confirmed or closed.
+  const dossierOffer = useDossierLinkOffer()
   // The one keydown listener (keyboard-shortcuts "One shortcut registry with
   // scopes"); the shell owns the `global` scope: the palette, `g` navigation, the
   // cheat sheet, the sidebar toggle and the assistant.
@@ -266,7 +274,8 @@ export function Shell({ user, onLogout }: { user: User; onLogout: () => void }) 
         style={{ '--sidebar-w': `${sidebar.collapsed ? SIDEBAR_COLLAPSED_REM : sidebar.width}rem` } as React.CSSProperties}
         className={`fixed inset-y-0 left-0 z-[45] flex w-80 max-w-[85vw] max-md:[&_[data-sidebar-item]]:min-h-12 transform max-md:border-r max-md:border-default bg-(--sidebar-bg) [--sidebar-bg:var(--color-surface)] md:[--sidebar-bg:var(--color-canvas)] md:pointer-fine:[--sidebar-bg:var(--color-sidebar)] pl-[env(safe-area-inset-left)] transition-transform md:static md:w-(--sidebar-w) md:max-w-none md:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
       >
-        <div className="min-w-0 flex-1">
+        {/* On a phone, choosing any sidebar row closes the drawer, including the page already open (phone-v2 D7). */}
+        <div className="min-w-0 flex-1" onClick={(e) => { if (sidebarOpen && (e.target as Element).closest('[data-sidebar-item]')) setSidebarOpen(false) }}>
           <Sidebar route={route} user={user} onSearch={openPalette} onShortcuts={() => setShowHelp(true)} onSignOut={onLogout} onAssistant={showLauncher(assistant) ? openAssistant : undefined} collapsed={sidebar.collapsed} onToggleCollapse={toggleSidebarCollapsed} />
         </div>
         {!sidebar.collapsed && <SidebarResizer width={sidebar.width} />}
@@ -296,6 +305,14 @@ export function Shell({ user, onLogout }: { user: User; onLogout: () => void }) 
           className={`relative min-h-0 flex-1 overflow-y-auto scroll-pb-(--list-scroll-pad) ${phoneChrome ? 'max-md:pb-(--add-room)' : ''} ${sidebarOpen ? 'max-md:overflow-hidden' : ''}`}>
           {/* One screen failing (a render bug, a chunk gone after an upgrade) leaves the shell usable (client-sync-robustness). */}
           <PanelBoundary resetKey={route}>
+          {/* Pick up the thread already places the card under its own capture; every
+              other screen shows it at the top of the content so a proposal is never lost
+              by navigating away. */}
+          {dossierOffer && route.view !== 'resume' && (
+            <div className="px-4 pt-4 md:px-6" data-dossier-link-host>
+              <Suspense fallback={null}><DossierLinkCard /></Suspense>
+            </div>
+          )}
           {route.view === 'help' ? (
             <Suspense fallback={<p className="px-4 py-6 text-body text-muted" role="status">{t('Loading help…')}</p>}><HelpView page={route.page} q={route.q} /></Suspense>
           ) : route.view === 'settings' ? (
@@ -344,6 +361,10 @@ export function Shell({ user, onLogout }: { user: User; onLogout: () => void }) 
             <Suspense fallback={SCREEN_LOADING}><CalendarView mode={route.view} date={route.date} /></Suspense>
           ) : route.view === 'month' || route.view === 'plan' || route.view === 'year' ? (
             <Suspense fallback={null}>{route.view === 'month' ? <MonthView date={route.date} /> : route.view === 'plan' ? <PlanView date={route.date} /> : <YearView date={route.date} />}</Suspense>
+          ) : route.view === 'resume' ? (
+            <Suspense fallback={SCREEN_LOADING}><ResumeView /></Suspense>
+          ) : route.view === 'dossier' ? (
+            <Suspense fallback={SCREEN_LOADING}><DossierView id={route.id} /></Suspense>
           ) : (
             // App renders the invite, reset, capture and display screens itself; a stray /invite, /reset, /share or /display route inside the shell falls back to the Inbox.
             <TaskListView userId={user.id} userRole={user.role} route={route.view === 'invite' || route.view === 'project-invite' || route.view === 'workspace-invite' || route.view === 'reset' || route.view === 'confirm-email' || route.view === 'forgot' || route.view === 'verify' || route.view === 'public' || route.view === 'share' || route.view === 'display' ? { view: 'inbox' } : route} />

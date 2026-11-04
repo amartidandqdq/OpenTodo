@@ -7223,5 +7223,9 @@
   "{task} added to {dossier}": "{task} añadida a {dossier}",
   "{task} removed from {dossier}": "{task} quitada de {dossier}",
   "Add to a dossier": "Añadir a un dossier",
-  "My day": "Mi día"
+  "My day": "Mi día",
+  "{n, plural, one {# chosen for today} other {# chosen for today}}": "{n, plural, one {# elegida para hoy} other {# elegidas para hoy}}",
+  "{n, plural, one {# earlier} other {# earlier}}": "{n, plural, one {# anterior} other {# anteriores}}",
+  "nothing earlier": "nada anterior",
+  "next appointment {time} {title}": "próxima cita {time} {title}"
 }

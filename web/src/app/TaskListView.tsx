@@ -78,6 +78,7 @@ import { dayPartsOn, setDayParts } from '../lib/dayParts'
 import { readMethodMode } from '../lib/method/mode'
 import { addManyToList, createUnlessReused } from './reuseAdd'
 import { TodaySummaryLine } from './task-list/TodaySummaryLine'
+import { TodayResume } from './task-list/TodayResume'
 
 export { BLOCKED_OPEN_KEY } from '../lib/listGroups'
 
@@ -387,7 +388,7 @@ export function TaskListView({ route, userId, userRole }: { route: ListRoute; us
 
           {route.view === 'inbox' && <RoutinesInboxSlot />}{route.view === 'project' && currentProject && <ProjectNote project={currentProject} phone={phone} />}
           {route.view === 'project' && !board && <SubProjects projectId={route.id} />}
-          {route.view === 'today' && <TodayFocus />}
+          {route.view === 'today' && <TodayFocus />}{route.view === 'today' && <TodayResume />}
           {m.offerColumns && (
             // The list's columns layout (custom-fields): per project, on this device only.
             <div className="mb-1 flex justify-end">

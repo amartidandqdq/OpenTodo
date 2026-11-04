@@ -4968,7 +4968,7 @@
   ],
   "Dossier on hold": [
     "web/src/app/resume/DossierView.tsx",
-    "web/src/app/resume/ResumeView.tsx"
+    "web/src/app/resume/dossierPostpone.ts"
   ],
   "Dossier order changed": [
     "web/src/app/resume/DossierView.tsx",
@@ -10665,7 +10665,9 @@
     "web/src/app/WorkspaceInviteScreen.tsx",
     "web/src/app/focus/BreakReminder.tsx",
     "web/src/app/menus/ListModeStep.tsx",
-    "web/src/app/resume/ResumeView.tsx"
+    "web/src/app/resume/ResumeView.tsx",
+    "web/src/app/resume/dossierPostpone.ts",
+    "web/src/app/task-list/TodayResume.tsx"
   ],
   "Not run": [
     "web/src/app/routines/RunHistory.tsx"
@@ -11680,7 +11682,8 @@
   ],
   "Open the thread": [
     "web/src/app/resume/ResumeView.tsx",
-    "web/src/app/resume/WaitingDossiers.tsx"
+    "web/src/app/resume/WaitingDossiers.tsx",
+    "web/src/app/task-list/TodayResume.tsx"
   ],
   "Open the thread to see the completed steps.": [
     "web/src/app/resume/DossierCard.tsx"
@@ -12286,7 +12289,8 @@
     "web/src/app/Sidebar.tsx",
     "web/src/app/assistant/AssistantPanel.tsx",
     "web/src/app/resume/DossierView.tsx",
-    "web/src/app/resume/ResumeView.tsx"
+    "web/src/app/resume/ResumeView.tsx",
+    "web/src/app/task-list/TodayResume.tsx"
   ],
   "Pick up to three in the Daily check": [
     "web/src/app/method/LoopHome.tsx"

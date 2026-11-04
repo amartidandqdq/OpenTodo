@@ -41,7 +41,7 @@ export function TodaySummaryLine() {
   if (summary.next) parts.push(t('next appointment {time} {title}', { time: formatTime(summary.next.time), title: summary.next.title }))
   parts.push(summary.earlier > 0 ? t('{n, plural, one {# earlier} other {# earlier}}', { n: summary.earlier }) : t('nothing earlier'))
   return (
-    <p className="text-meta text-muted" data-today-summary>
+    <p className="mt-2 text-meta text-muted" data-today-summary>
       {parts.map((part, i) => (
         <Fragment key={i}>{i > 0 && <span aria-hidden="true" className="mx-1.5 text-faint">·</span>}{part}</Fragment>
       ))}

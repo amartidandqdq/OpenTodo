@@ -2,7 +2,7 @@
 // Declare a field in internal/sync/ops.go, then run
 // UPDATE_OP_SCHEMA=1 go test ./internal/sync -run TestGeneratedOpSchema
 import type {
-  Attachment, Comment, CustomTheme, Due, Entity, FieldDef, Frame, Geo, Label, Note, Objective, OnDropRule, Origin, Place, Priority, Project, ProjectPrefs, Reminder, ReminderKind, Review, RoutineStep, Rule, RuleActions, RuleCondition, RuleTrigger, Section, Slot, SplitFrom, Task, TaskLocation, ThemeDocument, TimeEntry, UserPrefs, View,
+  Attachment, Comment, CustomTheme, Dossier, Due, Entity, FieldDef, Frame, Geo, Label, Note, Objective, OnDropRule, Origin, Place, Priority, Project, ProjectPrefs, Reminder, ReminderKind, Review, RoutineStep, Rule, RuleActions, RuleCondition, RuleTrigger, Section, Slot, SplitFrom, Task, TaskLocation, ThemeDocument, TimeEntry, UserPrefs, View,
 } from '../lib/types'
 
 /**
@@ -1049,6 +1049,36 @@ export interface ReviewFields {
    * focus. Task ids and fixed letters only, never content.
    */
   focus_slots?: string
+  /**
+   * The dossiers chosen for today's focus (OpenSpec change
+   * resume-dossiers), an ordered id list beside the task focus and dated by
+   * the same focus_date. Ids only, never content.
+   */
+  focus_dossiers?: string[]
+}
+
+/**
+ * dossier: a personal, ordered thread of existing tasks (OpenSpec change
+ * resume-dossiers, design D1). It lives in the author's personal scope like a
+ * label and is partitioned by workspace_id; it never moves a task or changes
+ * its list, due date or completion. task_ids is the order, and the current
+ * step and progress are derived from those live tasks. waiting, waiting_for
+ * and follow_up are the thread's own hold, never a task due date. title, note
+ * and waiting_for are user-written content, so an encrypted account encrypts
+ * them.
+ * A row written before a field existed lacks it, so every field is optional here; the entity type may require it.
+ */
+export interface DossierFields {
+  title?: string
+  note?: string
+  task_ids?: string[]
+  waiting?: boolean
+  waiting_for?: string
+  follow_up?: string | null
+  workspace_id?: string | null
+  position?: number
+  created_at?: number
+  deleted_at?: number | null
 }
 
 /** The row a field op creates when its entity is new: one key per op field, a family (`fields.<id>`) in one key named after its prefix. */
@@ -1111,8 +1141,11 @@ export const OP_DEFAULTS = {
     title: '', period: '', position: 0, done_at: 0, created_at: 0, deleted_at: null,
   } satisfies Omit<Objective, 'id' | '_clock'>,
   review: {
-    completed_at: 0, daily_at: 0, monthly_at: 0, focus_date: '', focus: '', closed_at: 0, tomorrow_note: '', closed_day: '', carry_over: '', slots_date: '', slots: '', focus_slots: '',
+    completed_at: 0, daily_at: 0, monthly_at: 0, focus_date: '', focus: '', closed_at: 0, tomorrow_note: '', closed_day: '', carry_over: '', slots_date: '', slots: '', focus_slots: '', focus_dossiers: [],
   } satisfies Omit<Review, 'id' | '_clock'>,
+  dossier: {
+    title: '', note: '', task_ids: [], waiting: false, waiting_for: '', follow_up: null, workspace_id: null, position: 0, created_at: 0, deleted_at: null,
+  } satisfies Omit<Dossier, 'id' | '_clock'>,
 }
 
 /** User-written fields a device encrypts for an account with end-to-end encryption (e2ee D2). */
@@ -1133,4 +1166,5 @@ export const OP_CONTENT_FIELDS: Partial<Record<Entity, readonly string[]>> = {
   place: ['name', 'address', 'geo'],
   objective: ['title'],
   review: ['tomorrow_note'],
+  dossier: ['title', 'note', 'waiting_for'],
 }

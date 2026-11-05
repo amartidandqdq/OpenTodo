@@ -46,11 +46,11 @@ export function SimpleRow({ task, sub, childCount = 0, selected, readOnly, onTog
         </span>
       </button>
       <button type="button" onClick={onOpen} data-simple-title
-        className={`min-w-0 flex-1 truncate py-2 text-start text-body focus-visible:outline-2 focus-visible:outline-focus ${done ? 'text-muted line-through' : 'text-default'}`}>
-        {title}
+        className="flex min-w-0 flex-1 flex-col items-start gap-1 rounded-control py-2 text-start focus-visible:outline-2 focus-visible:outline-focus">
+        <span className={`w-full truncate text-body ${done ? 'text-muted line-through' : 'text-default'}`}>{title}</span>
+        {due && <span className={`rounded-chip border border-soft px-1.5 text-meta ${DUE_TONE[due.tone]}`} data-simple-due>{due.label}</span>}
       </button>
       {childCount > 0 && <span className="shrink-0 text-meta text-muted"><span aria-hidden>{childCount}</span><span className="sr-only">{t('{n, plural, one {# subtask} other {# subtasks}}', { n: childCount })}</span></span>}
-      {due && <span className={`shrink-0 rounded-chip bg-sunken px-1.5 py-0.5 text-meta ${DUE_TONE[due.tone]}`} data-simple-due>{due.label}</span>}
       {!done && (
         <button type="button" disabled={readOnly} onClick={onStar} aria-label={starred ? t('Starred') : t('Not starred')} title={starred ? t('Remove star') : t('Star')}
           className={`touch-target inline-flex size-8 shrink-0 items-center justify-center rounded-control focus-visible:outline-2 focus-visible:outline-focus ${starred ? 'text-accent' : 'text-faint hover:text-default'}`}>

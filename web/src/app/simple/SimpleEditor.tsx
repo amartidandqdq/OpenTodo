@@ -114,7 +114,7 @@ function SimpleSubtasks({ task, items, readOnly, onStar, onOpen }: { task: Task;
         ))}
       </ul>
       {!readOnly && (
-        <form className="flex min-h-11 items-center gap-2 rounded-control px-2 text-accent focus-within:bg-hover"
+        <form className="flex min-h-11 items-center gap-2 rounded-control px-2 text-accent focus-within:bg-hover focus-within:outline-2 focus-within:outline-focus"
           onSubmit={(e) => { e.preventDefault(); const title = draft.trim(); if (!title) return; setDraft(''); act(createSubtask(task.id, title)) }}>
           <Icon name="plus" />
           <input value={draft} onChange={(e) => setDraft(e.target.value)} placeholder={t('Add subtask')} aria-label={t('Add subtask')}

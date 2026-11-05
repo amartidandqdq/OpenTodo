@@ -11,7 +11,7 @@
 - [x] 2.2 Add `plan-day` and `tidy-up` to `internal/agenttools/skills.go` (ids, names, descriptions, examples, tool subsets, instructions); `plan-day` reads the Today limit from `today_summary` and today's date from the fixed instructions, so `internal/assistant/loop.go` needs no change; verify `skills_test.go` lists eight ids in order, `GET /api/v1/assistant/skills` returns eight, and the read-only/tool-subset tests cover both
 - [x] 2.3 Edit the `capture` instructions to file an item by its subject when exactly one project's tasks share it, and to mark it as placed that way; verify with an assistant loop test using a scripted model that checks the instructions text and the change-set marker
 - [x] 2.4 Regenerate `web/src/lib/assistantDevice/manifest.json` and the prompt vectors from the server skills, and give the device's task view `created_at` and `changed_at` (from the row's field clocks); verify the manifest equality test, the new prompt vectors and a device read test
-- [ ] 2.5 Confirm the Google Tasks importer maps starred tasks to priority 1 (fix it if not); verify with an importer fixture test (`go test ./internal/importer`)
+- [x] 2.5 Confirm the Google Tasks importer maps starred tasks to priority 1 (fix it if not); verify with an importer fixture test (`go test ./internal/importer`). Checked: the Google Tasks Task resource (API reference, the googleapis `Schema$Task` type) has no star, priority or importance field, so the export carries none and the importer has nothing to map; no code change
 
 ## 3. Simple screen: lists and rows
 
@@ -34,5 +34,5 @@
 
 ## 5. Docs and integration
 
-- [ ] 5.1 Add a Simple mode page to the user guide (switching from Google Tasks: import, then turn Simple mode on), a ROADMAP.md row and the screenshot entry; verify `make docs-check`
+- [x] 5.1 Add a Simple mode page to the user guide (switching from Google Tasks: import, then turn Simple mode on), a ROADMAP.md row and the screenshot entry; verify `make docs-check`
 - [ ] 5.2 Run `cd web && npm test && npm run build`, `go test ./...` and `make check`; verify all pass, and smoke-test `/simple` in `./bin/opentodo` on desktop and phone widths with the assistant on and off

@@ -37,7 +37,7 @@ Not content, not E2EE fields. Run `UPDATE_OP_SCHEMA=1 go test ./internal/sync -r
 - A new field duplicates priority, needs CalDAV, import, filter and agent tool mapping, and conflicts with the priority sort.
 - "Any priority below 4" would make unstarring destroy priorities 2 and 3 set in the full app.
 
-The chosen rule is lossless for tasks the user never stars. The Google Tasks importer reads no star from the Takeout file today; mapping one to priority 1 needs a real export that carries it (task 2.5).
+The chosen rule is lossless for tasks the user never stars. Google's Task resource has no star field, so an imported Google Tasks account starts with no stars (task 2.5).
 
 **D5. One field, two explicit intents.** Enter adds, Ctrl/Cmd+Enter or "Ask" asks. Guessing intent from the text (a question mark, a verb) was rejected. A misread would either create a junk task or send a private line to a model provider, and the second is a privacy failure. Adding goes through the existing quick-add create path (default reminder rule included, as in quick add). Asking opens the existing assistant panel over the Simple screen (`openAssistantWith`, the lazy `AssistantRoot`), so the turn, `ChangeSetReview`, apply and undo are the assistant's own. The conversation stays device-local, like the assistant's.
 

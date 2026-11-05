@@ -59,7 +59,7 @@ export function SimpleColumnView({ column, selectedId, active, actions, dragging
       onDragLeave={(e) => { if (!e.currentTarget.contains(e.relatedTarget as Node)) setOver(null) }}
       onDrop={(e) => dropHere(e, over ?? column.rows.length)}>
       <h2 id={headingId} className="truncate px-2 pt-1 pb-2 text-h3 text-strong">{column.name}</h2>
-      <form className="flex min-h-11 items-center gap-2 rounded-control px-2 text-accent focus-within:bg-hover"
+      <form className="flex min-h-11 items-center gap-2 rounded-control px-2 text-accent focus-within:bg-hover focus-within:outline-2 focus-within:outline-focus"
         onSubmit={(e) => { e.preventDefault(); const line = draft.trim(); if (!line) return; setDraft(''); void actions.add(column.id, line) }}>
         <Icon name="plus" />
         <input value={draft} onChange={(e) => setDraft(e.target.value)} onFocus={() => actions.select(column.id, null)} placeholder={t('Add a task')} aria-label={t('Add a task to {list}', { list: column.name })}

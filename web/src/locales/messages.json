@@ -1182,6 +1182,7 @@
   "Add notes…": [
     "web/src/app/NotesEditor.tsx",
     "web/src/app/notes/NoteEditor.tsx",
+    "web/src/app/simple/SimpleEditor.tsx",
     "web/src/app/task-detail/TaskNotes.tsx"
   ],
   "Add or fold projects": [
@@ -1225,6 +1226,7 @@
     "web/src/app/routines/StepCard.tsx"
   ],
   "Add subtask": [
+    "web/src/app/simple/SimpleEditor.tsx",
     "web/src/app/task-detail/Subtasks.tsx"
   ],
   "Add subtask…": [
@@ -1244,6 +1246,7 @@
     "web/src/app/routines/RoutineEditor.tsx"
   ],
   "Add time": [
+    "web/src/app/simple/SimpleEditor.tsx",
     "web/src/app/task-detail/TimeTab.tsx",
     "web/src/app/task-detail/WhenControl.tsx"
   ],
@@ -3188,7 +3191,8 @@
     "web/src/app/assistant/AssistantSettings.tsx"
   ],
   "Clear due date": [
-    "web/src/app/DueField.tsx"
+    "web/src/app/DueField.tsx",
+    "web/src/app/simple/SimpleEditor.tsx"
   ],
   "Clear estimate": [
     "web/src/app/EstimateField.tsx"
@@ -5115,6 +5119,7 @@
     "web/src/app/ImportScreen.tsx",
     "web/src/app/ScheduleSheet.tsx",
     "web/src/app/filter/ConditionEditor.tsx",
+    "web/src/app/simple/SimpleEditor.tsx",
     "web/src/app/task-detail/WhenControl.tsx",
     "web/src/app/views/DisplayPanel.tsx",
     "web/src/lib/rules/proposal.ts",
@@ -5129,6 +5134,7 @@
   "Due time": [
     "web/src/app/DateTimeSettings.tsx",
     "web/src/app/DueField.tsx",
+    "web/src/app/simple/SimpleEditor.tsx",
     "web/src/app/task-detail/WhenControl.tsx"
   ],
   "Due today": [
@@ -5284,9 +5290,6 @@
   ],
   "Edit scope": [
     "web/src/app/task-detail/OccurrenceScope.tsx"
-  ],
-  "Edit task": [
-    "web/src/app/simple/SimpleEditor.tsx"
   ],
   "Edit the current project’s note (Esc saves and closes it)": [
     "web/src/lib/shortcuts.ts"
@@ -16082,6 +16085,7 @@
   ],
   "Subtasks": [
     "web/src/app/focus/FocusParts.tsx",
+    "web/src/app/simple/SimpleEditor.tsx",
     "web/src/app/task-detail/Subtasks.tsx"
   ],
   "Subtasks follow their parent task’s section.": [

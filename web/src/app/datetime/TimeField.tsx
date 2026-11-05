@@ -21,6 +21,8 @@ export interface TimeFieldProps {
   disabled?: boolean
   className?: string
   inputClassName?: string
+  /** Shown while empty; the default is an example time in the viewer's format. */
+  placeholder?: string
 }
 
 /** Every quarter hour of the day, `00:00` … `23:45`. */
@@ -33,7 +35,7 @@ function startIndex(value: string | null): number {
   return Math.min(95, h * 4 + Math.floor(m / 15))
 }
 
-export function TimeField({ value, onChange, label, hideLabel, disabled, className, inputClassName = 'w-32' }: TimeFieldProps) {
+export function TimeField({ value, onChange, label, hideLabel, disabled, className, inputClassName = 'w-32', placeholder }: TimeFieldProps) {
   const { resolved } = useDateTimeFormat()
   const shown = value ? formatTime(value, resolved) : ''
   const [draft, setDraft] = useState(shown)
@@ -109,7 +111,7 @@ export function TimeField({ value, onChange, label, hideLabel, disabled, classNa
       <Field label={label} hideLabel={hideLabel} error={error}>
         <div ref={anchor} className="flex items-center gap-1">
           <Input className={inputClassName} value={draft} disabled={disabled} autoComplete="off" spellCheck={false}
-            placeholder={formatTime('09:00', { ...resolved, time: resolved.hour12 ? '12h' : '24h' })}
+            placeholder={placeholder ?? formatTime('09:00', { ...resolved, time: resolved.hour12 ? '12h' : '24h' })}
             role="combobox" aria-expanded={open} aria-controls={open ? listId : undefined} aria-autocomplete="none"
             aria-activedescendant={open ? `${listId}-${active}` : undefined}
             onChange={(e) => setDraft(e.target.value)} onBlur={() => { if (!open) commit() }} onKeyDown={onKey} />

@@ -3,7 +3,7 @@ import { useRef } from 'react'
 import { useProjects } from '../../lib/localData'
 import { completeTask, createProject, createSubtask, createTask, updateTask } from '../../lib/ops'
 import type { Task } from '../../lib/types'
-import { seeded, TODAY, TOMORROW, withClock, withSeed } from '../stories/fixtures'
+import { HEX, seeded, TODAY, TOMORROW, withClock, withSeed } from '../stories/fixtures'
 import { SimpleColumnView, type ColumnActions } from './SimpleColumn'
 import { SimpleEditor } from './SimpleEditor'
 import { SimpleField } from './SimpleField'
@@ -16,9 +16,9 @@ const meta: Meta = { title: 'Screens/Simple', parameters: { layout: 'fullscreen'
 export default meta
 
 async function seedLists(): Promise<void> {
-  const admin = await createProject({ name: 'Admin' })
-  const car = await createProject({ name: 'Car' })
-  await createProject({ name: 'Home' })
+  const admin = await createProject({ name: 'Admin', color: HEX.orange })
+  const car = await createProject({ name: 'Car', color: HEX.blue })
+  await createProject({ name: 'Home', color: HEX.green })
   await createTask({ title: 'Buy paint' })
   await createTask({ title: 'Print diploma', priority: 1 })
   const bank = await createTask({ title: 'Close bank account', project_id: admin, due: { date: TODAY } })

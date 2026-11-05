@@ -53,24 +53,26 @@ export function SimpleEditor({ id, projects, readOnly, onClose, onStar, onBreakD
   const starred = isStarred(task)
   const listName = (pid: string | null) => (pid ? projects.find((p) => p.id === pid)?.name ?? '' : t('My tasks'))
   return (
-    <Dialog title={t('Edit task')} label={task.title || t('Untitled')} onClose={onClose} size="md" placement="sheet" testId="simple-editor">
-      <div className="flex flex-col gap-4">
-        <div className="flex items-start gap-2">
-          <input value={title} disabled={readOnly} onChange={(e) => setTitle(e.target.value)} onBlur={commitTitle} aria-label={t('Title')}
-            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); commitTitle() } }}
-            className="min-w-0 flex-1 rounded-control bg-transparent px-1 py-1 text-h2 text-strong outline-none focus-visible:outline-2 focus-visible:outline-focus" />
-          <button type="button" disabled={readOnly} onClick={() => onStar(task)} aria-label={starred ? t('Starred') : t('Not starred')}
-            className={`touch-target inline-flex size-11 shrink-0 items-center justify-center rounded-control focus-visible:outline-2 focus-visible:outline-focus ${starred ? 'text-accent' : 'text-faint hover:text-default'}`}>
-            <Icon name="star" size="md" className={starred ? 'fill-current' : undefined} />
-          </button>
-          <Menu label={t('More actions')} align="end" kind="menu" triggerClassName="touch-target inline-flex size-11 shrink-0 items-center justify-center rounded-control text-muted hover:bg-hover"
-            trigger={<Icon name="ellipsis" />}>
-            {onBreakDown && <MenuItem icon="sparkles" label={t('Break this down')} disabled={readOnly} onSelect={() => onBreakDown(task)} />}
-            <MenuItem icon="external-link" label={t('Open in full app')} onSelect={() => onOpenFull(task)} />
-            <MenuSeparator />
-            <MenuItem icon="trash-2" label={t('Delete')} danger disabled={readOnly} onSelect={() => { onClose(); act(deleteWithUndo(task.id)) }} />
-          </Menu>
-        </div>
+    <Dialog label={task.title || t('Untitled')} onClose={onClose} size="md" placement="sheet" testId="simple-editor" title={
+      <span className="flex items-center gap-1">
+        <input value={title} disabled={readOnly} onChange={(e) => setTitle(e.target.value)} onBlur={commitTitle} aria-label={t('Title')}
+          onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); commitTitle() } }}
+          className="min-w-0 flex-1 rounded-control bg-transparent px-1 py-1 text-h3 text-strong focus-visible:outline-2 focus-visible:outline-focus" />
+        <button type="button" disabled={readOnly} onClick={() => onStar(task)} aria-label={starred ? t('Starred') : t('Not starred')}
+          className={`touch-target inline-flex size-11 shrink-0 items-center justify-center rounded-control focus-visible:outline-2 focus-visible:outline-focus ${starred ? 'text-accent' : 'text-faint hover:text-default'}`}>
+          <Icon name="star" size="md" className={starred ? 'fill-current' : undefined} />
+        </button>
+        <Menu label={t('More actions')} align="end" kind="menu" triggerClassName="touch-target inline-flex size-11 shrink-0 items-center justify-center rounded-control text-muted hover:bg-hover"
+          trigger={<Icon name="ellipsis" />}>
+          {onBreakDown && <MenuItem icon="sparkles" label={t('Break this down')} disabled={readOnly} onSelect={() => onBreakDown(task)} />}
+          <MenuItem icon="external-link" label={t('Open in full app')} onSelect={() => onOpenFull(task)} />
+          <MenuSeparator />
+          <MenuItem icon="trash-2" label={t('Delete')} danger disabled={readOnly} onSelect={() => { onClose(); act(deleteWithUndo(task.id)) }} />
+        </Menu>
+      </span>
+    }>
+      {/* Opening lands here, not on the title: no keyboard on a phone, no ring or tooltip. */}
+      <div className="flex flex-col gap-4 outline-none" tabIndex={-1} data-autofocus>
         <PanelBoundary>
           <Suspense fallback={<p className="text-body text-muted">{task.description || t('Add notes…')}</p>}>
             <NotesEditor key={task.id} note={{ ...task, entity: 'task' }} readOnly={readOnly} />
@@ -96,7 +98,7 @@ function SimpleDue({ task, readOnly }: { task: Task; readOnly: boolean }) {
     <div className="flex flex-wrap items-start gap-2">
       <DateField label={t('Due date')} hideLabel className="min-w-44 flex-1" value={view?.date ?? null} disabled={readOnly}
         onChange={(date) => set(date ? { date, ...(view?.time ? { time: view.time } : {}) } : null)} />
-      <TimeField label={t('Due time')} hideLabel value={view?.time ?? null} disabled={readOnly || !view}
+      <TimeField label={t('Due time')} hideLabel placeholder={t('Add time')} value={view?.time ?? null} disabled={readOnly || !view}
         onChange={(time) => view && set(time ? { date: view.date, time } : { date: view.date })} />
       {task.due && !readOnly && <IconButton icon="x" label={t('Clear due date')} onClick={() => act(setDueWithUndo(task.id, null))} />}
     </div>

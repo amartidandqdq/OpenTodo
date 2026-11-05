@@ -30,7 +30,7 @@
 - [x] 4.4 Build the screen menu (list checkboxes, New list, All features) and the Settings switch and command palette entry "Simple mode"; verify interaction tests for hide list, new list offline, entering and leaving
 - [x] 4.5 Register the shortcuts under the `simple` scope; verify the registry conflict test and a keyboard test for `j`, `s`, Alt+Right
 - [x] 4.6 Check encrypted and demo accounts: decrypted titles shown, no Ask or AI menu without the on-device assistant; verify a happy-dom test with an encrypted fixture account
-- [ ] 4.7 Add stories for the row, column, field and editor, and add the strings to every shipped catalog; verify `make ui-check`, `make ui-lint` and `make i18n-check`
+- [x] 4.7 Add stories for the row, column, field and editor, and add the strings to every shipped catalog; verify `make ui-check`, `make ui-lint` and `make i18n-check`
 
 ## 5. Docs and integration
 

@@ -5,7 +5,7 @@ import { db, getMeta, setMeta } from './db'
 import { assistantBusy, assistantStatus, openAssistantWith } from './assistantStatus'
 import { getDeviceSetup } from './assistantDevice/settings'
 import { createTask, type NewTaskInput } from './ops'
-import { hideDossierLinkOffer, offerDossierLink } from './dossiers'
+import { hideDossierLinkOffer } from './dossierOffer'
 import type { Dossier, Task } from './types'
 import { Partition, readWorkspaceState } from './workspaces'
 
@@ -79,6 +79,8 @@ async function offerLocalDossier(taskId: string, title: string): Promise<boolean
     if (!task || task.deleted_at) return false
     const dossiers = await sameWorkspaceDossiers(task)
     if (dossiers.length === 0) return false
+    // The matcher loads with the first account that has a dossier.
+    const { offerDossierLink } = await import('./dossiers')
     return offerDossierLink(taskId, title, dossiers, await db.tasks.toArray())
   } catch {
     return false

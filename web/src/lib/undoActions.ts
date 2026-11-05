@@ -32,7 +32,8 @@ export interface UndoableResult {
   label: string
 }
 
-async function apply(changes: Change[], label: string): Promise<UndoableResult> {
+/** Applies the changes as one undoable batch labelled for the toast. */
+export async function apply(changes: Change[], label: string): Promise<UndoableResult> {
   await getDeviceId()
   const entry = await applyBatch(await toProposed(changes, await membershipMap()), { source: 'action', label })
   return { entry, label }
@@ -335,36 +336,3 @@ export async function moveProjectToWorkspaceUndoable(projectId: string, target: 
   return apply(changes, t('Moved to {target}', { target: targetName }))
 }
 
-/**
- * The Simple screen's star (simple-mode "The star"): priority 1 or 4, one field,
- * one undoable change.
- */
-export async function starUndoable(id: string, starred: boolean): Promise<UndoableResult> {
-  const task = await db.tasks.get(id)
-  const priority = starred ? 1 : 4
-  if (!task || task.deleted_at || task.priority === priority) return { entry: null, label: '' }
-  return apply([{ entity: 'task', entityId: id, patch: { priority } }], starred ? t('Starred') : t('Star removed'))
-}
-
-/**
- * A Simple screen drop (simple-mode "Task rows"): the task's place in a column. In
- * the same project only its section and position change; to another column it moves
- * with its subtree (planMove, sharing scopes included) and lands at that position.
- * One batch, one undo step.
- */
-export async function placeUndoable(id: string, target: { projectId: string | null; sectionId: string | null; position: number }, targetName: string, now = Date.now()): Promise<UndoableResult> {
-  const { tasks, all } = await readTicked([id])
-  const task = tasks[0]
-  if (!task) return { entry: null, label: '' }
-  if ((task.project_id ?? null) === target.projectId) {
-    const patch: Partial<Task> = {}
-    if ((task.section_id ?? null) !== target.sectionId) patch.section_id = target.sectionId
-    if (task.position !== target.position) patch.position = target.position
-    if (!Object.keys(patch).length) return { entry: null, label: '' }
-    return apply([{ entity: 'task', entityId: id, patch }], t('Task moved'))
-  }
-  const changes = planMove([task], all, { projectId: target.projectId, sectionId: null }, await membershipMap(), await currentUserId(), now, await keepWorkspaceFor())
-  const own = changes.find((c) => c.entity === 'task' && c.entityId === id && !c.patch.deleted_at)
-  if (own) own.patch = { ...own.patch, position: target.position }
-  return apply(changes, t('Moved to {target}', { target: targetName }))
-}

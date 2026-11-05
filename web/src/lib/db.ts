@@ -86,6 +86,33 @@ export interface AttachmentBlob {
   reason?: string
 }
 
+/** Every store of v19 (stats-and-review), the last version to redeclare them all; later versions add stores. */
+const V19_STORES = {
+  projects: 'id, position',
+  tasks: 'id, project_id, parent_id, completed_at, position, assignee_id, section_id',
+  labels: 'id, position',
+  views: 'id, position',
+  reminders: 'id, task_id, fire_at',
+  sections: 'id, [project_id+position], project_id',
+  fields: 'id, [project_id+position], project_id',
+  outbox: '++local, id',
+  meta: 'key',
+  memberships: 'projectId',
+  notifications: 'id, createdAt',
+  comments: 'id, task_id',
+  activity: 'id, [projectKey+ts], taskId, entityId',
+  prefs: 'id',
+  assistantThreads: 'id, updated_at',
+  assistantUndo: 'id, created_at',
+  pickHistory: 'id, context',
+  userPrefs: 'id',
+  attachments: 'id, task_id, comment_id',
+  attachmentBlobs: 'id',
+  calendarEvents: 'id, subscriptionId, start.date',
+  calendarSubscriptions: 'id',
+  review: 'id',
+}
+
 class OpenTodoDB extends Dexie {
   projects!: Table<Project, string>
   tasks!: Table<Task, string>
@@ -403,31 +430,7 @@ class OpenTodoDB extends Dexie {
       calendarSubscriptions: 'id',
     })
     // v19 (stats-and-review): the synced personal `review` row (the last weekly review); every store is redeclared.
-    this.version(19).stores({
-      projects: 'id, position',
-      tasks: 'id, project_id, parent_id, completed_at, position, assignee_id, section_id',
-      labels: 'id, position',
-      views: 'id, position',
-      reminders: 'id, task_id, fire_at',
-      sections: 'id, [project_id+position], project_id',
-      fields: 'id, [project_id+position], project_id',
-      outbox: '++local, id',
-      meta: 'key',
-      memberships: 'projectId',
-      notifications: 'id, createdAt',
-      comments: 'id, task_id',
-      activity: 'id, [projectKey+ts], taskId, entityId',
-      prefs: 'id',
-      assistantThreads: 'id, updated_at',
-      assistantUndo: 'id, created_at',
-      pickHistory: 'id, context',
-      userPrefs: 'id',
-      attachments: 'id, task_id, comment_id',
-      attachmentBlobs: 'id',
-      calendarEvents: 'id, subscriptionId, start.date',
-      calendarSubscriptions: 'id',
-      review: 'id',
-    })
+    this.version(19).stores(V19_STORES)
     // v20 (time-tracking): the synced `time_entry` entity. Dexie keeps every
     // store of v19, so only the new one is declared. No index on ended_at:
     // IndexedDB does not index null, the running entry is found by user_id.

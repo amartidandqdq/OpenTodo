@@ -1,7 +1,7 @@
 // "Ma journée" (fork change `my-day-sun`, resume-dossiers D5): the threads and tasks
 // chosen for today with the sun, shown above Today's groups. Both selections are the
 // synced today's focus, never a due date: a task can be in My day and still have none.
-import { useCallback, useMemo } from 'react'
+import { lazy, Suspense, useCallback, useMemo } from 'react'
 import { t } from '../../lib/i18n'
 import { resolveLabels } from '../../lib/labels'
 import { useAllLabels, useDossiers, useMembershipMap, useProjects, useReviewRow } from '../../lib/localData'
@@ -14,10 +14,12 @@ import { hasTimeColumn } from '../../lib/rowTime'
 import { Button, Icon } from '../../ui'
 import { act } from '../actionError'
 import { setPanelTaskId } from '../panel'
-import { DossierCard } from '../resume/DossierCard'
 import { navigate } from '../router'
 import { TaskRow } from '../TaskRow'
 import { useToday } from '../useViews'
+
+// The dossier card loads with the first thread in My day, not with every Today.
+const DossierCard = lazy(() => import('../resume/DossierCard').then((m) => ({ default: m.DossierCard })))
 
 export function TodayFocus() {
   const review = useReviewRow()
@@ -48,7 +50,9 @@ export function TodayFocus() {
         <ul className="mb-2 space-y-2" data-today-focus-dossiers>
           {focus.dossiers.map((dossier) => (
             <li key={dossier.id}>
-              <DossierCard dossier={dossier} tasks={tasks} projects={projectMap} canEdit={canEdit} compact onOpen={() => navigate({ view: 'dossier', id: dossier.id })} />
+              <Suspense fallback={<div className="h-24 rounded-card border border-soft" aria-busy="true" />}>
+                <DossierCard dossier={dossier} tasks={tasks} projects={projectMap} canEdit={canEdit} compact onOpen={() => navigate({ view: 'dossier', id: dossier.id })} />
+              </Suspense>
             </li>
           ))}
         </ul>

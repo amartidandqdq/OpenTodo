@@ -2,8 +2,6 @@
 // field ops, applied locally first and queued for sync, with the standard Undo
 // inverse. The dossier is personal; the tasks it names keep their own scope and
 // are never written here except by the ordinary completion path in the screen.
-import { createStore } from './store'
-import { resettable } from './moduleState'
 import { db } from './db'
 import { uuid } from './ids'
 import { getDeviceId, mutationTables, planTask } from './ops'
@@ -16,6 +14,7 @@ import type { ProposedChange } from './assistantTypes'
 import type { Dossier, Review, Task } from './types'
 import { DOSSIER_FOCUS_MAX, DOSSIER_TASK_MAX, focusDossierIds, suggestDossiers } from './dossierModel'
 import { REVIEW_ID } from './review'
+import { showDossierLinkOffer } from './dossierOffer'
 
 const ACTION: BatchOptions = { source: 'action' }
 
@@ -299,19 +298,7 @@ export async function toggleDossierFocus(review: Pick<Review, 'focus_date' | 'fo
   })
 }
 
-/** The capture offer: the task is already created, only the attach is waiting for a choice. */
-export interface DossierLinkOffer {
-  key: number
-  taskId: string
-  title: string
-  candidateIds: string[]
-}
-
-const offer = createStore<DossierLinkOffer | null>('dossierLinkOffer', null)
-let seq = 0
-resettable('dossierLinkOfferSeq', () => { seq = 0 })
-export const dossierLinkOffer = offer.get
-export const useDossierLinkOffer = offer.use
+export { dossierLinkOffer, hideDossierLinkOffer, useDossierLinkOffer, type DossierLinkOffer } from './dossierOffer'
 
 /** Offers the local match, if any; returns whether a card was shown. Never writes. */
 export function offerDossierLink(taskId: string, title: string, dossiers: readonly Dossier[], tasks: readonly Task[]): boolean {
@@ -319,10 +306,6 @@ export function offerDossierLink(taskId: string, title: string, dossiers: readon
   if (!name) return false
   const matches = suggestDossiers(name, dossiers, tasks)
   if (matches.length === 0) return false
-  offer.set({ key: ++seq, taskId, title: name, candidateIds: [...new Set(matches.map((d) => d.id))] })
+  showDossierLinkOffer(taskId, name, [...new Set(matches.map((d) => d.id))])
   return true
-}
-
-export function hideDossierLinkOffer(key?: number): void {
-  if (key === undefined || offer.get()?.key === key) offer.set(null)
 }

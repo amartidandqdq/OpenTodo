@@ -210,12 +210,9 @@ export function Sidebar({ route, user, onSearch, onShortcuts, onAssistant, onSig
   // Re-read every minute, so the counts move to the new day at midnight.
   const today = useToday()
   const counts = useMemo(() => {
-    let assigned = 0
     // Deferred and parked tasks are not counted (someday-and-evening D2).
     const active = openTasks.filter((tk) => openCount(tk, today))
-    for (const task of active) {
-      if (task.assignee_id === user.id) assigned++
-    }
+    const assigned = active.filter((tk) => tk.assignee_id === user.id).length
     // The same number the app icon badge shows (app-icon-badge).
     return { inbox: countInbox(openTasks, liveTasks ?? openTasks), today: todayCount(openTasks, today), assigned, byProject: openCountsByProject(active, tree, collapsed_) }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- zone: a zone change re-groups zoned dues (absolute-datetimes)

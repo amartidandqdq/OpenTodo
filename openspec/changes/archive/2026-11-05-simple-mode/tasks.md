@@ -35,4 +35,4 @@
 ## 5. Docs and integration
 
 - [x] 5.1 Add a Simple mode page to the user guide (switching from Google Tasks: import, then turn Simple mode on), a ROADMAP.md row and the screenshot entry; verify `make docs-check`
-- [ ] 5.2 Run `cd web && npm test && npm run build`, `go test ./...` and `make check`; verify all pass, and smoke-test `/simple` in `./bin/opentodo` on desktop and phone widths with the assistant on and off
+- [x] 5.2 Run `cd web && npm test && npm run build`, `go test ./...` and `make check`; verify all pass, and smoke-test `/simple` in `./bin/opentodo` on desktop and phone widths with the assistant on and off

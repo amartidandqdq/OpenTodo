@@ -6,7 +6,7 @@
 // board and the timeline.
 import { CloseDayRow } from './CloseDayRow'
 import { useWithMethod } from './help/MethodLink'
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { ProjectCalendarLayout, useListExtras } from './task-list/listExtras'
 import { t } from '../lib/i18n'
 import { useMembership, useUserPrefsRow } from '../lib/localData'
@@ -78,7 +78,6 @@ import { dayPartsOn, setDayParts } from '../lib/dayParts'
 import { readMethodMode } from '../lib/method/mode'
 import { addManyToList, createUnlessReused } from './reuseAdd'
 import { TodaySummaryLine } from './task-list/TodaySummaryLine'
-import { TodayResume } from './task-list/TodayResume'
 
 export { BLOCKED_OPEN_KEY } from '../lib/listGroups'
 
@@ -175,6 +174,21 @@ function useOwnOrder(route: ListRoute, rows: ListRow[], groups: ListGroup[]) {
     return stepInView(host, rs.map((r) => r.task), group ? group.rows.map((r) => r.task) : [], id, how)
   }, [host])
   return useMemo(() => (host ? { reorder, step, groupOf } : null), [host, reorder, step, groupOf])
+}
+
+// Resume the thread (today-home): the featured dossier's card loads after Today's rows; an account without a dossier shows nothing there.
+const TodayResume = lazy(() => import('./task-list/TodayResume').then((m) => ({ default: m.TodayResume })))
+
+/** The list's columns layout (custom-fields): per project, on this device only. */
+function ColumnsToggle({ projectId, on }: { projectId: string; on: boolean }) {
+  return (
+    <div className="mb-1 flex justify-end">
+      <Button variant="ghost" size="sm" icon="list" aria-pressed={on} data-columns-toggle
+        className={on ? 'bg-sunken text-default dark:bg-raised' : undefined} onClick={() => saveListColumns(projectId, !on)}>
+        {t('Columns')}
+      </Button>
+    </div>
+  )
 }
 
 export function TaskListView({ route, userId, userRole }: { route: ListRoute; userId?: string; userRole?: AccountRole }) {
@@ -388,17 +402,8 @@ export function TaskListView({ route, userId, userRole }: { route: ListRoute; us
 
           {route.view === 'inbox' && <RoutinesInboxSlot />}{route.view === 'project' && currentProject && <ProjectNote project={currentProject} phone={phone} />}
           {route.view === 'project' && !board && <SubProjects projectId={route.id} />}
-          {route.view === 'today' && <TodayFocus />}{route.view === 'today' && <TodayResume />}
-          {m.offerColumns && (
-            // The list's columns layout (custom-fields): per project, on this device only.
-            <div className="mb-1 flex justify-end">
-              <Button variant="ghost" size="sm" icon="list" aria-pressed={!!m.columnsPref} data-columns-toggle
-                className={m.columnsPref ? 'bg-sunken text-default dark:bg-raised' : undefined}
-                onClick={() => projectId && saveListColumns(projectId, !m.columnsPref)}>
-                {t('Columns')}
-              </Button>
-            </div>
-          )}
+          {route.view === 'today' && <TodayFocus />}{route.view === 'today' && <Suspense fallback={null}><TodayResume /></Suspense>}
+          {m.offerColumns && projectId && <ColumnsToggle projectId={projectId} on={!!m.columnsPref} />}
           {own.length === 0 && !(board || m.liveSections.length > 0) && (m.duration || m.queryFilter?.query
             ? <FilteredEmpty onClear={() => { m.chooseDuration(null); m.queryFilter?.setQuery('') }} />
             : <EmptyState view={route.view} waiting={groups.find((g) => g.key === 'blocked')?.count ?? 0} readOnly={m.projectReadOnly}

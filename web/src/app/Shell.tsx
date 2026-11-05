@@ -41,7 +41,7 @@ import { DailyCheckToast } from './method/DailyCheckToast'
 import { PanelBoundary } from './PanelBoundary'
 import { TemplateDialogHost } from './TemplateDialogs'
 import { setCurrentUserId } from '../lib/sharing'
-import { useDossierLinkOffer } from '../lib/dossiers'
+import { useDossierLinkOffer } from '../lib/dossierOffer'
 import { type HelpSection, ShortcutHelp } from './ShortcutHelp'
 import { Spotlight } from './shortcuts/Spotlight'
 import { useVimEnabled } from './vim/prefs'
@@ -139,19 +139,11 @@ function CommandBar({ palette, user, showShortcuts }: { palette: ReturnType<type
   )
 }
 
-export function Shell({ user, onLogout }: { user: User; onLogout: () => void }) {
-  const route = useRoute()
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const drawer = usePhoneDrawer(sidebarOpen)
-  useSidebarRequests(setSidebarOpen)
-  const [notice, setNotice] = useState<string | null>(null)
-  // Changes the server refused after a role change (project-sharing).
-  const { rejected } = useSyncStatus()
-  // A travelling device: re-read the time zone whenever the app becomes visible
-  // (absolute-datetimes), so zoned dues re-render in the new zone.
-  useEffect(() => watchViewerZone(), [])
-  // Offline doubles converge: one running time entry (time-tracking D2), one item per title in a reusable list (reusable-lists D4).
-  useRunningRepair(); useDuplicateCollapse()
+/**
+ * The address at launch: a `?task=` link opens that task's page, an old address is
+ * replaced in place, and the root opens Simple mode or the device's start view.
+ */
+function useLaunchRoute(setNotice: (notice: string) => void): void {
   // Start view (per device, OpenSpec `custom-views`): applied once per launch, and only
   // when the app opens at its root, so deep links and reloads keep their page.
   useEffect(() => {
@@ -187,7 +179,24 @@ export function Shell({ user, onLogout }: { user: User; onLogout: () => void }) 
     return () => {
       cancelled = true
     }
-  }, [])
+    // A state setter: stable, so this runs once per launch.
+  }, [setNotice])
+}
+
+export function Shell({ user, onLogout }: { user: User; onLogout: () => void }) {
+  const route = useRoute()
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const drawer = usePhoneDrawer(sidebarOpen)
+  useSidebarRequests(setSidebarOpen)
+  const [notice, setNotice] = useState<string | null>(null)
+  // Changes the server refused after a role change (project-sharing).
+  const { rejected } = useSyncStatus()
+  // A travelling device: re-read the time zone whenever the app becomes visible
+  // (absolute-datetimes), so zoned dues re-render in the new zone.
+  useEffect(() => watchViewerZone(), [])
+  // Offline doubles converge: one running time entry (time-tracking D2), one item per title in a reusable list (reusable-lists D4).
+  useRunningRepair(); useDuplicateCollapse()
+  useLaunchRoute(setNotice)
 
   useEffect(() => {
     setSidebarOpen(false)

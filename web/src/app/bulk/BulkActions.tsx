@@ -23,8 +23,7 @@ import { ActionMenu, type ActionGroup, type ActionItem, type ConfirmSpec } from 
 import { openRowSchedule } from '../task-list/RowSwipe'
 import { BulkReview } from './BulkReview'
 import { showBulkToast, showUndoToast } from './toastStore'
-import { attachTaskToDossier, createDossierWithTask } from '../../lib/dossiers'
-import { dossierText } from '../resume/DossierCard'
+import { dossierText } from '../../lib/dossierText'
 import { navigate } from '../router'
 import { createStore } from '../../lib/store'
 import { startFocusOn } from '../focus/startFocus'
@@ -161,6 +160,7 @@ export function dossierMenuItem(task: Task | undefined, d: Pick<Data, 'dossiers'
 
 /** Attaches the task to the chosen dossier, or creates the named one with it: one undoable batch. */
 async function addTaskToDossierFromMenu(task: Task, target: { dossier: Dossier } | { name: string }): Promise<void> {
+  const { attachTaskToDossier, createDossierWithTask } = await import('../../lib/dossiers')
   if ('name' in target) {
     const { entry } = await createDossierWithTask(target.name, task.id)
     showUndoToast(t('{task} added to {dossier}', { task: task.title, dossier: target.name }), entry?.id ?? null)

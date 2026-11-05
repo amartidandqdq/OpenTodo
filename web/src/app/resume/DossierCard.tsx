@@ -3,7 +3,7 @@
 // step, the completed count and the thread's own hold. The sun writes the same
 // synced today's focus as a task's sun.
 import { useMemo, useState, type ReactNode } from 'react'
-import { UNDECRYPTABLE } from '../../lib/e2ee'
+import { dossierText, dossierTextLocked } from '../../lib/dossierText'
 import { dossierState, DOSSIER_FOCUS_MAX, focusDossierIds } from '../../lib/dossierModel'
 import { setDossierFollowUp, toggleDossierFocus } from '../../lib/dossiers'
 import { t } from '../../lib/i18n'
@@ -16,19 +16,7 @@ import { useToday } from '../useViews'
 import { ACTION_TOAST_MS, showBulkToast, showUndoToast } from '../bulk/toastStore'
 import { act, reportActionError } from '../actionError'
 
-/** The server's content prefix: a row this device never decrypted is unavailable, not display text. */
-const undecrypted = (value: string): boolean => value === UNDECRYPTABLE || value.startsWith('enc:v')
-
-/** A content field the device could not decrypt: show the translated placeholder, never the envelope. */
-export function dossierText(value: string | null | undefined): string {
-  if (!value) return ''
-  return undecrypted(value) ? t(UNDECRYPTABLE) : value
-}
-
-/** Whether a dossier content field cannot be read, so its edit control must stay closed. */
-export function dossierTextLocked(value: string | null | undefined): boolean {
-  return typeof value === 'string' && undecrypted(value)
-}
+export { dossierText, dossierTextLocked } from '../../lib/dossierText'
 
 /** Says why a control is off, on hover and focus; a disabled button cannot open a tooltip itself. */
 export function ReasonTip({ reason, children }: { reason: string | undefined; children: ReactNode }) {

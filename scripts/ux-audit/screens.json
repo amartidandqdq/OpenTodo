@@ -397,6 +397,31 @@
   "ready": "[data-simple-board]"
  },
  {
+  "id": "resume",
+  "route": "resume",
+  "kind": "screen",
+  "seed": "layout-check",
+  "frequency": "weekly",
+  "core": true,
+  "layoutCheck": null,
+  "layoutCheckReason": "Pick up the thread came with the dossiers port, after the layout check list; added to the tour",
+  "story": "Screens/Resume",
+  "path": "/resume",
+  "ready": "main h1"
+ },
+ {
+  "id": "dossier",
+  "route": "dossier",
+  "kind": "screen",
+  "seed": "layout-check",
+  "frequency": "weekly",
+  "core": true,
+  "layoutCheck": null,
+  "layoutCheckReason": "a dossier page needs a dossier the layout-check seed does not create; shown by the Screens/Resume dossier page story",
+  "story": "Screens/Resume",
+  "tour": false
+ },
+ {
   "id": "next",
   "route": "next",
   "kind": "screen",

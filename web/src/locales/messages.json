@@ -337,12 +337,6 @@
   "A dossier holds at most {n} tasks.": [
     "web/src/lib/dossiers.ts"
   ],
-  "A dossier links existing tasks in one order. The tasks stay in their lists.": [
-    "web/src/app/resume/ResumeView.tsx"
-  ],
-  "A dossier links existing tasks without moving them.": [
-    "web/src/app/resume/DossierCard.tsx"
-  ],
   "A dossier links the steps of one thread.": [
     "web/src/app/resume/ResumeView.tsx"
   ],
@@ -1097,9 +1091,6 @@
     "web/src/app/task-detail/TaskFacts.tsx"
   ],
   "Add an existing task": [
-    "web/src/app/resume/DossierView.tsx"
-  ],
-  "Add an existing task above, or create the first one here.": [
     "web/src/app/resume/DossierView.tsx"
   ],
   "Add and open": [
@@ -3732,14 +3723,8 @@
   "Contains": [
     "web/src/app/RestoreSection.tsx"
   ],
-  "Context for this thread, not a task.": [
-    "web/src/app/resume/DossierView.tsx"
-  ],
   "Context: {name}": [
     "web/src/app/assistant/AssistantComposer.tsx"
-  ],
-  "Contexts are the labels already on your open tasks.": [
-    "web/src/app/resume/ResumeView.tsx"
   ],
   "Continue": [
     "web/src/app/FirstRun.tsx",
@@ -4498,7 +4483,6 @@
     "web/src/app/WorkspaceGeneral.tsx",
     "web/src/app/calendar/FrameBand.tsx",
     "web/src/app/notes/NoteRow.tsx",
-    "web/src/app/resume/DossierView.tsx",
     "web/src/app/simple/SimpleEditor.tsx",
     "web/src/app/task-detail/CommentsTab.tsx",
     "web/src/app/task-detail/TaskActionsMenu.tsx",
@@ -4877,7 +4861,6 @@
     "web/src/app/assistant/AssistantRoot.tsx",
     "web/src/app/assistant/ComposerCapture.tsx",
     "web/src/app/bulk/UndoToast.tsx",
-    "web/src/app/resume/ResumeView.tsx",
     "web/src/app/routines/ProposalReview.tsx"
   ],
   "Dismiss {name}": [
@@ -5808,9 +5791,6 @@
   "Every month on day {day}": [
     "web/src/app/task-detail/WhenControl.tsx"
   ],
-  "Every open task you can edit is already here, or there is none.": [
-    "web/src/app/resume/DossierView.tsx"
-  ],
   "Every other colour follows from these, unless you set it under Advanced.": [
     "web/src/app/themes/EditorSections.tsx"
   ],
@@ -6513,9 +6493,6 @@
     "web/src/app/resume/DossierCard.tsx",
     "web/src/lib/dossiers.ts"
   ],
-  "Follow-up date, no due date on the task.": [
-    "web/src/app/resume/DossierCard.tsx"
-  ],
   "Font": [
     "web/src/app/themes/EditorSections.tsx"
   ],
@@ -6551,9 +6528,6 @@
   ],
   "For example: every Friday at five, make tasks in Errands from my Groceries note.": [
     "web/src/app/routines/DescribeIt.tsx"
-  ],
-  "For example: the delivery, an answer, a quote.": [
-    "web/src/app/resume/DossierView.tsx"
   ],
   "For scripts, the ot command and AI assistants. Sent as {header}.": [
     "web/src/lib/settingsCopy.ts"
@@ -7771,14 +7745,8 @@
   "In {breadcrumb}": [
     "web/src/app/TaskRow.tsx"
   ],
-  "In {list}": [
-    "web/src/app/resume/DossierCard.tsx"
-  ],
   "In {name}": [
     "web/src/app/ArchivedProjects.tsx"
-  ],
-  "In {n} lists": [
-    "web/src/app/resume/DossierCard.tsx"
   ],
   "In {text}, replace {find} with {with}": [
     "web/src/lib/rules/sentence.ts"
@@ -8014,9 +7982,6 @@
   ],
   "It has no open tasks.": [
     "web/src/app/Sections.tsx"
-  ],
-  "It is created in your Inbox and only joins this dossier; it does not change any other task.": [
-    "web/src/app/resume/DossierView.tsx"
   ],
   "It is done": [
     "web/src/app/resume/DossierCard.tsx"
@@ -8360,9 +8325,6 @@
   ],
   "Labels on a task": [
     "web/src/app/resume/ContextLabelsDialog.tsx"
-  ],
-  "Labels on tasks in read-only projects are changed where the task lives.": [
-    "web/src/app/resume/ResumeView.tsx"
   ],
   "Labels, dates, priority, section, completion": [
     "web/src/lib/rules/sentence.ts"
@@ -9644,6 +9606,7 @@
     "web/src/app/TriageView.tsx"
   ],
   "Moved to {target}": [
+    "web/src/lib/simpleActions.ts",
     "web/src/lib/undoActions.ts"
   ],
   "Moved up: {step}": [
@@ -10244,8 +10207,7 @@
     "web/src/app/themes/ContrastPanel.tsx"
   ],
   "No list": [
-    "web/src/app/resume/DossierCard.tsx",
-    "web/src/app/resume/DossierView.tsx"
+    "web/src/app/resume/DossierCard.tsx"
   ],
   "No longer a subtask": [
     "web/src/lib/assistant.ts"
@@ -10499,7 +10461,6 @@
   "No task yet": [
     "web/src/app/resume/DossierCard.tsx",
     "web/src/app/resume/DossierLinkCard.tsx",
-    "web/src/app/resume/DossierView.tsx",
     "web/src/app/resume/ResumeView.tsx"
   ],
   "No task yet.": [
@@ -10970,9 +10931,6 @@
     "web/src/app/routines/RoutinesDevice.tsx",
     "web/src/app/routines/RunHistory.tsx"
   ],
-  "Nothing to plan until the wait resolves.": [
-    "web/src/app/resume/DossierCard.tsx"
-  ],
   "Nothing to re-plan": [
     "web/src/app/calendar/useReplanPreview.ts"
   ],
@@ -11421,9 +11379,6 @@
   "One block for several small tasks": [
     "web/src/app/CalendarView.tsx"
   ],
-  "One clear next action. Everything else stays where it is.": [
-    "web/src/app/resume/ResumeView.tsx"
-  ],
   "One line": [
     "web/src/app/views/DisplayPanel.tsx"
   ],
@@ -11508,9 +11463,6 @@
   ],
   "Only items in the Trash can be deleted permanently. Delete it first.": [
     "web/src/lib/i18n/errors.ts"
-  ],
-  "Only open tasks you can edit, from this workspace.": [
-    "web/src/app/resume/DossierView.tsx"
   ],
   "Only people who already have an account on this server can use it. The server owner can let members invite new people in Settings → People.": [
     "web/src/app/InviteLinksSection.tsx"
@@ -11745,9 +11697,6 @@
     "web/src/app/resume/ResumeView.tsx",
     "web/src/app/resume/WaitingDossiers.tsx",
     "web/src/app/task-list/TodayResume.tsx"
-  ],
-  "Open the thread to see the completed steps.": [
-    "web/src/app/resume/DossierCard.tsx"
   ],
   "Open the tracked task": [
     "web/src/app/TrackingIndicator.tsx"
@@ -12294,7 +12243,6 @@
   ],
   "Personal": [
     "web/src/app/WorkspaceControl.tsx",
-    "web/src/app/resume/ResumeView.tsx",
     "web/src/app/routines/Starters.tsx",
     "web/src/app/workspaceNav.ts",
     "web/src/lib/templateLibrary.ts"
@@ -15757,12 +15705,12 @@
     "web/src/app/WelcomeDialog.tsx"
   ],
   "Star removed": [
-    "web/src/lib/undoActions.ts"
+    "web/src/lib/simpleActions.ts"
   ],
   "Starred": [
     "web/src/app/simple/SimpleEditor.tsx",
     "web/src/app/simple/SimpleRow.tsx",
-    "web/src/lib/undoActions.ts"
+    "web/src/lib/simpleActions.ts"
   ],
   "Start": [
     "web/src/app/RuleEditor.tsx",
@@ -16319,7 +16267,7 @@
     "web/src/lib/settingsCopy.ts"
   ],
   "Task moved": [
-    "web/src/lib/undoActions.ts"
+    "web/src/lib/simpleActions.ts"
   ],
   "Task name": [
     "web/src/app/calendar/AddOnDayDialog.tsx"
@@ -16794,9 +16742,6 @@
   ],
   "The colours of the whole app, for light and for dark": [
     "web/src/app/settingsIndex.ts"
-  ],
-  "The completed steps stay below.": [
-    "web/src/app/resume/DossierCard.tsx"
   ],
   "The context chips on this page are the labels already on your open tasks. Changing a label here changes only that task.": [
     "web/src/app/resume/ContextLabelsDialog.tsx"
@@ -17788,9 +17733,6 @@
   ],
   "This conversation is too long. Start a new conversation.": [
     "web/src/lib/assistant.ts"
-  ],
-  "This date is not a task due date. It only brings the thread back into view.": [
-    "web/src/app/resume/DossierView.tsx"
   ],
   "This demo link is not valid.": [
     "web/src/lib/i18n/errors.ts"
@@ -22929,8 +22871,7 @@
     "web/src/lib/slots.ts"
   ],
   "{done} of {total} steps completed": [
-    "web/src/app/resume/DossierCard.tsx",
-    "web/src/app/resume/DossierView.tsx"
+    "web/src/app/resume/DossierCard.tsx"
   ],
   "{done} of {total} subtasks completed": [
     "web/src/app/TaskRow.tsx"
@@ -23235,8 +23176,7 @@
     "web/src/lib/listGroups.ts"
   ],
   "{n, plural, one {# dossier} other {# dossiers}}": [
-    "web/src/app/ImportScreen.tsx",
-    "web/src/app/resume/ResumeView.tsx"
+    "web/src/app/ImportScreen.tsx"
   ],
   "{n, plural, one {# earlier version deleted.} other {# earlier versions deleted.}}": [
     "web/src/app/EncryptionPanel.tsx"
@@ -23345,9 +23285,6 @@
   ],
   "{n, plural, one {# open task and its subtasks are copied; completed work, comments and reminders are not.} other {# open tasks and their subtasks are copied; completed work, comments and reminders are not.}}": [
     "web/src/app/TemplateDialogs.tsx"
-  ],
-  "{n, plural, one {# open task can join this thread} other {# open tasks can join this thread}}": [
-    "web/src/app/resume/DossierView.tsx"
   ],
   "{n, plural, one {# open task matches now} other {# open tasks match now}}": [
     "web/src/app/routines/StepCard.tsx"
@@ -23497,9 +23434,6 @@
   "{n, plural, one {# task hidden by the filter} other {# tasks hidden by the filter}}": [
     "web/src/app/calendar/CapacityLine.tsx"
   ],
-  "{n, plural, one {# task in one thread} other {# tasks in one thread}}": [
-    "web/src/app/resume/DossierCard.tsx"
-  ],
   "{n, plural, one {# task in this thread is no longer available} other {# tasks in this thread are no longer available}}": [
     "web/src/app/resume/DossierView.tsx"
   ],
@@ -23574,8 +23508,7 @@
     "web/src/app/review/StatsView.tsx"
   ],
   "{n, plural, one {# unavailable task} other {# unavailable tasks}}": [
-    "web/src/app/resume/DossierCard.tsx",
-    "web/src/app/resume/DossierView.tsx"
+    "web/src/app/resume/DossierCard.tsx"
   ],
   "{n, plural, one {# unavailable task} other {# unavailable tasks}}: {names}": [
     "web/src/app/resume/DossierCard.tsx"

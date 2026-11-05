@@ -10,50 +10,24 @@ import { contextChips, contextName, dossierState, featuredDossier } from '../../
 import { createDossier, resumeDossier } from '../../lib/dossiers'
 import { createTaskThenSuggest } from '../../lib/assistantSuggest'
 import { t } from '../../lib/i18n'
-import { readString, writeString } from '../../lib/deviceStorage'
 import type { Dossier, Task } from '../../lib/types'
 import { Button, Icon, PageBody, PageHeader, Skeleton } from '../../ui'
 import { act, reportActionError } from '../actionError'
 import { showUndoToast } from '../bulk/toastStore'
-import { useDateTimeFormat } from '../DateTimePrefsProvider'
 import { NamePrompt } from '../NamePrompt'
 import { QuickAdd, type QuickAddInput } from '../QuickAdd'
 import { navigate } from '../router'
 import { TaskRow } from '../TaskRow'
 import { completeWithUndo } from '../undoable'
-import { useWorkspaceName } from '../workspaceNav'
 import { ContextLabelsDialog } from './ContextLabelsDialog'
 import { DossierCard, DossierFocusButton, ReasonTip, dossierStatusText, dossierText, dossierTextLocked } from './DossierCard'
 import { DossierLinkCard } from './DossierLinkCard'
 import { postponeDossier } from './dossierPostpone'
 import { useDossierData } from './useDossierData'
 
-/** Device-only flag: the first-use note was dismissed on this device (never synced). */
-export const DOSSIER_NOTE_KEY = 'ot.resume.dossierNote'
-
-/** One sentence on what a dossier is, under "New dossier", until it is dismissed once. */
-function DossierNote() {
-  const [hidden, setHidden] = useState(() => readString(DOSSIER_NOTE_KEY) === '1')
-  if (hidden) return null
-  const dismiss = () => {
-    writeString(DOSSIER_NOTE_KEY, '1')
-    setHidden(true)
-  }
-  return (
-    <div className="flex max-w-[30ch] items-start gap-2 rounded-control border border-soft bg-sunken px-2.5 py-2 text-meta text-default" data-dossier-note>
-      <p className="min-w-0 flex-1">{t('A dossier links existing tasks in one order. The tasks stay in their lists.')}</p>
-      <button type="button" className="ui-btn ui-btn--ghost ui-btn--sm touch-target -my-1 -mr-1 px-1.5 py-1 text-muted" aria-label={t('Dismiss')} onClick={dismiss} data-dossier-note-dismiss>
-        <Icon name="x" size="xs" />
-      </button>
-    </div>
-  )
-}
-
 export function ResumeView() {
   const data = useDossierData()
   const canEdit = data.canEdit
-  const dt = useDateTimeFormat()
-  const workspace = useWorkspaceName()
   const [labelId, setLabelId] = useState<string | null>(null)
   const [creating, setCreating] = useState(false)
   const [editingLabels, setEditingLabels] = useState(false)
@@ -134,14 +108,9 @@ export function ResumeView() {
         : featuredState.empty ? t('A thread of your own') : t('A thread to advance')
   return (
     <PageBody width="list">
-      <PageHeader title={t('Pick up the thread')} icon="compass" step="display" titleInPage
-        eyebrow={<span className="uppercase tracking-wide">{workspace || t('Personal')} · {dt.formatDate(data.today, 'heading')}</span>}
-        actions={<div className="flex flex-col items-end gap-2">
-          <Button variant="secondary" size="sm" icon="plus" onClick={() => setCreating(true)} data-new-dossier>{t('New dossier')}</Button>
-          <DossierNote />
-        </div>} />
-      <p className="mb-5 max-w-[65ch] text-meta text-muted">{t('One clear next action. Everything else stays where it is.')}</p>
-      <div className="mb-5 rounded-control border border-default bg-surface px-3 py-1.5" data-resume-capture>
+      <PageHeader title={t('Pick up the thread')} icon="compass" step="display" titleInPage barActions
+        actions={<Button variant="secondary" size="sm" icon="plus" onClick={() => setCreating(true)} data-new-dossier>{t('New dossier')}</Button>} />
+      <div className="mb-5 mt-3 rounded-control border border-default bg-surface px-3 py-1.5" data-resume-capture>
         <div className="flex items-center gap-2">
           <div className="min-w-0 flex-1"><QuickAdd placeholder={t('A thought, a task…')} label={t('Add a task')} projects={data.projects} labels={data.labels}
             formId="resume-capture" hideHint voiceShortcut onAdd={add} /></div>
@@ -152,10 +121,7 @@ export function ResumeView() {
       {!data.loaded ? <Skeleton shape="row" count={4} /> : (
         <div className="grid min-w-0 gap-6 lg:grid-cols-[minmax(0,1.35fr)_minmax(18rem,1fr)]">
           <section className="min-w-0" aria-labelledby="resume-thread">
-            <div className="mb-2 flex flex-wrap items-center gap-2">
-              <h2 id="resume-thread" className="text-meta font-semibold uppercase tracking-wide text-faint">{featuredHeading}</h2>
-              <span className="ml-auto text-meta text-muted">{t('{n, plural, one {# dossier} other {# dossiers}}', { n: data.dossiers.length })}</span>
-            </div>
+            <h2 id="resume-thread" className="mb-2 text-meta font-semibold uppercase tracking-wide text-faint">{featuredHeading}</h2>
             {featured ? (
               <DossierCard dossier={featured} tasks={data.tasks} projects={data.projectMap} canEdit={canEdit} onOpen={() => navigate({ view: 'dossier', id: featured.id })}
                 actions={featuredState?.waiting
@@ -223,10 +189,6 @@ export function ResumeView() {
                 ))}
               </ul>
             )}
-            {openTasks.length > 0 && editableOpen.length === 0 && (
-              <p className="mt-2 text-meta text-muted">{t('Labels on tasks in read-only projects are changed where the task lives.')}</p>
-            )}
-            <p className="mt-3 text-hint text-faint">{t('Contexts are the labels already on your open tasks.')}</p>
           </section>
         </div>
       )}

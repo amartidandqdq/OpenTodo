@@ -47,7 +47,7 @@ describe('DossierCard', () => {
     await waitFor(() => r.container.textContent!.includes('Book the fitters'), 'the next task')
     expect(r.container.querySelector('[data-dossier-next]')!.textContent).toContain('Book the fitters')
     expect(r.container.textContent).toContain('1 of 3 steps completed')
-    expect(r.container.textContent).toContain('To advance')
+    expect(r.container.textContent).toContain('Next action')
     await r.unmount()
   })
 
@@ -64,7 +64,7 @@ describe('DossierCard', () => {
     const r = await render(<DossierCard dossier={dossier} tasks={[...taskMap.values()]} projects={new Map()} focus={false} />)
     await waitFor(() => r.container.textContent!.includes('the delivery'), 'the wait')
     expect(r.container.querySelector('[data-dossier-card]')!.getAttribute('data-dossier-state')).toBe('waiting')
-    expect(r.container.textContent).toContain('On hold')
+    expect(r.container.textContent).toContain('What you are waiting for')
     expect(r.container.textContent).toContain('Look again on')
     expect(r.container.textContent).not.toContain('Every step is complete')
     await r.unmount()
@@ -79,7 +79,6 @@ describe('DossierCard', () => {
     const r = await render(<DossierCard dossier={dossier} tasks={[(await db.tasks.get(order))!]} projects={new Map()} focus={false} />)
     await waitFor(() => !!r.container.querySelector('[data-dossier-follow-up] input'), 'the follow-up field')
     expect(r.container.textContent).toContain('Look again on')
-    expect(r.container.textContent).toContain('Follow-up date, no due date on the task.')
     const input = r.container.querySelector<HTMLInputElement>('[data-dossier-follow-up] input')!
     await type(input, '05/11/2026')
     await key(input, 'Enter')

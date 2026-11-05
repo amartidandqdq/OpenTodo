@@ -20,7 +20,7 @@ import { DateField } from '../datetime/DateField'
 import { useDateTimeFormat } from '../DateTimePrefsProvider'
 import { navigate } from '../router'
 import { completeWithUndo } from '../undoable'
-import { DossierCard, ReasonTip, dossierLists, dossierText, dossierTextLocked } from './DossierCard'
+import { DossierCard, ReasonTip, dossierText, dossierTextLocked } from './DossierCard'
 import { useDossierData } from './useDossierData'
 
 const NO_IDS: string[] = []
@@ -95,7 +95,6 @@ export function DossierView({ id }: { id: string }) {
       </PageBody>
     )
   }
-  const lists = dossierLists(dossier, tasks, projectMap)
   const lastDone = [...state.tasks].reverse().find((task) => task.completed_at)
   const nextEditable = state.next ? canEdit(state.next) : false
   const locked = dossierTextLocked(dossier.title) || dossierTextLocked(dossier.note) || dossierTextLocked(dossier.waiting_for)
@@ -118,20 +117,16 @@ export function DossierView({ id }: { id: string }) {
 
   return (
     <PageBody width="list">
-      <PageHeader title={dossierText(dossier.title) || t('Untitled dossier')} icon="compass" titleInPage
-        eyebrow={lists.length ? lists.join(' · ') : t('No list')}
-        meta={state.total > 0 ? t('{done} of {total} steps completed', { done: state.done, total: state.total }) : t('No task yet')}
+      <PageHeader title={dossierText(dossier.title) || t('Untitled dossier')} icon="compass" barActions
         back={{ label: t('Pick up the thread'), onClick: () => navigate({ view: 'resume' }) }}
-        actions={<>
-          <ReasonTip reason={locked ? t('This text cannot be decrypted on this device.') : undefined}>
-            <Button size="sm" variant="secondary" icon="pencil" disabled={locked}
-              onClick={() => setEditing(true)} data-dossier-edit>{t('Edit')}</Button>
-          </ReasonTip>
-          <Button size="sm" variant="ghost" icon="trash-2" onClick={() => setDeleting(true)} data-dossier-delete>{t('Delete')}</Button>
-        </>} />
+        actions={<ReasonTip reason={locked ? t('This text cannot be decrypted on this device.') : undefined}>
+          <Button size="sm" variant="secondary" icon="pencil" disabled={locked}
+            onClick={() => setEditing(true)} data-dossier-edit>{t('Edit')}</Button>
+        </ReasonTip>}
+        overflow={<MenuItem label={t('Delete dossier')} icon="trash-2" danger onSelect={() => setDeleting(true)} data-dossier-delete />} />
       <div className="grid min-w-0 gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(18rem,1fr)]">
         <div className="min-w-0">
-          <DossierCard dossier={dossier} tasks={tasks} projects={projectMap} actions={actions} unavailableNames={unavailableNames} canEdit={canEdit} />
+          <DossierCard dossier={dossier} titled={false} tasks={tasks} projects={projectMap} actions={actions} unavailableNames={unavailableNames} canEdit={canEdit} />
           {locked && (
             <div className="mt-3" data-dossier-locked-notice>
               <Notice tone="warning">{t('Some words in this dossier cannot be decrypted on this device. Renaming, the note and the hold are paused here; its steps are unchanged.')}</Notice>
@@ -163,25 +158,21 @@ export function DossierView({ id }: { id: string }) {
             </div>
           )}
           <div ref={picker} className="mt-4" data-dossier-attach>
-            <Field label={t('Add an existing task')} description={t('Only open tasks you can edit, from this workspace.')}>
-              <Combobox<Task> label={t('Add an existing task')} placeholder={t('Find an open task…')} emptyText={t('No open task matches.')}
-                source={candidates} getKey={(task) => task.id} getLabel={(task) => dossierText(task.title) || t('Untitled')}
-                getSecondary={(task) => task.project_id ? dossierText(projectMap.get(task.project_id)?.name) || t('List removed') : t('Inbox')}
-                rankContext="dossier.task" onPick={(task) => act(attach(task))} />
-            </Field>
-            <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
-              <p className="text-meta text-faint">{candidates.length === 0 ? t('Every open task you can edit is already here, or there is none.') : t('{n, plural, one {# open task can join this thread} other {# open tasks can join this thread}}', { n: candidates.length })}</p>
-              <Button size="sm" variant="secondary" icon="plus" onClick={() => setNewTask(true)} data-dossier-new-task>{t('New task')}</Button>
+            <div className="flex min-w-0 items-center gap-2">
+              <div className="min-w-0 flex-1">
+                <Combobox<Task> label={t('Add an existing task')} placeholder={t('Find an open task…')} emptyText={t('No open task matches.')}
+                  source={candidates} getKey={(task) => task.id} getLabel={(task) => dossierText(task.title) || t('Untitled')}
+                  getSecondary={(task) => task.project_id ? dossierText(projectMap.get(task.project_id)?.name) || t('List removed') : t('Inbox')}
+                  rankContext="dossier.task" onPick={(task) => act(attach(task))} />
+              </div>
+              <Button size="sm" variant="secondary" icon="plus" className="shrink-0" onClick={() => setNewTask(true)} data-dossier-new-task>{t('New task')}</Button>
             </div>
           </div>
         </div>
         <section className="min-w-0 border-t border-soft pt-5 lg:border-l lg:border-t-0 lg:pl-6 lg:pt-0" aria-labelledby="dossier-steps">
-          <div className="mb-2 flex flex-wrap items-center gap-2">
-            <h2 id="dossier-steps" className="text-meta font-semibold uppercase tracking-wide text-faint">{t('The thread')}</h2>
-            <span className="ml-auto text-meta text-muted tabular-nums">{state.done}/{state.total}</span>
-          </div>
+          <h2 id="dossier-steps" className="mb-2 text-meta font-semibold uppercase tracking-wide text-faint">{t('The thread')}</h2>
           {state.tasks.length === 0 ? (
-            <EmptyState compact icon="compass" title={t('No task yet.')} body={t('Add an existing task above, or create the first one here.')}
+            <EmptyState compact icon="compass" title={t('No task yet.')}
               action={{ label: t('New task'), onClick: () => setNewTask(true) }} />
           ) : (
             <ol className="space-y-1" data-dossier-steps>
@@ -194,7 +185,6 @@ export function DossierView({ id }: { id: string }) {
               ))}
             </ol>
           )}
-          {state.unavailable.length > 0 && <p className="mt-2 text-meta text-warning">{t('{n, plural, one {# unavailable task} other {# unavailable tasks}}', { n: state.unavailable.length })}</p>}
         </section>
       </div>
       {editing && !locked && <EditDossierDialog dossier={dossier} onClose={() => setEditing(false)} />}
@@ -277,7 +267,7 @@ function EditDossierDialog({ dossier, onClose }: { dossier: Dossier; onClose: ()
     <Dialog title={t('Edit dossier')} label={t('Edit dossier')} onClose={onClose}>
       <div className="space-y-3">
         <Field label={t('Name')}><Input autoFocus value={title} onChange={(e) => { setTitle(e.target.value); setError(null) }} /></Field>
-        <Field label={t('Note')} description={t('Context for this thread, not a task.')}><Textarea value={note} onChange={(e) => setNote(e.target.value)} /></Field>
+        <Field label={t('Note')}><Textarea value={note} onChange={(e) => setNote(e.target.value)} /></Field>
         {error && <p role="alert" className="text-meta text-danger">{error}</p>}
         <div className="flex flex-wrap justify-end gap-2">
           <Button variant="ghost" onClick={onClose}>{t('Cancel')}</Button>
@@ -304,13 +294,12 @@ function HoldDossierDialog({ dossier, onClose }: { dossier: Dossier; onClose: ()
   return (
     <Dialog title={t('Put the thread on hold')} label={t('Put the thread on hold')} onClose={onClose}>
       <div className="space-y-3">
-        <Field label={t('What are you waiting for?')} description={t('For example: the delivery, an answer, a quote.')}>
+        <Field label={t('What are you waiting for?')}>
           <Input autoFocus value={waitingFor} onChange={(e) => { setWaitingFor(e.target.value); setError(null) }} placeholder={t('The delivery')} />
         </Field>
         <div className="space-y-1.5">
           <p className="text-body font-medium text-default">{t('Follow-up date (optional)')}</p>
           <DateField label={t('Follow-up date (optional)')} hideLabel value={followUp} onChange={setFollowUp} />
-          <p className="text-meta text-muted">{t('This date is not a task due date. It only brings the thread back into view.')}</p>
         </div>
         {error && <p role="alert" className="text-meta text-danger">{error}</p>}
         <div className="flex flex-wrap justify-end gap-2">
@@ -348,7 +337,6 @@ function NewDossierTaskDialog({ dossier, onClose }: { dossier: Dossier; onClose:
     <Dialog title={t('New task in {dossier}', { dossier: dossierText(dossier.title) || t('Untitled dossier') })} label={t('New task')} onClose={onClose}>
       <form onSubmit={(e) => { e.preventDefault(); void add() }} className="space-y-3">
         <Field label={t('Task title')}><Input autoFocus value={title} onChange={(e) => { setTitle(e.target.value); setError(null) }} placeholder={t('A first step')} /></Field>
-        <p className="text-meta text-muted">{t('It is created in your Inbox and only joins this dossier; it does not change any other task.')}</p>
         {error && <p role="alert" className="text-meta text-danger">{error}</p>}
         <div className="flex flex-wrap justify-end gap-2">
           <Button variant="ghost" onClick={onClose}>{t('Cancel')}</Button>

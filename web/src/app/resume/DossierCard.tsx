@@ -39,20 +39,18 @@ export function dossierLists(dossier: Dossier, tasks: readonly Task[], projects:
 }
 
 /** The compact progress bar of a dossier; the text says the same numbers. */
-export function DossierProgress({ done, total, label }: { done: number; total: number; label?: string }) {
+export function DossierProgress({ done, total, label, className = 'my-3' }: { done: number; total: number; label?: string; className?: string }) {
   const pct = total > 0 ? Math.round((done / total) * 100) : 0
   const text = total > 0 ? t('{done} of {total} steps completed', { done, total }) : t('No task yet')
   return (
-    <div className="my-3" data-dossier-progress>
+    <div className={className} data-dossier-progress>
       {total > 0 && (
         <div role="progressbar" aria-valuemin={0} aria-valuemax={total} aria-valuenow={done} aria-label={label ?? text}
           className="h-1 overflow-hidden rounded-full bg-sunken">
           <span className="block h-full rounded-full bg-accent transition-[width] duration-(--duration-ui) ease-calm" style={{ width: `${pct}%` }} />
         </div>
       )}
-      <div className="mt-1.5 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-meta text-muted">
-        <span className="tabular-nums">{text}</span>
-      </div>
+      <p className="mt-1.5 text-meta text-muted tabular-nums">{text}</p>
     </div>
   )
 }
@@ -92,7 +90,6 @@ export function DossierFollowUpEditor({ dossier }: { dossier: Dossier }) {
           <DateField label={t('Follow-up date')} hideLabel value={dossier.follow_up} onChange={(date) => act(change(date))} />
         </div>
       </div>
-      <p className="mt-1 text-hint text-faint">{t('Follow-up date, no due date on the task.')}</p>
     </div>
   )
 }
@@ -130,6 +127,8 @@ export interface DossierCardProps {
   projects: ReadonlyMap<string, Project>
   /** The page the card is on: it is a little quieter inside My day. */
   compact?: boolean
+  /** The dossier's title; off on the dossier page, whose header already names it. */
+  titled?: boolean
   /** Today's focus sun; off on a screen that already has its own focus control. */
   focus?: boolean
   /** The primary and secondary actions under the next step. */
@@ -146,22 +145,17 @@ export interface DossierCardProps {
 }
 
 /** One dossier as a card: next real step, progress, hold and the actions the screen offers. */
-export function DossierCard({ dossier, tasks, projects, compact = false, focus = true, actions, onOpen, unavailableNames = [], canEdit }: DossierCardProps) {
+export function DossierCard({ dossier, tasks, projects, compact = false, titled = true, focus = true, actions, onOpen, unavailableNames = [], canEdit }: DossierCardProps) {
   const state = useMemo(() => dossierState(dossier, tasks), [dossier, tasks])
   const followUpEditable = !canEdit || state.tasks.length === 0 || state.tasks.some((task) => canEdit(task))
   const lists = useMemo(() => dossierLists(dossier, tasks, projects), [dossier, tasks, projects])
   const today = useToday()
   // A wait is the thread's own state and outranks a finished-looking timeline:
   // resuming is what makes the next step visible again.
-  const status = state.waiting ? t('On hold') : state.complete ? t('Thread complete') : state.empty ? t('To compose') : t('To advance')
   const label = state.waiting ? t('What you are waiting for') : state.complete ? t('It is done') : state.empty ? t('To start') : t('Next action')
   const title = state.waiting ? dossierText(dossier.waiting_for) || t('On hold')
     : state.complete ? t('Every step is complete')
       : state.next ? dossierText(state.next.title) || t('Untitled') : t('Add a first task')
-  const description = state.waiting ? (dossier.follow_up ? null : t('Nothing to plan until the wait resolves.'))
-    : state.complete ? (onOpen ? t('Open the thread to see the completed steps.') : t('The completed steps stay below.'))
-      : state.next ? (lists.length === 1 ? t('In {list}', { list: lists[0] }) : t('In {n} lists', { n: lists.length }))
-        : t('A dossier links existing tasks without moving them.')
   const listText = lists.length === 0 ? t('No list') : lists.length === 1 ? lists[0] : t('{n} lists', { n: lists.length })
   const locked = dossierTextLocked(dossier.title) || dossierTextLocked(dossier.note) || dossierTextLocked(dossier.waiting_for)
   return (
@@ -169,38 +163,36 @@ export function DossierCard({ dossier, tasks, projects, compact = false, focus =
       data-dossier-locked={locked || undefined}
       className={`surface-card min-w-0 ${compact ? 'p-3 sm:p-4' : 'p-4 sm:p-5'}`}>
       <div className="flex min-w-0 items-start gap-2">
-        <div className="min-w-0 flex-1">
-          {onOpen
-            ? <button type="button" className="block max-w-full break-words text-left text-h3 font-semibold text-strong hover:underline" onClick={onOpen} data-dossier-open>{dossierText(dossier.title) || t('Untitled dossier')}</button>
-            : <h2 className="break-words text-h3 font-semibold text-strong">{dossierText(dossier.title) || t('Untitled dossier')}</h2>}
-          <p className="mt-0.5 text-meta text-muted">{listText}{state.total > 0 ? ` · ${t('{n, plural, one {# task in one thread} other {# tasks in one thread}}', { n: state.total })}` : ''}</p>
-        </div>
+        {titled ? (
+          <div className="min-w-0 flex-1">
+            {onOpen
+              ? <button type="button" className="block max-w-full break-words text-left text-h3 font-semibold text-strong hover:underline" onClick={onOpen} data-dossier-open>{dossierText(dossier.title) || t('Untitled dossier')}</button>
+              : <h2 className="break-words text-h3 font-semibold text-strong">{dossierText(dossier.title) || t('Untitled dossier')}</h2>}
+            <p className="mt-0.5 text-meta text-muted">{listText}</p>
+          </div>
+        ) : <DossierProgress done={state.done} total={state.total} className="min-w-0 flex-1 pt-1" />}
         {focus && <DossierFocusButton dossier={dossier} />}
       </div>
-      <DossierProgress done={state.done} total={state.total} />
+      {titled && <DossierProgress done={state.done} total={state.total} />}
       {locked && (
         <p className="mb-2 flex items-start gap-1.5 text-meta text-warning" data-dossier-encrypted>
           <Icon name="lock" size="xs" className="mt-0.5 shrink-0" />
           {t('Some words in this dossier cannot be decrypted on this device.')}
         </p>
       )}
-      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-meta text-muted">
-        <span>{status}</span>
-        {state.unavailable.length > 0 && (
-          <span className="min-w-0 break-words text-warning" data-dossier-unavailable-count>
-            {unavailableNames.length > 0
-              ? t('{n, plural, one {# unavailable task} other {# unavailable tasks}}: {names}', { n: state.unavailable.length, names: unavailableNames.map(dossierText).join(', ') })
-              : t('{n, plural, one {# unavailable task} other {# unavailable tasks}}', { n: state.unavailable.length })}
-          </span>
-        )}
-      </div>
+      {state.unavailable.length > 0 && (
+        <p className="min-w-0 break-words text-meta text-warning" data-dossier-unavailable-count>
+          {unavailableNames.length > 0
+            ? t('{n, plural, one {# unavailable task} other {# unavailable tasks}}: {names}', { n: state.unavailable.length, names: unavailableNames.map(dossierText).join(', ') })
+            : t('{n, plural, one {# unavailable task} other {# unavailable tasks}}', { n: state.unavailable.length })}
+        </p>
+      )}
       <div className={`mt-3 rounded-control bg-accent-soft ${compact ? 'p-2.5' : 'p-3'}`} data-dossier-next>
         <p className="text-hint font-semibold uppercase tracking-wide text-on-accent-soft">{label}</p>
         <p className="mt-1 break-words text-body font-medium text-strong">{title}</p>
         {state.waiting && (followUpEditable
           ? <DossierFollowUpEditor dossier={dossier} />
           : <p className="mt-1 text-meta"><FollowUpText date={dossier.follow_up} today={today} /></p>)}
-        {description && <p className="mt-1 text-meta text-muted">{description}</p>}
         {actions && <div className="mt-2.5 flex flex-wrap items-center gap-2">{actions}</div>}
       </div>
     </article>

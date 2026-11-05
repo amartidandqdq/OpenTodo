@@ -8,7 +8,7 @@
 // the same keys in one scope, or in a scope and an ancestor scope, without an
 // explicit `overrides`.
 
-export type ShortcutSection = 'everywhere' | 'go' | 'tasks' | 'board' | 'calendar' | 'filter' | 'trash' | 'triage' | 'focus' | 'notes' | 'routines' | 'review' | 'display' | 'comments' | 'settings' | 'vim'
+export type ShortcutSection = 'everywhere' | 'go' | 'tasks' | 'board' | 'calendar' | 'filter' | 'trash' | 'triage' | 'focus' | 'notes' | 'routines' | 'review' | 'display' | 'simple' | 'comments' | 'settings' | 'vim'
 
 /**
  * Where a shortcut applies. The dispatcher runs the innermost active scope first:
@@ -72,6 +72,7 @@ export const SHORTCUT_SECTIONS: { id: ShortcutSection; title: string }[] = [
   { id: 'routines', title: 'Routine editor' },
   { id: 'review', title: 'Reviews' },
   { id: 'display', title: 'Display mode' },
+  { id: 'simple', title: 'Simple mode' },
   { id: 'comments', title: 'Comments and notes' },
   { id: 'settings', title: 'Settings' },
   { id: 'vim', title: 'Vim keybindings' },
@@ -91,6 +92,8 @@ export const VIEW_SCOPES: Record<string, ShortcutScope[]> = {
   triage: [],
   // Display mode (display-mode D5): no shell, no list; its keys are `view` entries.
   display: [],
+  // Simple mode (simple-mode D7): lists as columns, no shell and no task list; its keys are `view` entries.
+  simple: [],
   // The reviews (open-loops-method D6): the project walk's and the Daily check's keys are
   // `view` entries; the step lists pause their list keys while the walk owns the keyboard.
   review: [],
@@ -407,6 +410,22 @@ export const SHORTCUTS: Shortcut[] = [
   { id: 'display.last', keys: ['End'], description: 'Focus the last row', section: 'display', scope: 'view', views: ['display'] },
   { id: 'display.toggle', keys: ['Space', 'Enter'], description: 'Complete or reopen the focused task (only where you may edit it)', section: 'display', scope: 'view', views: ['display'] },
   { id: 'display.exit', keys: ['Esc'], description: 'Leave display mode for the same view in the app', section: 'display', scope: 'view', views: ['display'] },
+
+  // ---- Simple mode (simple-mode "Keyboard operation of the Simple screen"): the shell's shortcuts are not active there
+  { id: 'simple.field', keys: ['/'], description: 'Simple mode: focus the field', section: 'simple', scope: 'view', views: ['simple'] },
+  { id: 'simple.down', keys: ['j', '↓'], description: 'Simple mode: select the next task in the list', section: 'simple', scope: 'view', views: ['simple'] },
+  { id: 'simple.up', keys: ['k', '↑'], description: 'Simple mode: select the previous task in the list', section: 'simple', scope: 'view', views: ['simple'] },
+  { id: 'simple.left', keys: ['h', '←'], description: 'Simple mode: select the previous list', section: 'simple', scope: 'view', views: ['simple'] },
+  { id: 'simple.right', keys: ['l', '→'], description: 'Simple mode: select the next list', section: 'simple', scope: 'view', views: ['simple'] },
+  { id: 'simple.complete', keys: ['x'], description: 'Simple mode: complete or reopen the selected task', section: 'simple', scope: 'view', views: ['simple'], overrides: ['vim.complete'] },
+  { id: 'simple.star', keys: ['s'], description: 'Simple mode: star or unstar the selected task', section: 'simple', scope: 'view', views: ['simple'] },
+  { id: 'simple.open', keys: ['Enter'], description: 'Simple mode: open the selected task', section: 'simple', scope: 'view', views: ['simple'] },
+  { id: 'simple.add', keys: ['n'], description: 'Simple mode: add a task to the selected list', section: 'simple', scope: 'view', views: ['simple'] },
+  { id: 'simple.move-up', keys: ['Alt+↑'], description: 'Simple mode: move the selected task up', section: 'simple', scope: 'view', views: ['simple'] },
+  { id: 'simple.move-down', keys: ['Alt+↓'], description: 'Simple mode: move the selected task down', section: 'simple', scope: 'view', views: ['simple'] },
+  { id: 'simple.move-left', keys: ['Alt+←'], description: 'Simple mode: move the selected task to the previous list', section: 'simple', scope: 'view', views: ['simple'] },
+  { id: 'simple.move-right', keys: ['Alt+→'], description: 'Simple mode: move the selected task to the next list', section: 'simple', scope: 'view', views: ['simple'] },
+  { id: 'simple.ask', keys: ['Ctrl+Enter', '⌘+Enter'], description: 'Simple mode: send the field to the assistant (Enter adds a task)', section: 'simple', scope: 'view', views: ['simple'], local: true, typing: true, when: 'in the field' },
 
   // ---- settings
   { id: 'settings.search', keys: ['/'], description: 'Settings: focus the search field, which finds sections and single settings by name', section: 'settings', scope: 'view', views: ['settings'] },

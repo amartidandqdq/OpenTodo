@@ -91,6 +91,8 @@ func TestDevicePromptVectors(t *testing.T) {
 		{Name: "plan week own day", User: "Ada", Zone: "UTC", Now: now, Skill: "plan-week", Workday: &Workday{StartHour: 8, EndHour: 17, DayLength: 300}},
 		{Name: "break down", User: "Ada", Zone: "UTC", Now: now, Skill: "break-down", View: "project", Selected: []string{"t1"}},
 		{Name: "capture", User: "Ada", Zone: "UTC", Now: now, Skill: "capture"},
+		{Name: "plan day", User: "Ada", Zone: "UTC", Now: now, Skill: "plan-day"},
+		{Name: "tidy up", User: "Ada", Zone: "UTC", Now: now, Skill: "tidy-up"},
 	}
 	for i := range vs {
 		v := &vs[i]

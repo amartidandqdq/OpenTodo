@@ -146,6 +146,12 @@ Multi-step routines with AI steps, built on Automations: every existing rule bec
 
 The five changes land in this order. Routines never fetch URLs or feeds: outbound requests stay with configured webhooks, delivery channels and the owner's SMTP server.
 
+### In progress
+
+| Change | What | Issues |
+| --- | --- | --- |
+| [`simple-mode`](openspec/changes/simple-mode/) | A Google Tasks–like screen: lists as columns, one-line tasks with a star, one field to add or ask, and the Plan my day, Break this down, Turn this into tasks and Tidy up actions |  |
+
 ## Shipped
 
 ### 1. Core engine and architecture

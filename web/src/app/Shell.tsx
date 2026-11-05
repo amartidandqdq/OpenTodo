@@ -3,6 +3,7 @@ import { useCommandBar } from './palette/useCommandBar'
 import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import type { User } from '../lib/types'
 import { resolveStartView } from '../lib/views'
+import { simpleModeStored } from '../lib/simpleMode'
 import { describeRejected } from '../lib/sharing'
 import { keysOf } from '../lib/shortcuts'
 import { dismissRejected, useSyncStatus } from '../lib/sync'
@@ -171,8 +172,10 @@ export function Shell({ user, onLogout }: { user: User; onLogout: () => void }) 
     }
     if (location.pathname !== '/') return
     let cancelled = false
-    void resolveStartView().then((start) => {
+    void Promise.all([resolveStartView(), simpleModeStored()]).then(([start, simple]) => {
       if (cancelled || location.pathname !== '/') return
+      // Simple mode (simple-mode "Simple mode preference"): the app opens on the Simple screen.
+      if (simple) return navigate({ view: 'simple' }, { replace: true })
       if (start.kind === 'saved') navigate({ view: 'view', id: start.id }, { replace: true })
       // A display start view (display-mode D6): the app renders the display instead of the shell.
       else if (start.kind === 'display') navigate(parseRoute(start.path), { replace: true })
@@ -366,8 +369,8 @@ export function Shell({ user, onLogout }: { user: User; onLogout: () => void }) 
           ) : route.view === 'dossier' ? (
             <Suspense fallback={SCREEN_LOADING}><DossierView id={route.id} /></Suspense>
           ) : (
-            // App renders the invite, reset, capture and display screens itself; a stray /invite, /reset, /share or /display route inside the shell falls back to the Inbox.
-            <TaskListView userId={user.id} userRole={user.role} route={route.view === 'invite' || route.view === 'project-invite' || route.view === 'workspace-invite' || route.view === 'reset' || route.view === 'confirm-email' || route.view === 'forgot' || route.view === 'verify' || route.view === 'public' || route.view === 'share' || route.view === 'display' ? { view: 'inbox' } : route} />
+            // App renders the invite, reset, capture, display and Simple screens itself; a stray /invite, /reset, /share, /display or /simple route inside the shell falls back to the Inbox.
+            <TaskListView userId={user.id} userRole={user.role} route={route.view === 'invite' || route.view === 'project-invite' || route.view === 'workspace-invite' || route.view === 'reset' || route.view === 'confirm-email' || route.view === 'forgot' || route.view === 'verify' || route.view === 'public' || route.view === 'share' || route.view === 'display' || route.view === 'simple' ? { view: 'inbox' } : route} />
           )}
           </PanelBoundary>
         </div>

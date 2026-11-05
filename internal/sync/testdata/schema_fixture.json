@@ -284,6 +284,8 @@
       "sidebar_counts",
       "sidebar_destinations",
       "sidebar_order",
+      "simple_hidden",
+      "simple_mode",
       "start_checklist",
       "task_open",
       "theme_accent",

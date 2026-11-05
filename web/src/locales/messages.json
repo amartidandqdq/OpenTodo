@@ -680,6 +680,9 @@
   "AI": [
     "web/src/lib/rules/sentence.ts"
   ],
+  "AI actions": [
+    "web/src/app/simple/SimpleField.tsx"
+  ],
   "AI assistant": [
     "web/src/lib/history.ts"
   ],
@@ -1005,7 +1008,9 @@
     "web/src/app/calendar/PlanAgenda.tsx",
     "web/src/app/calendar/WeekAgenda.tsx",
     "web/src/app/palette/BarParts.tsx",
-    "web/src/app/resume/ResumeView.tsx"
+    "web/src/app/resume/ResumeView.tsx",
+    "web/src/app/simple/SimpleColumn.tsx",
+    "web/src/app/simple/SimpleField.tsx"
   ],
   "Add a task above, then give it a label.": [
     "web/src/app/resume/ContextLabelsDialog.tsx",
@@ -1035,6 +1040,9 @@
   "Add a task on {adding}": [
     "web/src/app/calendar/AddOnDayDialog.tsx"
   ],
+  "Add a task or ask the assistant": [
+    "web/src/app/simple/SimpleField.tsx"
+  ],
   "Add a task to the selected task’s column": [
     "web/src/lib/shortcuts.ts"
   ],
@@ -1043,6 +1051,9 @@
   ],
   "Add a task to your Inbox…": [
     "web/src/app/task-list/ListChrome.tsx"
+  ],
+  "Add a task to {list}": [
+    "web/src/app/simple/SimpleColumn.tsx"
   ],
   "Add a task to {project}…": [
     "web/src/app/task-list/ListChrome.tsx"
@@ -1263,6 +1274,9 @@
   "Add to {app}": [
     "web/src/app/ShareCapture.tsx"
   ],
+  "Add to {list}": [
+    "web/src/app/simple/SimpleField.tsx"
+  ],
   "Add to {name}": [
     "web/src/app/WorkspaceGroups.tsx"
   ],
@@ -1433,6 +1447,9 @@
   ],
   "All events": [
     "web/src/app/AuditPanel.tsx"
+  ],
+  "All features": [
+    "web/src/app/simple/SimpleMenu.tsx"
   ],
   "All its tasks together, as one step": [
     "web/src/app/menus/flowMenu.ts"
@@ -1960,6 +1977,7 @@
   "Ask": [
     "web/src/app/assistant/AskEntry.tsx",
     "web/src/app/palette/modes.ts",
+    "web/src/app/simple/SimpleField.tsx",
     "web/src/ui/patterns/AskComposer.tsx"
   ],
   "Ask AI": [
@@ -2455,6 +2473,7 @@
     "web/src/lib/settingsCopy.ts"
   ],
   "Break down “{title}”": [
+    "web/src/app/simple/SimpleScreen.tsx",
     "web/src/app/task-detail/useTaskDetail.ts"
   ],
   "Break over": [
@@ -2469,6 +2488,8 @@
     "web/src/lib/settingsCopy.ts"
   ],
   "Break this down": [
+    "web/src/app/simple/SimpleEditor.tsx",
+    "web/src/app/simple/SimpleField.tsx",
     "web/src/app/task-detail/TaskActionsMenu.tsx"
   ],
   "Briefing": [
@@ -2705,6 +2726,7 @@
     "web/src/app/routines/DescribeIt.tsx",
     "web/src/app/routines/RoutineEditor.tsx",
     "web/src/app/shortcuts/Spotlight.tsx",
+    "web/src/app/simple/SimpleMenu.tsx",
     "web/src/app/task-detail/AttachmentsRow.tsx",
     "web/src/app/task-detail/Composer.tsx",
     "web/src/app/task-detail/TimeTab.tsx",
@@ -3524,6 +3546,7 @@
     "web/src/app/focus/FocusParts.tsx",
     "web/src/app/palette/registry.ts",
     "web/src/app/resume/DossierView.tsx",
+    "web/src/app/simple/SimpleRow.tsx",
     "web/src/app/task-detail/Subtasks.tsx"
   ],
   "Complete, then the next task": [
@@ -3538,11 +3561,15 @@
     "web/src/app/notes/NoteRow.tsx",
     "web/src/app/review/MonthlyLook.tsx",
     "web/src/app/review/StatsView.tsx",
+    "web/src/app/simple/SimpleColumn.tsx",
     "web/src/app/task-list/ListGroups.tsx",
     "web/src/lib/assistant.ts",
     "web/src/lib/feed.ts",
     "web/src/lib/rules/proposal.ts",
     "web/src/lib/shortcuts.ts"
+  ],
+  "Completed ({n})": [
+    "web/src/app/simple/SimpleColumn.tsx"
   ],
   "Completed / reopened": [
     "web/src/lib/activity.ts"
@@ -3893,6 +3920,7 @@
     "web/src/app/TemplateDialogs.tsx",
     "web/src/app/WorkspaceGroups.tsx",
     "web/src/app/resume/ResumeView.tsx",
+    "web/src/app/simple/SimpleMenu.tsx",
     "web/src/app/templates/TemplateLibrary.tsx"
   ],
   "Create a dossier": [
@@ -4467,6 +4495,7 @@
     "web/src/app/calendar/FrameBand.tsx",
     "web/src/app/notes/NoteRow.tsx",
     "web/src/app/resume/DossierView.tsx",
+    "web/src/app/simple/SimpleEditor.tsx",
     "web/src/app/task-detail/CommentsTab.tsx",
     "web/src/app/task-detail/TaskActionsMenu.tsx",
     "web/src/app/task-detail/TimeTab.tsx",
@@ -5255,6 +5284,9 @@
   ],
   "Edit scope": [
     "web/src/app/task-detail/OccurrenceScope.tsx"
+  ],
+  "Edit task": [
+    "web/src/app/simple/SimpleEditor.tsx"
   ],
   "Edit the current project’s note (Esc saves and closes it)": [
     "web/src/lib/shortcuts.ts"
@@ -8658,6 +8690,7 @@
   ],
   "List": [
     "web/src/app/menus/listMenu.tsx",
+    "web/src/app/simple/SimpleEditor.tsx",
     "web/src/app/task-list/ListChrome.tsx",
     "web/src/app/themes/ThemePreview.tsx",
     "web/src/app/views/DisplayPanel.tsx",
@@ -8693,7 +8726,9 @@
     "web/src/app/assistant/ComposerCapture.tsx"
   ],
   "Lists": [
-    "web/src/app/calendar/PlanPanel.tsx"
+    "web/src/app/calendar/PlanPanel.tsx",
+    "web/src/app/simple/SimpleMenu.tsx",
+    "web/src/app/simple/SimpleScreen.tsx"
   ],
   "Lists and logic": [
     "web/src/lib/rules/sentence.ts"
@@ -9168,6 +9203,9 @@
   "Mentions": [
     "web/src/app/NotificationChannelEditor.tsx"
   ],
+  "Menu": [
+    "web/src/app/simple/SimpleMenu.tsx"
+  ],
   "Menu for label {name}": [
     "web/src/app/LabelsView.tsx"
   ],
@@ -9336,6 +9374,7 @@
   ],
   "More actions": [
     "web/src/app/review/StatsView.tsx",
+    "web/src/app/simple/SimpleEditor.tsx",
     "web/src/app/task-list/RowActionCluster.tsx",
     "web/src/ui/patterns/PageHeader.tsx"
   ],
@@ -9635,6 +9674,10 @@
   "My own provider and key": [
     "web/src/app/assistant/AssistantSettings.tsx"
   ],
+  "My tasks": [
+    "web/src/app/simple/SimpleEditor.tsx",
+    "web/src/app/simple/SimpleScreen.tsx"
+  ],
   "My theme": [
     "web/src/app/ThemeRow.tsx"
   ],
@@ -9658,6 +9701,7 @@
     "web/src/app/resume/DossierView.tsx",
     "web/src/app/resume/ResumeView.tsx",
     "web/src/app/routines/RoutineEditor.tsx",
+    "web/src/app/simple/SimpleMenu.tsx",
     "web/src/lib/rules/sentence.ts",
     "web/src/lib/settingsCopy.ts"
   ],
@@ -9793,6 +9837,9 @@
   ],
   "New label: {name}": [
     "web/src/lib/assistant.ts"
+  ],
+  "New list": [
+    "web/src/app/simple/SimpleMenu.tsx"
   ],
   "New location": [
     "web/src/app/locations/PlacesView.tsx"
@@ -10708,6 +10755,10 @@
   "Not sized": [
     "web/src/app/review/BentoSlots.tsx"
   ],
+  "Not starred": [
+    "web/src/app/simple/SimpleEditor.tsx",
+    "web/src/app/simple/SimpleRow.tsx"
+  ],
   "Not supported": [
     "web/src/app/NotificationsSettings.tsx"
   ],
@@ -11570,6 +11621,13 @@
   "Open in Obsidian: {vault} › {path}": [
     "web/src/app/OriginChip.tsx"
   ],
+  "Open in Simple mode": [
+    "web/src/app/PreferencesPanels.tsx",
+    "web/src/lib/settingsCopy.ts"
+  ],
+  "Open in full app": [
+    "web/src/app/simple/SimpleEditor.tsx"
+  ],
   "Open in maps": [
     "web/src/app/locations/LocationEditor.tsx",
     "web/src/app/locations/LocationPreview.tsx",
@@ -12376,6 +12434,10 @@
   "Plan from this frame": [
     "web/src/app/calendar/FrameBand.tsx"
   ],
+  "Plan my day": [
+    "web/src/app/simple/SimpleField.tsx",
+    "web/src/app/simple/SimpleScreen.tsx"
+  ],
   "Plan next week instead": [
     "web/src/app/objectives/ReviewObjectives.tsx"
   ],
@@ -12639,9 +12701,6 @@
     "web/src/app/task-list/ListChrome.tsx",
     "web/src/app/vim/commands.ts",
     "web/src/lib/shortcuts.ts"
-  ],
-  "Process {count}": [
-    "web/src/app/task-list/ListChrome.tsx"
   ],
   "Produce": [
     "web/src/lib/aisles/index.ts"
@@ -13379,6 +13438,9 @@
   "Remove saved key": [
     "web/src/app/assistant/AssistantSettings.tsx"
   ],
+  "Remove star": [
+    "web/src/app/simple/SimpleRow.tsx"
+  ],
   "Remove stored secret": [
     "web/src/app/SsoPanel.tsx"
   ],
@@ -13512,6 +13574,7 @@
     "web/src/app/focus/FocusParts.tsx",
     "web/src/app/palette/registry.ts",
     "web/src/app/resume/DossierView.tsx",
+    "web/src/app/simple/SimpleRow.tsx",
     "web/src/app/task-detail/Subtasks.tsx"
   ],
   "Reopened": [
@@ -15320,6 +15383,53 @@
   "Simple lists, method hints or the full Open Loops method": [
     "web/src/app/settingsIndex.ts"
   ],
+  "Simple mode": [
+    "web/src/app/palette/registry.ts",
+    "web/src/lib/settingsCopy.ts",
+    "web/src/lib/shortcuts.ts"
+  ],
+  "Simple mode: add a task to the selected list": [
+    "web/src/lib/shortcuts.ts"
+  ],
+  "Simple mode: complete or reopen the selected task": [
+    "web/src/lib/shortcuts.ts"
+  ],
+  "Simple mode: focus the field": [
+    "web/src/lib/shortcuts.ts"
+  ],
+  "Simple mode: move the selected task down": [
+    "web/src/lib/shortcuts.ts"
+  ],
+  "Simple mode: move the selected task to the next list": [
+    "web/src/lib/shortcuts.ts"
+  ],
+  "Simple mode: move the selected task to the previous list": [
+    "web/src/lib/shortcuts.ts"
+  ],
+  "Simple mode: move the selected task up": [
+    "web/src/lib/shortcuts.ts"
+  ],
+  "Simple mode: open the selected task": [
+    "web/src/lib/shortcuts.ts"
+  ],
+  "Simple mode: select the next list": [
+    "web/src/lib/shortcuts.ts"
+  ],
+  "Simple mode: select the next task in the list": [
+    "web/src/lib/shortcuts.ts"
+  ],
+  "Simple mode: select the previous list": [
+    "web/src/lib/shortcuts.ts"
+  ],
+  "Simple mode: select the previous task in the list": [
+    "web/src/lib/shortcuts.ts"
+  ],
+  "Simple mode: send the field to the assistant (Enter adds a task)": [
+    "web/src/lib/shortcuts.ts"
+  ],
+  "Simple mode: star or unstar the selected task": [
+    "web/src/lib/shortcuts.ts"
+  ],
   "Single occurrence of {title}": [
     "web/src/app/task-detail/TaskHead.tsx"
   ],
@@ -15637,8 +15747,19 @@
   "Standalone only": [
     "web/src/app/notes/NoteFilters.tsx"
   ],
+  "Star": [
+    "web/src/app/simple/SimpleRow.tsx"
+  ],
   "Star OpenTodo on GitHub": [
     "web/src/app/WelcomeDialog.tsx"
+  ],
+  "Star removed": [
+    "web/src/lib/undoActions.ts"
+  ],
+  "Starred": [
+    "web/src/app/simple/SimpleEditor.tsx",
+    "web/src/app/simple/SimpleRow.tsx",
+    "web/src/lib/undoActions.ts"
   ],
   "Start": [
     "web/src/app/RuleEditor.tsx",
@@ -16193,6 +16314,9 @@
     "web/src/app/settingsSections.ts",
     "web/src/lib/settingsCopy.ts"
   ],
+  "Task moved": [
+    "web/src/lib/undoActions.ts"
+  ],
   "Task name": [
     "web/src/app/calendar/AddOnDayDialog.tsx"
   ],
@@ -16583,7 +16707,8 @@
     "web/src/app/routines/DescribeIt.tsx"
   ],
   "The assistant needs a connection.": [
-    "web/src/app/assistant/AssistantPanelBody.tsx"
+    "web/src/app/assistant/AssistantPanelBody.tsx",
+    "web/src/app/simple/SimpleScreen.tsx"
   ],
   "The assistant on the person’s own device, with their own key.": [
     "web/src/lib/settingsCopy.ts"
@@ -18284,6 +18409,12 @@
   "TickTick backup (CSV)": [
     "web/src/app/ImportScreen.tsx"
   ],
+  "Tidy up": [
+    "web/src/app/simple/SimpleField.tsx"
+  ],
+  "Tidy up my tasks": [
+    "web/src/app/simple/SimpleScreen.tsx"
+  ],
   "Tied to <span>{domain}</span>.": [
     "web/src/lib/settingsCopy.ts"
   ],
@@ -18409,6 +18540,7 @@
     "web/src/app/RelayConfirm.tsx",
     "web/src/app/calendar/FramesDialog.tsx",
     "web/src/app/notes/NoteEditor.tsx",
+    "web/src/app/simple/SimpleEditor.tsx",
     "web/src/app/task-detail/TaskHead.tsx",
     "web/src/app/task-list/InlineEditor.tsx",
     "web/src/app/views/DisplayPanel.tsx",
@@ -18841,7 +18973,8 @@
     "web/src/app/task-detail/RotationEditor.tsx"
   ],
   "Turn this into tasks": [
-    "web/src/app/assistant/useAssistantConversation.ts"
+    "web/src/app/assistant/useAssistantConversation.ts",
+    "web/src/app/simple/SimpleField.tsx"
   ],
   "Turn this off to assign tasks: Apply without asking only adds and sets fields": [
     "web/src/lib/rules/ai.ts"
@@ -19223,6 +19356,8 @@
     "web/src/app/review/CarryOver.tsx",
     "web/src/app/review/ProjectWalk.tsx",
     "web/src/app/review/SectorReview.tsx",
+    "web/src/app/simple/SimpleEditor.tsx",
+    "web/src/app/simple/SimpleRow.tsx",
     "web/src/app/task-detail/Facets.tsx",
     "web/src/app/task-detail/OccurrenceScope.tsx",
     "web/src/app/task-detail/Subtasks.tsx",
@@ -20413,6 +20548,9 @@
   "Your key is stored only in this browser. Like any page that calls a provider itself, this app’s page can read it.": [
     "web/src/app/assistant/AssistantDevice.tsx"
   ],
+  "Your lists side by side, with one field for tasks and the assistant. On all your devices.": [
+    "web/src/lib/settingsCopy.ts"
+  ],
   "Your loops are closed. Work from Next, and catch things as they come.": [
     "web/src/app/method/LoopHome.tsx"
   ],
@@ -21236,6 +21374,9 @@
   "gitlab.com or the address of your own instance.": [
     "web/src/app/IssueEditor.tsx"
   ],
+  "google tasks columns lists simple minimal": [
+    "web/src/app/palette/registry.ts"
+  ],
   "green": [
     "web/src/lib/colourNames.ts"
   ],
@@ -21302,6 +21443,9 @@
   ],
   "in the Trash": [
     "web/src/lib/rules/proposal.ts"
+  ],
+  "in the field": [
+    "web/src/lib/shortcuts.ts"
   ],
   "in the picture dialog": [
     "web/src/lib/shortcuts.ts"
@@ -23319,6 +23463,7 @@
     "web/src/lib/pasteTasks.ts"
   ],
   "{n, plural, one {# subtask} other {# subtasks}}": [
+    "web/src/app/simple/SimpleRow.tsx",
     "web/src/app/templates/TemplateLibrary.tsx"
   ],
   "{n, plural, one {# task added, {k} not in the Inbox} other {# tasks added, {k} not in the Inbox}}": [

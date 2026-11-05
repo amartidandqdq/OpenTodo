@@ -64,6 +64,8 @@ export type Route =
   | { view: 'help'; page?: string; q?: string }
   // A chrome-free display of one view (display-mode): /display[/today|/upcoming|/project/<id>|/view/<id>]?<options>.
   | { view: 'display'; target: DisplayTarget; options: DisplayOptions }
+  // Simple mode (simple-mode): every list as a column and one field, outside the shell.
+  | { view: 'simple' }
   // Weekly review and Statistics (stats-and-review).
   | { view: 'review'; step?: string }
   | { view: 'stats' }
@@ -96,7 +98,7 @@ export const VIEW_QUICK_ADD: Readonly<Record<Route['view'], boolean>> = {
   rules: false, settings: false, 'theme-editor': false, import: false, help: false,
   invite: false, 'project-invite': false, 'workspace-invite': false, reset: false,
   'confirm-email': false, forgot: false, verify: false, public: false, share: false,
-  trash: false, feed: false, ask: false, display: false, stats: false,
+  trash: false, feed: false, ask: false, display: false, stats: false, simple: false,
 }
 
 /** Whether the route's view offers quick add (VIEW_QUICK_ADD). */
@@ -261,6 +263,8 @@ export function parseRoute(pathname: string): Route {
     case 'display':
       // Display mode (display-mode D2): an unknown target shows Today; options come from the query.
       return { view: 'display', target: parseDisplayTarget(parts.slice(1)) ?? { kind: 'today' }, options: parseDisplayOptions(query) }
+    case 'simple':
+      return { view: 'simple' }
     // The weekly review and the statistics (stats-and-review).
     case 'review':
       return parts[1] ? { view: 'review', step: parts[1] } : { view: 'review' }
@@ -362,6 +366,8 @@ export function routePath(r: Route): string {
       return '/updates'
     case 'ask':
       return '/ask'
+    case 'simple':
+      return '/simple'
     case 'filter':
       return r.q ? `/views/new?q=${encodeURIComponent(r.q)}` : '/views/new'
     case 'display': {

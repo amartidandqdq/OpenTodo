@@ -1,5 +1,7 @@
 // Settings → General panels (OpenSpec settings-navigation, settings-redesign D3).
 import { useUserPrefsRow } from '../lib/localData'
+import { setSimpleMode, useSimpleModeOn } from '../lib/simpleMode'
+import { navigate } from './router'
 import { dayPartsOn, setDayParts } from '../lib/dayParts'
 import { briefingHidden, readLanguage, setBriefingShown, setUserPref } from '../lib/userPrefs'
 import type { LanguagePref } from '../lib/types'
@@ -111,6 +113,21 @@ export function BriefingView({ shown, onChange }: { shown: boolean; onChange: (o
     <SettingsSection {...cardCopy('briefing')}>
       <SettingRow {...rowCopy('briefing', 'show')} id="briefing-show" htmlFor="briefing-show-switch"
         control={<span data-briefing-switch><Switch id="briefing-show-switch" checked={shown} onChange={onChange} label={t('Show the briefing')} hideLabel /></span>} />
+    </SettingsSection>
+  )
+}
+
+/** Settings → General → Simple mode (simple-mode): turning it on opens the Simple screen. */
+export function SimpleModeSection() {
+  const on = useSimpleModeOn()
+  return <SimpleModeView on={on} onChange={(next) => act(setSimpleMode(next).then(() => { if (next) navigate({ view: 'simple' }) }))} />
+}
+
+export function SimpleModeView({ on, onChange }: { on: boolean; onChange: (on: boolean) => void }) {
+  return (
+    <SettingsSection {...cardCopy('simple-mode')}>
+      <SettingRow {...rowCopy('simple-mode', 'on')} id="simple-mode" htmlFor="simple-mode-switch"
+        control={<span data-simple-mode-switch><Switch id="simple-mode-switch" checked={on} onChange={onChange} label={t('Open in Simple mode')} hideLabel /></span>} />
     </SettingsSection>
   )
 }

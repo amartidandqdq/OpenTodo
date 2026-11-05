@@ -325,6 +325,25 @@ On a Mac, use <kbd>⌘</kbd> where this page says <kbd>Ctrl</kbd>, and <kbd>Opti
 | <kbd>Space</kbd> / <kbd>Enter</kbd> | Complete or reopen the focused task (only where you may edit it) |
 | <kbd>Esc</kbd> | Leave display mode for the same view in the app |
 
+### Simple mode
+
+| Keys | What it does |
+| --- | --- |
+| <kbd>/</kbd> | Simple mode: focus the field |
+| <kbd>j</kbd> / <kbd>↓</kbd> | Simple mode: select the next task in the list |
+| <kbd>k</kbd> / <kbd>↑</kbd> | Simple mode: select the previous task in the list |
+| <kbd>h</kbd> / <kbd>←</kbd> | Simple mode: select the previous list |
+| <kbd>l</kbd> / <kbd>→</kbd> | Simple mode: select the next list |
+| <kbd>x</kbd> | Simple mode: complete or reopen the selected task |
+| <kbd>s</kbd> | Simple mode: star or unstar the selected task |
+| <kbd>Enter</kbd> | Simple mode: open the selected task |
+| <kbd>n</kbd> | Simple mode: add a task to the selected list |
+| <kbd>Alt+↑</kbd> | Simple mode: move the selected task up |
+| <kbd>Alt+↓</kbd> | Simple mode: move the selected task down |
+| <kbd>Alt+←</kbd> | Simple mode: move the selected task to the previous list |
+| <kbd>Alt+→</kbd> | Simple mode: move the selected task to the next list |
+| <kbd>Ctrl+Enter</kbd> / <kbd>⌘+Enter</kbd> | In the field: simple mode: send the field to the assistant (Enter adds a task) |
+
 ### Comments and notes
 
 | Keys | What it does |

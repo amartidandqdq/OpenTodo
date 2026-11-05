@@ -861,6 +861,15 @@ var Schema = map[string]map[string]Field{
 		// clients read an empty or unknown value as off and keep the stored
 		// value. Objectives stay in the export, REST, the CLI and MCP either way.
 		"objectives": {Kind: kString, Default: `""`},
+		// Simple mode (OpenSpec change simple-mode, design D2): "on" opens the
+		// app on the Simple screen (/simple: lists as columns, one field);
+		// clients read an empty or unknown value as off and keep the stored
+		// value. Settings, never content.
+		"simple_mode": {Kind: kString, Default: `""`},
+		// The lists the Simple screen leaves out (simple-mode D2): project ids;
+		// clients ignore unknown ids, and "My tasks" (no project) is never
+		// listed. Hiding writes nothing on the project or its tasks.
+		"simple_hidden": {Kind: kStringList, Default: `[]`},
 	},
 	// objective: one quarterly or weekly objective (OpenSpec change
 	// plan-objectives, design D1). Personal like place: it resolves to the

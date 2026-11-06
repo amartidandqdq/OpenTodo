@@ -52,7 +52,7 @@ export function SimpleRow({ task, sub, childCount = 0, selected, readOnly, onTog
       </button>
       {childCount > 0 && <span className="shrink-0 text-meta text-muted"><span aria-hidden>{childCount}</span><span className="sr-only">{t('{n, plural, one {# subtask} other {# subtasks}}', { n: childCount })}</span></span>}
       {!done && (
-        <button type="button" disabled={readOnly} onClick={onStar} aria-label={starred ? t('Starred') : t('Not starred')} title={starred ? t('Remove star') : t('Star')}
+        <button type="button" disabled={readOnly} onClick={onStar} aria-label={starred ? t('Starred') : t('Not starred')}
           className={`touch-target inline-flex size-8 shrink-0 items-center justify-center rounded-control focus-visible:outline-2 focus-visible:outline-focus ${starred ? 'text-accent' : 'text-faint hover:text-default'}`}>
           <Icon name="star" className={starred ? 'fill-current' : undefined} />
         </button>

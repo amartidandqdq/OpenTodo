@@ -118,9 +118,9 @@ On a Mac, use <kbd>⌘</kbd> where this page says <kbd>Ctrl</kbd>, and <kbd>Opti
 | <kbd>Alt+↓</kbd> | Move it one place down |
 | <kbd>Alt+Shift+↑</kbd> | Move it to the top of its list |
 | <kbd>Alt+Shift+↓</kbd> | Move it to the bottom of its list |
-| <kbd>Drag</kbd> (touch: press and hold, then move) | Reorder tasks in project lists, boards and the Inbox, and projects in the sidebar; drop on the middle of a row to nest it; Esc cancels |
+| <kbd>Drag</kbd> (touch: drag the row's grip, or press and hold the row, then move) | Reorder tasks in project lists, boards and the Inbox, and projects in the sidebar; drop on the middle of a row to nest it; Esc cancels |
 | <kbd>Swipe</kbd> then <kbd>a</kbd> then <kbd>task</kbd> | Touch: right completes, left schedules; the same two actions start the task's menu |
-| <kbd>Press</kbd> then <kbd>and</kbd> then <kbd>hold</kbd> then <kbd>a</kbd> then <kbd>task</kbd> | Touch: tick it and show every checkbox; Select tasks in the page menu does the same, Close hides them |
+| <kbd>Press</kbd> then <kbd>and</kbd> then <kbd>hold</kbd> then <kbd>the</kbd> then <kbd>grip</kbd> | Touch: tick the task and show every checkbox (a tap on the grip at the row's edge does the same); Select tasks in the page menu does the same, Close hides them |
 | Today, Upcoming, Assigned, Completed, labels, filters | Sorted by date (or their own rule): no drag or Alt moves there |
 | <kbd>→</kbd> | Show the details of the selected task under its row (unfold its subtasks first when they are folded), or the sub-projects of the focused sidebar project |
 | <kbd>←</kbd> | Hide the details of the selected task, else fold its subtasks (or go to its parent), or the sub-projects of the focused sidebar project |
@@ -234,6 +234,24 @@ On a Mac, use <kbd>⌘</kbd> where this page says <kbd>Ctrl</kbd>, and <kbd>Opti
 | <kbd>Shift+→</kbd> | On a board: move the selected card to the next panel that has a rule, applying it |
 | <kbd>↑</kbd> / <kbd>↓</kbd> | In the query of New view: recall recent queries on this device |
 
+### Group and order
+
+| Keys | What it does |
+| --- | --- |
+| <kbd>r</kbd> then <kbd>g</kbd> then <kbd>s</kbd> | Group by section (in a project) |
+| <kbd>r</kbd> then <kbd>g</kbd> then <kbd>j</kbd> | Group by project (on a label page or in a saved view) |
+| <kbd>r</kbd> then <kbd>g</kbd> then <kbd>n</kbd> | No grouping |
+| <kbd>r</kbd> then <kbd>g</kbd> then <kbd>d</kbd> | Group by due date |
+| <kbd>r</kbd> then <kbd>g</kbd> then <kbd>p</kbd> | Group by priority |
+| <kbd>r</kbd> then <kbd>g</kbd> then <kbd>l</kbd> | Group by label (in a project or a saved view) |
+| <kbd>r</kbd> then <kbd>o</kbd> then <kbd>m</kbd> | Order by manual order |
+| <kbd>r</kbd> then <kbd>o</kbd> then <kbd>p</kbd> | Order by priority |
+| <kbd>r</kbd> then <kbd>o</kbd> then <kbd>d</kbd> | Order by due date |
+| <kbd>r</kbd> then <kbd>o</kbd> then <kbd>c</kbd> | Order by creation date |
+| <kbd>r</kbd> then <kbd>o</kbd> then <kbd>l</kbd> | Order by deadline |
+| <kbd>r</kbd> then <kbd>o</kbd> then <kbd>t</kbd> | Order by title |
+| <kbd>r</kbd> then <kbd>r</kbd> | Reverse the order: ascending or descending |
+
 ### Trash and projects
 
 | Keys | What it does |
@@ -264,6 +282,7 @@ On a Mac, use <kbd>⌘</kbd> where this page says <kbd>Ctrl</kbd>, and <kbd>Opti
 | <kbd>j</kbd> / <kbd>Space</kbd> | Skip to the next task |
 | <kbd>k</kbd> | Back to the previous task |
 | <kbd>Enter</kbd> | Open the task’s panel to edit anything else |
+| <kbd>Tab</kbd> | Edit the title. Tab, Enter or a click away saves it and the decision keys work again. Esc restores it |
 | <kbd>Esc</kbd> | Close the panel, else back to the Inbox with this task selected |
 
 ### Focus
@@ -370,7 +389,7 @@ On a Mac, use <kbd>⌘</kbd> where this page says <kbd>Ctrl</kbd>, and <kbd>Opti
 | <kbd>Delete</kbd> | Focused invitation: Settings → People → Users and invitations: revoke the focused pending invitation |
 | <kbd>←</kbd> / <kbd>→</kbd> / <kbd>↑</kbd> / <kbd>↓</kbd> | In the picture dialog: Settings → Account → Profile, picture dialog: move the picture inside the circle |
 | <kbd>+</kbd> / <kbd>-</kbd> | In the picture dialog: Settings → Account → Profile, picture dialog: zoom in or out |
-| <kbd>d</kbd> / <kbd>r</kbd> / <kbd>Delete</kbd> | Focused user: Settings → People → Users: deactivate or reactivate, create a reset link, delete the focused user (each confirms) |
+| <kbd>d</kbd> / <kbd>r</kbd> / <kbd>Delete</kbd> | Focused user: Settings → People → Users and invitations: deactivate or reactivate, create a reset link, delete the focused user (each confirms) |
 | <kbd>e</kbd> | Focused table: Settings → Server → Audit log: export with the current filters while the table has focus |
 | <kbd>Tab</kbd> | Settings → Account → Security → Passkeys: add, rename (Enter saves, Esc cancels) or remove passkeys |
 | <kbd>Ctrl+Z</kbd> / <kbd>⌘+Z</kbd> | Theme editor: undo the last change |
@@ -409,7 +428,7 @@ On a Mac, use <kbd>⌘</kbd> where this page says <kbd>Ctrl</kbd>, and <kbd>Opti
 
 ## With the pointer
 
-Right-click or press and hold a task row to open its menu at the pointer; tick a few rows to act at once.
+Right-click or press and hold a row to open its menu at the pointer; tap its grip or <kbd>x</kbd> to tick a few rows.
 
 ## Vim keybindings
 

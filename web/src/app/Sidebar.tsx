@@ -11,7 +11,7 @@ import { type FormEvent, Fragment, type KeyboardEvent, type ReactNode, useEffect
 import { orderDestinations, readAppearance, readSidebarCounts, type DestinationId, type Promotable } from '../lib/appearance'
 import { useAssistantStatus } from '../lib/assistantStatus'
 import { readCalendarMode } from '../lib/calendarMode'
-import { allProjectRows, useLiveSections, useMembershipMap, useProjects, useReviewRow, useSidebarRowsLoaded, useUserPrefsRow } from '../lib/localData'
+import { allProjectRows, useFieldDefs, useLiveSections, useMembershipMap, useProjects, useReviewRow, useSidebarRowsLoaded, useUserPrefsRow } from '../lib/localData'
 import { createProject } from '../lib/ops'
 import { dailyDue, dayClosed, monthlyDue, reviewAgo, reviewDue } from '../lib/review'
 import { formatInstant } from '../lib/dates'
@@ -25,12 +25,13 @@ import type { Label, Project, Review, Task, User, View } from '../lib/types'
 import { useTrackedTotals } from '../lib/timeEntries'
 import { evaluateViews, isDashboard, openCount } from '../lib/views'
 import { todayCount } from '../lib/appBadge'
+import { todayAssigneeFilter } from '../lib/dayLists'
 import { LabelRow, NewLabelForm, useLabelData, useLabelDrag } from './LabelsView'
 import { ViewMark, ViewMenu } from './ViewsView'
 import { FavouritesGroup } from './FavouritesGroup'
 import { ProjectRowMenu } from './ProjectRowMenu'
 import { useFavourites } from './useFavourites'
-import { useToday, useViewerZone, useViews } from './useViews'
+import { useAssigneeDirectory, useToday, useViewerZone, useViews } from './useViews'
 import { MAX_INDENT } from './TaskRow'
 import { navigate, type Route } from './router'
 import { useLiveTasks, useOpenTasks } from '../lib/liveTasks'
@@ -116,19 +117,22 @@ export const openTasksLabel = (n: number | undefined): string | undefined => (n 
 
 /**
  * Every saved view with its live open-task count over the sidebar's open tasks, in
- * one pass; tracked time is part of the context so `tracked` views count too
+ * one pass; tracked time and custom fields are part of the context so `tracked` and field views count too
  * (time-tracking D4).
  */
 function useViewCounts(views: View[], today: string, labels: Label[], projects: Project[], tasks: Task[]) {
   const tracked = useTrackedTotals()
+  const directory = useAssigneeDirectory()
   // A view that names a workspace counts every workspace's tasks (group-mentions D6).
   const live = useWorkspaceFilter()
   const sections = useLiveSections()
+  // Custom field definitions, so a view on a field counts what it lists (issue 901).
+  const fields = useFieldDefs()
   // Counted once the writes stop (list-rendering-at-scale D6): evaluating every saved
   // view over 10,000 tasks ran after each completion, in front of the next one. The
   // workspace context is made again with every write too (its partition reads the tasks).
   const { counted, ws } = useSettledValue(useMemo(() => ({ counted: tasks, ws: live }), [tasks, live]))
-  return useMemo(() => evaluateViews(views, { today, labels, projects, tasks: counted, sections, tracked, ...ws }, 0), [views, today, labels, projects, counted, sections, tracked, ws])
+  return useMemo(() => evaluateViews(views, { today, labels, projects, tasks: counted, sections, fields, tracked, ...directory, ...ws }, 0), [views, today, labels, projects, counted, sections, fields, tracked, directory, ws])
 }
 
 export function Sidebar({ route, user, onSearch, onShortcuts, onAssistant, onSignOut, collapsed = false, onToggleCollapse }: {
@@ -214,9 +218,10 @@ export function Sidebar({ route, user, onSearch, onShortcuts, onAssistant, onSig
     const active = openTasks.filter((tk) => openCount(tk, today))
     const assigned = active.filter((tk) => tk.assignee_id === user.id).length
     // The same number the app icon badge shows (app-icon-badge).
-    return { inbox: countInbox(openTasks, liveTasks ?? openTasks), today: todayCount(openTasks, today), assigned, byProject: openCountsByProject(active, tree, collapsed_) }
+    const hide = todayAssigneeFilter(prefsRow, [...memberMap.values()], user.id)
+    return { inbox: countInbox(openTasks, liveTasks ?? openTasks), today: todayCount(openTasks, today, hide), assigned, byProject: openCountsByProject(active, tree, collapsed_) }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- zone: a zone change re-groups zoned dues (absolute-datetimes)
-  }, [openTasks, liveTasks, tree, collapsed_, user.id, zone, today])
+  }, [openTasks, liveTasks, tree, collapsed_, user.id, zone, today, prefsRow, memberMap])
 
   // Navigating to a sub-project reveals it: its ancestors leave the collapsed set.
   // Only on a real route change, not on mount or on project edits, so a reload (or a

@@ -407,7 +407,7 @@
   "layoutCheckReason": "Pick up the thread came with the dossiers port, after the layout check list; added to the tour",
   "story": "Screens/Resume",
   "path": "/resume",
-  "ready": "main h1"
+  "ready": "[data-resume-capture]"
  },
  {
   "id": "dossier",

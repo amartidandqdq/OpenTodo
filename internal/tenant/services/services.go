@@ -29,6 +29,7 @@ import (
 	"github.com/OpenTodoApp/opentodo/internal/mail"
 	"github.com/OpenTodoApp/opentodo/internal/maps"
 	"github.com/OpenTodoApp/opentodo/internal/mcp"
+	"github.com/OpenTodoApp/opentodo/internal/mcpoauth"
 	"github.com/OpenTodoApp/opentodo/internal/notify"
 	"github.com/OpenTodoApp/opentodo/internal/oidc"
 	"github.com/OpenTodoApp/opentodo/internal/push"
@@ -101,7 +102,8 @@ type Set struct {
 	Inbox    *notify.InApp
 	Backups  *backup.Service
 	MCP      *mcp.Settings
-	Push     *push.Service // nil when web push is off
+	MCPOAuth *mcpoauth.Store // OAuth in front of /mcp (mcp-oauth)
+	Push     *push.Service   // nil when web push is off
 	Email    *email.Service
 	Calendar *calfeed.Worker
 	Issues   *issues.Worker    // issue connections (issue-import)
@@ -151,6 +153,10 @@ func Build(ctx context.Context, cfg config.Config, db, reader *sql.DB, o Options
 	s.Auth = auth.NewService(db, cfg.SessionTTL, cfg.AllowSignup)
 	s.Auth.SetSetupToken(cfg.SetupToken)
 	s.Auth.SetSetupCodeRequired(cfg.SetupCodeRequired)
+	// Without a base URL nothing pins the host a page was opened under, so a
+	// first visit under a domain name needs the setup code
+	// (host-check-without-base-url).
+	s.Auth.SetSetupHostCheck(cfg.Origin() == "")
 	s.Sync = opsync.NewService(db)
 	if reader != nil {
 		s.Sync.SetReader(reader)
@@ -175,6 +181,7 @@ func Build(ctx context.Context, cfg config.Config, db, reader *sql.DB, o Options
 	if s.MCP, err = openMCPSettings(ctx, cfg, o.Hosted, db, log); err != nil {
 		return nil, err
 	}
+	s.MCPOAuth = mcpoauth.New(db)
 	s.Push = openPush(cfg, o, db, s.Sync, log)
 	s.Channels = openChannels(ctx, cfg, o, db, s.Sync, s.Push, s.Hooks, log)
 	if s.Channels != nil {

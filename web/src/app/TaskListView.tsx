@@ -9,8 +9,10 @@ import { useWithMethod } from './help/MethodLink'
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { ProjectCalendarLayout, useListExtras } from './task-list/listExtras'
 import { t } from '../lib/i18n'
-import { useMembership, useUserPrefsRow } from '../lib/localData'
-import { briefingHidden, preferredPlacement, setBriefingShown, setTodayEventsShown, setUpcomingStartsWithToday, upcomingStartsWithToday } from '../lib/userPrefs'
+import { sharedWithSomeoneElse } from '../lib/dayLists'
+import { useMemberships, useMembership, useUserPrefsRow } from '../lib/localData'
+import { briefingHidden, preferredPlacement, setBriefingShown, setTodayEventsShown, setTodayHidesOthers, setUpcomingEventsShown, setUpcomingStartsWithToday, todayHidesOthers, upcomingStartsWithToday } from '../lib/userPrefs'
+import { useMe } from '../lib/sharing'
 import { completedOpenKey, flatRow, sectionOfRows, type ListGroup, type ListRow } from '../lib/listGroups'
 import type { Step } from '../lib/move'
 import type { ViewPlacement } from '../lib/viewOrder'
@@ -69,6 +71,7 @@ import { noteTodayOpened } from '../lib/firstDay'
 import { InboxMenu } from './SampleNotice'
 import { TodayAgenda, useTodayAgenda } from './calendar/TodayAgenda'
 import { TodayFocus } from './task-list/TodayFocus'
+import { UpcomingEventsNote, useUpcomingList } from './calendar/UpcomingAgenda'
 import { RoutinesInboxSlot } from './routines/InboxSlot'
 import { closedListMeta } from './task-list/useClosedList'
 import { ClosedListMenuItems } from './task-list/ClosedListActions'
@@ -179,24 +182,13 @@ function useOwnOrder(route: ListRoute, rows: ListRow[], groups: ListGroup[]) {
 // Resume the thread (today-home): the featured dossier's card loads after Today's rows; an account without a dossier shows nothing there.
 const TodayResume = lazy(() => import('./task-list/TodayResume').then((m) => ({ default: m.TodayResume })))
 
-/** The list's columns layout (custom-fields): per project, on this device only. */
-function ColumnsToggle({ projectId, on }: { projectId: string; on: boolean }) {
-  return (
-    <div className="mb-1 flex justify-end">
-      <Button variant="ghost" size="sm" icon="list" aria-pressed={on} data-columns-toggle
-        className={on ? 'bg-sunken text-default dark:bg-raised' : undefined} onClick={() => saveListColumns(projectId, !on)}>
-        {t('Columns')}
-      </Button>
-    </div>
-  )
-}
-
 export function TaskListView({ route, userId, userRole }: { route: ListRoute; userId?: string; userRole?: AccountRole }) {
   const m = useListModel(route, userId)
   const workspaceName = useWorkspaceName()
-  const { rows, groups: dataGroups, columns: dataColumns, board, timeline, projectId, today, taskMap, isReadOnly, collapsedSections, viewMode, sectionMap } = m
+  const { rows, groups: taskGroups, columns: dataColumns, board, timeline, projectId, today, taskMap, isReadOnly, collapsedSections, viewMode, sectionMap } = m
+  const upcomingCal = useUpcomingList(route.view === 'upcoming', taskGroups, today, m.upcomingThrough, m.zone, m.dt.resolved)
   // Completed rows stay on screen for their sequence (motion-v2); data stays as read.
-  const { groups, columns, departures } = useListMotion(dataGroups, dataColumns)
+  const { groups, columns } = useListMotion(upcomingCal.groups, dataColumns)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [currentColumn, setCurrentColumn] = useState<string | null>(null)
   const [revealed, setRevealed] = useState<Set<string>>(() => new Set())
@@ -248,9 +240,11 @@ export function TaskListView({ route, userId, userRole }: { route: ListRoute; us
   const insertAfter = useRef<string | null>(null)
 
   const toggleViewMode = useCallback(() => { if (projectId) void saveViewMode(projectId, nextViewMode(viewMode)) }, [projectId, viewMode])
+  // Saved even when it is the layout shown: until the stored layout has loaded the switch shows
+  // List, and a click on List then must not be lost when the stored Board or Timeline arrives (issue 941).
   const chooseViewMode = useCallback((mode: ProjectViewMode) => {
-    if (projectId && mode !== viewMode) void saveViewMode(projectId, mode)
-  }, [projectId, viewMode])
+    if (projectId) void saveViewMode(projectId, mode)
+  }, [projectId])
   const toggleSection = useCallback((key: string, force?: boolean) => {
     if (projectId) act(setSectionCollapsed(projectId, key, force ?? !collapsedSections.includes(key)))
   }, [projectId, collapsedSections])
@@ -260,9 +254,9 @@ export function TaskListView({ route, userId, userRole }: { route: ListRoute; us
     act(withListTransition(1, () => moveTaskToSection(task.id, key || null)))
   }, [sectionMap])
   // Manual ordering (manual-ordering): projects (editors and above) and the Inbox by positions; a label page by its own order (view-manual-order).
-  const projectManual = (route.view === 'project' && m.projectEditable) || route.view === 'inbox', ownOrder = useOwnOrder(route, rows, dataGroups), manual = projectManual || !!ownOrder
-  const sectionOfRow = useMemo(() => sectionOfRows(board, dataColumns, dataGroups), [board, dataColumns, dataGroups])
-  const drag = useListDrag({ manual, onReorder: ownOrder ? undefined : m.listDisplay.onReorder, source: { rows, sectionOfRow, tree: m.tree, board, sectionMap, ticked: selection.ticked, onHold: fine ? undefined : (task) => holdSelect(task.id, selection, setSelectMode), openRowMenu: rowMenu.open, reorder: ownOrder?.reorder, groupOf: ownOrder?.groupOf, readOnly: isReadOnly }, moveToSection, onDropped: setSelectedId, onDragStart: rowMenu.dismiss })
+  const projectManual = (route.view === 'project' && m.projectEditable) || route.view === 'inbox', ownOrder = useOwnOrder(route, rows, upcomingCal.groups), manual = projectManual || !!ownOrder
+  const sectionOfRow = useMemo(() => sectionOfRows(board, dataColumns, upcomingCal.groups), [board, dataColumns, upcomingCal.groups])
+  const drag = useListDrag({ manual, onReorder: ownOrder ? undefined : m.listDisplay.onReorder, source: { rows, sectionOfRow, tree: m.tree, board, sectionMap, ticked: selection.ticked, onHold: (task) => holdSelect(task.id, selection, setSelectMode), openRowMenu: rowMenu.open, reorder: ownOrder?.reorder, groupOf: ownOrder?.groupOf, readOnly: isReadOnly }, moveToSection, onDropped: setSelectedId, onDragStart: rowMenu.dismiss })
   const { latestSectionMap } = drag
   // The view supplies defaults; attributes typed in the quick-add line override them.
   const withDefaults = useCallback(async (inputs: QuickAddInput[]) => {
@@ -332,7 +326,7 @@ export function TaskListView({ route, userId, userRole }: { route: ListRoute; us
     habits: m.habits, isReadOnly, board, manual, ownOrder: !!ownOrder, treeView: m.treeView, dropAt: drag.dropAt, draggingId: drag.draggingId, ticked: selection.ticked,
     showCheckbox: selectMode || (fine && selection.ticked.size > 0), selectMode, fieldColumns: m.fieldColumns, projectFieldDefs: m.projectFieldDefs, siblingPos: m.siblingPos,
     timeColumn: m.timeColumn, rowLayout: m.display?.rowLayout, actions: rowActions, addingUnder: ui.addingUnder, onCloseSubtask: () => ui.setAddingUnder(null), edgeOf, cardNotes,
-    inlineId: inline?.id ?? null, renderInline, departures, expandedId, swipe: useListSwipe(listRoot, !fine && selection.ticked.size === 0 && !selectMode && !board, rows.length),
+    inlineId: inline?.id ?? null, renderInline, expandedId, swipe: useListSwipe(listRoot, !fine && selection.ticked.size === 0 && !selectMode && !board, rows.length),
   })
 
   // The list's own rows: Today's Done today group is not part of them (today-closed-list D6).
@@ -379,7 +373,7 @@ export function TaskListView({ route, userId, userRole }: { route: ListRoute; us
               phone={phone ? { slots: phoneActions.slots, groups: phoneGroups(phoneActions.projectItems) } : undefined}
               layout={<LayoutSwitch mode={viewMode} onChoose={chooseViewMode} />} />
           ) : (
-            <ListHeader route={route} title={title} label={currentLabel} meta={meta} subtitle={methodSubtitle} actions={pageActions} phone={phone ? phoneActions : null} agenda={agenda.toggle} />
+            <ListHeader route={route} title={title} label={currentLabel} meta={meta} subtitle={methodSubtitle} actions={pageActions} phone={phone ? phoneActions : null} agenda={agenda.toggle} upcomingEvents={upcomingCal.toggle} />
           )}
 
           {route.view !== 'completed' && (
@@ -403,8 +397,8 @@ export function TaskListView({ route, userId, userRole }: { route: ListRoute; us
           {route.view === 'inbox' && <RoutinesInboxSlot />}{route.view === 'project' && currentProject && <ProjectNote project={currentProject} phone={phone} />}
           {route.view === 'project' && !board && <SubProjects projectId={route.id} />}
           {route.view === 'today' && <TodayFocus />}{route.view === 'today' && <Suspense fallback={null}><TodayResume /></Suspense>}
-          {m.offerColumns && projectId && <ColumnsToggle projectId={projectId} on={!!m.columnsPref} />}
-          {own.length === 0 && !(board || m.liveSections.length > 0) && (m.duration || m.queryFilter?.query
+          {m.offerColumns && <ColumnsToggle on={!!m.columnsPref} onToggle={() => projectId && saveListColumns(projectId, !m.columnsPref)} />}
+          {own.length === 0 && !upcomingCal.hasEvents && !(board || m.liveSections.length > 0) && (m.duration || m.queryFilter?.query
             ? <FilteredEmpty onClear={() => { m.chooseDuration(null); m.queryFilter?.setQuery('') }} />
             : <EmptyState view={route.view} waiting={groups.find((g) => g.key === 'blocked')?.count ?? 0} readOnly={m.projectReadOnly}
                 completed={hiddenDone} onShowCompleted={showCompleted} />)}
@@ -413,7 +407,7 @@ export function TaskListView({ route, userId, userRole }: { route: ListRoute; us
             <BoardView project={currentProject} columns={columns} editable={m.projectEditable} addingTo={addingTo} setAddingTo={ui.setAddingTo}
               projects={m.projects} labels={m.labels} renderCard={(task) => renderRow(flatRow(task))} onCurrentColumn={setCurrentColumn} placeholder={drag.placeholder} onFold={toggleSection} />
           ) : timeline && currentProject ? (
-            <TimelineView groups={dataGroups} today={today} zone={m.zone} editable={m.projectEditable} selectedId={selectedId}
+            <TimelineView groups={upcomingCal.groups} today={today} zone={m.zone} editable={m.projectEditable} selectedId={selectedId}
               onSelect={setSelectedId} onOpen={(id) => { setSelectedId(id); setOpenId(id) }} byId={taskMap} hue={hueFor(currentProject.color)} />
           ) : (
             <GroupedList groups={groups} view={route.view} project={currentProject} fieldColumns={m.fieldColumns} projectFieldDefs={m.projectFieldDefs} siblingPos={m.treeView && !board ? m.siblingPos : undefined} reveal={selectedId}
@@ -421,8 +415,10 @@ export function TaskListView({ route, userId, userRole }: { route: ListRoute; us
               doneBySection={m.showCompleted ? NO_DONE : m.doneBySection} revealed={revealed}
               completed={m.showCompleted && projectId ? { tasks: m.completedTasks, open: m.completedOpen, onToggle: () => m.toggleCollapsed(completedOpenKey(projectId)), gotIt: m.reusable } : undefined} toggleCollapsed={m.toggleCollapsed} collapsedGroups={collapsedGroups} projects={m.projects} labels={m.labels}
               earlierActions={route.view === 'today' || m.upcomingToday ? earlierActions : undefined}
+              eventsFor={upcomingCal.eventsFor}
               onReveal={(key) => setRevealed((s) => { const n = new Set(s); if (n.has(key)) n.delete(key); else n.add(key); return n })} />
           )}
+          {upcomingCal.hasEvents && <UpcomingEventsNote status={upcomingCal.status} fetchedAt={upcomingCal.fetchedAt} />}
           {own.length > 0 && hiddenDone > 0 && showCompleted && !board && !timeline && <HiddenNote count={hiddenDone} onShow={showCompleted} />}
           {route.view === 'today' && <CloseDayRow />}
           {m.logbook && <LogbookMore total={m.logbook.total} limit={m.logbookLimit} onMore={() => m.setLogbookLimit((n) => n + LOGBOOK_PAGE)} />}
@@ -430,6 +426,18 @@ export function TaskListView({ route, userId, userRole }: { route: ListRoute; us
         </div>
       {ui.prompt && <CompleteParentPrompt parent={ui.prompt} onAccept={acceptPrompt} onDismiss={() => setPrompt(null)} />}
       <RowPickerDialogs assignFor={ui.assignFor} pickerFor={ui.pickerFor} userId={userId} onCloseAssign={() => ui.setAssignFor(null)} onClosePicker={() => ui.setPickerFor(null)} />
+    </div>
+  )
+}
+
+/** The list's columns layout (custom-fields): per project, on this device only. */
+function ColumnsToggle({ on, onToggle }: { on: boolean; onToggle: () => void }) {
+  return (
+    <div className="mb-1 flex justify-end">
+      <Button variant="ghost" size="sm" icon="list" aria-pressed={on} data-columns-toggle
+        className={on ? 'bg-sunken text-default dark:bg-raised' : undefined} onClick={onToggle}>
+        {t('Columns')}
+      </Button>
     </div>
   )
 }
@@ -446,7 +454,7 @@ function listTitle(view: ListRoute['view'], project?: string, label?: string, pl
  * task-list-presentation "Nothing between the header and the list"): title, meta, actions,
  * Help. On a phone the actions are the bar's slots and the rest joins its menu (phone-v2 D1).
  */
-function ListHeader({ route, title, label, meta, subtitle, actions, phone, agenda }: {
+function ListHeader({ route, title, label, meta, subtitle, actions, phone, agenda, upcomingEvents }: {
   route: ListRoute
   title: string
   label?: Label
@@ -456,6 +464,8 @@ function ListHeader({ route, title, label, meta, subtitle, actions, phone, agend
   phone: { slots: ReactNode; items: PhoneItem[] } | null
   /** Today's calendar events option (today-agenda D2): undefined when not offered, else whether it is on. */
   agenda?: boolean
+  /** Upcoming's calendar events option: undefined when not offered, else whether it is on. */
+  upcomingEvents?: boolean
 }) {
   const items = phone?.items ?? []
   // The briefing under a day page's title (OpenSpec change briefing), unless the account hid it (briefing-links D4).
@@ -488,10 +498,23 @@ function ListHeader({ route, title, label, meta, subtitle, actions, phone, agend
     <MenuItem icon="calendar-range" label={agenda ? t('Hide calendar events') : t('Show calendar events')} data-today-events-toggle
       onSelect={() => act(setTodayEventsShown(!agenda))} />
   )
+  // The same overflow the phone bar uses (today-assigned-filter): offered only while someone else shares a project.
+  const hidesOthers = todayHidesOthers(prefs)
+  const memberships = useMemberships()
+  const viewer = useMe()
+  const sharedOthers = sharedWithSomeoneElse(memberships, viewer)
+  const assigneesItem = route.view === 'today' && sharedOthers && (
+    <MenuItem icon="users" label={hidesOthers ? t('Show tasks assigned to others') : t('Hide tasks assigned to others')} data-today-assignees-toggle
+      onSelect={() => act(setTodayHidesOthers(!hidesOthers))} />
+  )
+  const upcomingItem = upcomingEvents !== undefined && (
+    <MenuItem icon="calendar-range" label={upcomingEvents ? t('Hide calendar events') : t('Show calendar events')} data-upcoming-events-toggle
+      onSelect={() => act(setUpcomingEventsShown(!upcomingEvents))} />
+  )
   const phoneItems = route.view !== 'inbox' && route.view !== 'label' && items.length > 0 ? <PhoneMenuItems items={items} /> : null
   return (
     <PageHeader title={title} help={HELP_SCREENS[route.view] ?? 'inbox'} actions={phone ? phone.slots : actions} barActions={!!phone}
-      overflow={phoneItems || toggle ? <>{phoneItems}{phoneItems && toggle && <MenuSeparator />}{toggle}{startItem}{route.view === 'upcoming' && <ProjectionsMenuItem surface="upcoming" />}{agendaItem}{partsItem}{closedItems}{route.view === 'today' && <ReplanTodayItem />}</> : undefined}
+      overflow={phoneItems || toggle ? <>{phoneItems}{phoneItems && toggle && <MenuSeparator />}{toggle}{startItem}{route.view === 'upcoming' && <ProjectionsMenuItem surface="upcoming" />}{upcomingItem}{agendaItem}{assigneesItem}{partsItem}{closedItems}{route.view === 'today' && <ReplanTodayItem />}</> : undefined}
       leading={label && <span className="h-3 w-3 rounded-full" style={{ backgroundColor: label.color }} />}
       meta={meta} subtitle={subtitle} menu={menu} kind={route.view === 'today' || route.view === 'upcoming' ? 'day' : 'tool'}
       summary={route.view === 'today' ? <TodaySummaryLine /> : undefined}

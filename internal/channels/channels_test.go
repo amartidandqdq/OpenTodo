@@ -19,7 +19,7 @@ import (
 	"time"
 
 	"github.com/OpenTodoApp/opentodo/internal/notify"
-	"github.com/OpenTodoApp/opentodo/internal/store"
+	"github.com/OpenTodoApp/opentodo/internal/store/storetest"
 	"github.com/OpenTodoApp/opentodo/internal/webhook"
 )
 
@@ -92,7 +92,7 @@ type harness struct {
 func newHarness(t *testing.T, codes ...int) *harness {
 	t.Helper()
 	h := &harness{t: t, dir: t.TempDir(), clock: &fakeClock{t: time.UnixMilli(1_760_000_000_000)}, encrypted: map[string]bool{}, on: true}
-	db, err := store.Open(h.dir)
+	db, err := storetest.OpenDir(h.dir)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -286,6 +286,9 @@ func TestContentPolicyAndLanguages(t *testing.T) {
 	}
 	if got := e.render("de", "", false).Body; got != "Eine Erinnerung ist fällig" {
 		t.Fatalf("German: %q", got)
+	}
+	if got := e.render("zh", "", false).Body; got != "有一条提醒到期" || strings.Contains(got, "A reminder is due") || strings.Contains(got, "Call the plumber") {
+		t.Fatalf("Chinese: %q", got)
 	}
 	if got := e.render("xx", "", false).Body; got != "A reminder is due" {
 		t.Fatalf("fallback: %q", got)

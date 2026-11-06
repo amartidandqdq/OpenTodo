@@ -66,7 +66,7 @@ On first start the app asks for your server's address, the one you open in the b
 - **Certificate not trusted**: the phone doesn't trust the server's certificate. If your server uses its own certificate authority, install it in Android's security settings; the app trusts certificates you installed there.
 - **Address refused**: the app needs `https://`. Plain `http://` works only for addresses on your own network (such as `192.168.1.4:8080` or `nas.local`), after a warning.
 
-Then sign in as usual. After the first start the app also opens offline, with your local copy.
+Then sign in as usual. After that first successful open the app keeps a copy of itself on the phone and opens it offline, with the server switched off or the phone in flight mode. That includes a server at a plain http address on your own network.
 
 To use another server, long-press the app icon and choose **Change server**. This removes the current server's data from the phone (the offline copy, scheduled reminders, widget data and fingerprint unlock); changes not yet synced are lost.
 
@@ -80,7 +80,7 @@ If your server sits behind a login wall, such as Pangolin (with Pocket ID or its
 
 Only pages the sign-in leads through stay in the app; a link to another site on a sign-in page (a privacy policy, a help page) opens in your browser, like every other link. The wall's session cookie is kept, so you sign in again only when the wall's session ends. Give the wall a long session (a "remember me" option, or a longer session lifetime) so that happens rarely: while the session has expired, the app's hourly background refresh of reminders and widgets doesn't get through and simply waits until you next open the app.
 
-**Providers that refuse apps.** Some identity providers refuse to sign in inside an app's web view; Google, for example, shows "Error 403: disallowed_useragent". The app can't work around this yet. Sign in to OpenTodo with a password or a passkey instead (set a password in **Settings → Account** if your account is SSO-only), or use a provider that allows it in front of the wall, or let the wall bypass the app's paths (next section).
+**Providers that refuse apps.** Some identity providers refuse to sign in inside an app's web view; Google, for example, shows "Error 403: disallowed_useragent". The app can't work around this yet. Sign in to OpenTodo with a password or a passkey instead (set a password in **Settings → Account → Security** if your account is SSO-only), or use a provider that allows it in front of the wall, or let the wall bypass the app's paths (next section).
 
 ### Bypassing the wall instead
 

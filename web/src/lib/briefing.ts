@@ -8,7 +8,7 @@
 import { calendarTasks, dayLoad } from './calendar'
 import { addDaysISO, daysBetweenISO, localDueOf, logicalDay } from './dates'
 import { blockedMap } from './dependencies'
-import { todayList, upcomingList, withoutArchived } from './dayLists'
+import { todayList, upcomingList, withoutArchived, type TodayAssigneeFilter } from './dayLists'
 import { compareDueThenPriority } from './ordering'
 import type { AppNotification, Project, Task } from './types'
 import { overdueInToday, upcomingDate } from './views'
@@ -72,6 +72,8 @@ export interface BriefingInput {
    * D5). They are planned today even without a due date, and counted once.
    */
   focus?: readonly Task[]
+  /** Today hides other people's shared tasks; Upcoming ignores this. */
+  hide?: TodayAssigneeFilter | null
 }
 
 const titleOf = (task: Task): BriefingTask => {
@@ -141,7 +143,7 @@ export function briefingFacts(input: BriefingInput): Briefing {
     return { mode: 'upcoming', count, facts: later.length ? [{ kind: 'full', dates: later }] : [], tomorrow }
   }
 
-  const list = todayList(all, today)
+  const list = todayList(all, today, input.view === 'today' ? input.hide : null)
   // My day (resume-dossiers D5): a chosen task or a chosen dossier's next step is
   // planned today, so a focus-only day is not a clear one.
   const focused = focusOfDay(input.focus, list)

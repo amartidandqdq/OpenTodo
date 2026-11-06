@@ -17,7 +17,7 @@ import (
 	"github.com/OpenTodoApp/opentodo/internal/config"
 	"github.com/OpenTodoApp/opentodo/internal/httpapi/httpx"
 	"github.com/OpenTodoApp/opentodo/internal/push"
-	"github.com/OpenTodoApp/opentodo/internal/store"
+	"github.com/OpenTodoApp/opentodo/internal/store/storetest"
 	"github.com/OpenTodoApp/opentodo/internal/tenant/services"
 )
 
@@ -28,7 +28,7 @@ import (
 func routeTableOf(t *testing.T, demoMode bool) []routeEntry {
 	t.Helper()
 	dir := t.TempDir()
-	db, err := store.Open(dir)
+	db, err := storetest.OpenDir(dir)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -72,10 +72,26 @@ func TestEveryRouteDeclaresAPolicy(t *testing.T) {
 		}
 	}
 	// Direct registrations bypass the policy: only policy.go may call
-	// ServeMux.Handle, and nothing calls HandleFunc.
+	// ServeMux.Handle, and nothing calls HandleFunc. The route packages under
+	// internal/httpapi (davroutes, maproutes, speech, and any later one)
+	// register through an httpx.Router, whose Handle takes a policy as well;
+	// a two-argument Handle there is a ServeMux call and bypasses it.
+	// httpx defines the policy and the router, so it is the one exception.
 	files, err := filepath.Glob("*.go")
 	if err != nil {
 		t.Fatal(err)
+	}
+	sub, err := filepath.Glob("*/*.go")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, f := range sub {
+		if dir := filepath.Dir(f); dir != "httpx" && dir != "testdata" {
+			files = append(files, f)
+		}
+	}
+	if len(sub) == 0 {
+		t.Fatal("no route packages found under internal/httpapi")
 	}
 	fset := gotoken.NewFileSet()
 	for _, f := range files {
@@ -141,6 +157,7 @@ func TestSecurityRoutePolicies(t *testing.T) {
 	want := map[string]string{
 		// Anonymous by design.
 		"GET /healthz":                         "public",
+		"GET /.well-known/security.txt":        "public",
 		"POST /api/v1/auth/login":              "public",
 		"POST /api/v1/auth/register":           "public demo",
 		"POST /api/v1/auth/mfa":                "public",

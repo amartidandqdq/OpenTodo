@@ -20,10 +20,11 @@ import { dayPartsOn } from '../../lib/dayParts'
 import { useClosedList, useWaitingNow } from './useClosedList'
 import { NO_TASKS, useLiveTasks } from '../../lib/liveTasks'
 import { LOGBOOK_PAGE, logbookGroups } from '../../lib/logbook'
-import { canEditTasks, roleOf } from '../../lib/sharing'
+import { todayAssigneeFilter } from '../../lib/dayLists'
+import { canEditTasks, roleOf, useMe } from '../../lib/sharing'
 import { buildTaskTree, progressMap } from '../../lib/subtasks'
 import type { Task } from '../../lib/types'
-import { inToday } from '../../lib/views'
+import { inToday, upcomingDate } from '../../lib/views'
 import { todayFocusOf } from '../../lib/review'
 import { DESKTOP_HEADER_QUERY, useMediaQuery } from '../../ui'
 import { useDateTimeFormat } from '../DateTimePrefsProvider'
@@ -130,6 +131,7 @@ export function useListModel(route: ListRoute, userId?: string) {
   const labels = useAllLabels()
   // Cached memberships (project-sharing): viewers get a read-only project, also offline.
   const memberships = useMemberships()
+  const me = useMe()
   const memberMap = useMemo(() => new Map(memberships.map((m) => [m.projectId, m])), [memberships])
   const isReadOnly = useCallback((tk: Task | undefined) => !!tk && roleOf(tk.project_id, memberMap) === 'viewer', [memberMap])
   const labelMap = useMemo(() => new Map(labels.map((l) => [l.id, l])), [labels])
@@ -154,8 +156,20 @@ export function useListModel(route: ListRoute, userId?: string) {
   // Upcoming's Start with Today (upcoming-start-with-today D1): the account's synced choice.
   const accountPrefs = useUserPrefsRow()
   const upcomingToday = route.view === 'upcoming' && upcomingStartsWithToday(accountPrefs)
+  const assigneeFilter = useMemo(() => (route.view === 'today' ? todayAssigneeFilter(accountPrefs, memberships, me) : null), [route.view, accountPrefs, memberships, me])
   // eslint-disable-next-line react-hooks/exhaustive-deps -- zone: a zone change re-groups zoned dues (absolute-datetimes)
-  const viewTasks = useMemo(() => tasksForView(route, allTasks, projects, today, userId, upcomingToday), [allTasks, projects, route, today, zone, userId, upcomingToday])
+  const viewTasks = useMemo(() => tasksForView(route, allTasks, projects, today, userId, upcomingToday, assigneeFilter), [allTasks, projects, route, today, zone, userId, upcomingToday, assigneeFilter])
+  // The last day Upcoming lists, before its filters, so calendar events stay when a filter hides the tasks.
+  // viewTasks already recomputes when the zone changes, so this follows it.
+  const upcomingThrough = useMemo(() => {
+    if (route.view !== 'upcoming') return null
+    let last: string | null = null
+    for (const task of viewTasks) {
+      const date = upcomingDate(task, today)
+      if (date && date > today && (last === null || date > last)) last = date
+    }
+    return last
+  }, [route.view, viewTasks, today])
   // Upcoming's query filter (calendar-clarity D4), under the duration filter; per device, on local rows.
   const upcoming = useQueryFilter(UPCOMING_FILTER_KEY, allTasks)
   const queryTest = route.view === 'upcoming' ? upcoming.test : null
@@ -264,7 +278,7 @@ export function useListModel(route: ListRoute, userId?: string) {
     projectEditable: !!projectId && canEditTasks(roleOf(projectId, memberMap)),
     allTasks, taskMap, progress, blocked, flow, habits, ...filter, logbook, logbookLimit, setLogbookLimit,
     collapsed, toggleCollapsed, ...layout, tree, columns, groups: projectedGroups, rows, ownRows, siblingPos, timeColumn, doneBySection,
-    showCompleted, reusable, completedTasks, completedOpen, display, displayScope, listDisplay, dayParts, closed, upcomingToday, focus,
+    showCompleted, reusable, completedTasks, completedOpen, display, displayScope, listDisplay, dayParts, closed, upcomingToday, upcomingThrough, focus,
     queryFilter: route.view === 'upcoming' ? upcoming : null,
   }
 }

@@ -48,7 +48,7 @@ export function readDayStart(row: Partial<UserPrefs> | null | undefined): number
 }
 
 /** Interface language values (app-localization D1): 'system' and the shipped language codes. */
-export const LANGUAGES: readonly LanguagePref[] = ['system', 'en', 'de', 'fr', 'es', 'it', 'pt']
+export const LANGUAGES: readonly LanguagePref[] = ['system', 'en', 'de', 'fr', 'es', 'it', 'pt', 'zh']
 
 /** The stored interface language; a missing row or a code this build does not ship reads as 'system', without rewriting the row. */
 export function readLanguage(row: Partial<UserPrefs> | null | undefined): LanguagePref {
@@ -102,6 +102,16 @@ export function setBriefingShown(shown: boolean): Promise<void> {
   return mutate('user_prefs', USER_PREFS_ID, { briefing: shown ? 'shown' : 'hidden' })
 }
 
+/** Today hides tasks assigned to others (today-assigned-filter): on only when the account chose "mine". */
+export function todayHidesOthers(row: Partial<UserPrefs> | null | undefined): boolean {
+  return row?.today_assignees === 'mine'
+}
+
+/** Hides or shows other people's tasks on Today; an ordinary op, so it works offline and syncs. */
+export function setTodayHidesOthers(on: boolean): Promise<void> {
+  return mutate('user_prefs', USER_PREFS_ID, { today_assignees: on ? 'mine' : '' })
+}
+
 /** Today's agenda of calendar events (OpenSpec change today-agenda, D1): off unless the account chose "shown". */
 export function todayEventsShown(row: Partial<UserPrefs> | null | undefined): boolean {
   return row?.today_events === 'shown'
@@ -110,6 +120,16 @@ export function todayEventsShown(row: Partial<UserPrefs> | null | undefined): bo
 /** Shows or hides the calendar events on Today; an ordinary op, so it works offline and syncs to the account's other devices. */
 export function setTodayEventsShown(shown: boolean): Promise<void> {
   return mutate('user_prefs', USER_PREFS_ID, { today_events: shown ? 'shown' : 'hidden' })
+}
+
+/** Upcoming's calendar events (today-agenda): off unless the account chose "shown". */
+export function upcomingEventsShown(row: Partial<UserPrefs> | null | undefined): boolean {
+  return row?.upcoming_events === 'shown'
+}
+
+/** Shows or hides the calendar events on Upcoming; an ordinary op, so it works offline and syncs. */
+export function setUpcomingEventsShown(shown: boolean): Promise<void> {
+  return mutate('user_prefs', USER_PREFS_ID, { upcoming_events: shown ? 'shown' : 'hidden' })
 }
 
 /** Upcoming starts with Today's groups (OpenSpec change upcoming-start-with-today, D1): off unless the account chose "on". */

@@ -13,7 +13,7 @@ import { resolveLabels } from '../lib/labels'
 import { hasTimeColumn } from '../lib/rowTime'
 import { setTaskCompleted } from '../lib/ops'
 import { breadcrumbOf, progressMap } from '../lib/subtasks'
-import type { View } from '../lib/types'
+import { GROUP_BY_OPTIONS, SORT_BY_OPTIONS, type View } from '../lib/types'
 import { displayOptions, runView, updateView, viewOptions, type ViewPatch } from '../lib/views'
 import { setFavourite } from '../lib/favourites'
 import { DashboardView } from './DashboardView'
@@ -43,6 +43,7 @@ import { BOARD_COLOR_BY_KEY } from '../lib/colorBy'
 import { useColorBy } from './calendar/colorByControls'
 import { useFoldedGroups, ViewResults } from './views/ViewResults'
 import type { ViewDisplay } from './views/DisplayPanel'
+import { useDisplayKeys } from './views/useDisplayKeys'
 import { rowLayoutOf, useAccountRowLayout } from '../lib/rowLayout'
 import { LIST_READY, perfMark } from '../lib/perfMarks'
 
@@ -181,6 +182,9 @@ export function SavedViewView({ view, data }: { view: View; data: ViewData }) {
     },
   })
 
+  // Group by, Order by and the direction from the keyboard (display-keys): the panel's write.
+  useDisplayKeys({ value: display, groupOptions: GROUP_BY_OPTIONS, sortOptions: SORT_BY_OPTIONS, sortFields: ctx.fields, set: (patch) => updateView(view.id, displayPatch(patch)) })
+
   useEffect(() => {
     if (!selected) return
     const i = selected.lastIndexOf(':')
@@ -205,7 +209,7 @@ export function SavedViewView({ view, data }: { view: View; data: ViewData }) {
             onAdd={() => document.querySelector<HTMLButtonElement>('[data-filter-panel] [data-add-condition]')?.click()} />
           {filterOpen && (
             <FilterPanel count={draftCount} onClose={() => setFilterOpen(false)} inputRef={inputRef}
-              builder={<FilterBuilder query={draft} onChange={(q) => { setDraft(q); setDraftError(null) }} labels={labels} projects={projects} fields={ctx.fields ?? []} workspaces={ctx.workspaces} />}
+              builder={<FilterBuilder query={draft} onChange={(q) => { setDraft(q); setDraftError(null) }} labels={labels} projects={projects} fields={ctx.fields ?? []} workspaces={ctx.workspaces} members={ctx.members} />}
               formula={(
                 <div className="flex items-center gap-2">
                   <input ref={inputRef} className="ui-input border-transparent bg-transparent font-mono" aria-label={t('View query')} aria-invalid={!!message} aria-describedby="view-message"

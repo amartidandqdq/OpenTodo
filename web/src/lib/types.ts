@@ -923,7 +923,7 @@ export interface ProjectPrefs extends ProjectPrefsFields {
 /** Date and time preference values (OpenSpec `date-time-preferences`); unknown values read as 'system'. */
 export type DateFormatPref = 'system' | 'day-month' | 'month-day' | 'iso'
 /** Interface language preference (app-localization D1): 'system' or a shipped language code. */
-export type LanguagePref = 'system' | 'en' | 'de' | 'fr' | 'es' | 'it' | 'pt'
+export type LanguagePref = 'system' | 'en' | 'de' | 'fr' | 'es' | 'it' | 'pt' | 'zh'
 export type TimeFormatPref = 'system' | '12h' | '24h'
 export type WeekStartPref = 'system' | 'mon' | 'sun' | 'sat'
 
@@ -982,6 +982,10 @@ export interface UserPrefs extends UserPrefsFields {
   row_layout?: string
   /** Today's agenda of calendar events (today-agenda D1): 'shown' shows it; '' and anything else read as hidden. */
   today_events?: string
+  /** Today hides tasks assigned to others (today-assigned-filter): 'mine' hides them; '' and anything else read as off. */
+  today_assignees?: string
+  /** Upcoming's calendar events (today-agenda): 'shown' lists them on each day; '' and anything else read as hidden. */
+  upcoming_events?: string
   /** Where new tasks are added from a list's quick add (add-position D1): 'top' or 'bottom'; '' and anything else read as 'bottom'. */
   add_position?: string
   /** Default reminder for tasks with a time (default-reminders D1): minutes from the due time as a decimal string; '' or anything malformed reads as none. */
@@ -1207,6 +1211,8 @@ export interface AuthStatus {
   /** Without a token, setup from outside the server's local network needs the
    * one-time code printed in the server log (trusted-client-identity); absent on older servers. */
   setupCodeRequired?: boolean
+  /** The code is asked for because the page was opened under a domain name while the server has no OPENTODO_BASE_URL (host-check-without-base-url). */
+  setupCodeForHost?: boolean
   signupAllowed: boolean
   authenticated: boolean
   user: User | null
@@ -1946,6 +1952,10 @@ export const AUDIT_EVENT_NAMES = [
   'project.member_added', 'project.grant_added', 'project.grant_changed', 'project.grant_removed',
   'workspace_invite.created', 'workspace_invite.accepted', 'workspace_invite.revoked',
   'member_invitation.created', 'member_invitation.accepted', 'member_invitation.declined', 'member_invitation.cancelled',
+  'calendar_connection.created', 'calendar_connection.updated', 'calendar_connection.deleted',
+  'project.agent_access',
+  'task_page.published', 'task_page.revoked',
+  'mcp_oauth.client_created', 'mcp_oauth.client_deleted', 'mcp_oauth.granted', 'mcp_oauth.revoked', 'mcp_oauth.refresh_reused',
 ] as const
 export type AuditEventName = (typeof AUDIT_EVENT_NAMES)[number]
 

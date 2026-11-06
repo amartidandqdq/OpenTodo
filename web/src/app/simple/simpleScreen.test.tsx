@@ -291,6 +291,26 @@ describe('moves and keys', () => {
     await r.unmount()
   })
 
+  it('reorders from the editor menu without dragging (accessibility-aa D3)', async () => {
+    const { car } = await board()
+    await setSimpleMode(true)
+    const first = await createTask({ title: 'Order tyres', project_id: car })
+    await createTask({ title: 'Renew insurance', project_id: car })
+    await createTask({ title: 'Wash the car', project_id: car })
+    const r = await render(<SimpleScreen />)
+    await waitFor(() => !!r.container.querySelector(`[data-simple-row="${first}"]`))
+    const before = titles(r.container, car)
+    expect(before[0]).toBe('Order tyres')
+    await click(row(r.container, first).querySelector('[data-simple-title]')!)
+    await waitFor(() => !!document.querySelector('[data-testid="simple-editor"]'), 'editor')
+    await click(document.querySelector('[data-testid="simple-editor"] button[aria-label="More actions"]')!)
+    await waitFor(() => !!document.querySelector('[data-menu-label="Move to bottom"]'), 'menu')
+    await click(document.querySelector('[data-menu-label="Move to bottom"]')!)
+    await waitFor(() => titles(r.container, car).at(-1) === 'Order tyres', 'moved to bottom')
+    expect(titles(r.container, car)).toEqual([...before.slice(1), 'Order tyres'])
+    await r.unmount()
+  })
+
   it('leaves with All features: the preference is off and nothing else changes', async () => {
     await board()
     await setSimpleMode(true)

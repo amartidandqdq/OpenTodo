@@ -100,6 +100,11 @@
   ] },
   { "id": "bookmarklet", "what": "The capture bookmarklet: drag it to the bookmarks bar.", "alternatives": [
    { "file": "web/src/app/CaptureSettings.tsx", "contains": "t('Copy bookmarklet')" }
+  ] },
+  { "id": "simple-row", "what": "A Simple mode row: reorder within its list, or drop it in another list's column.", "alternatives": [
+   { "file": "web/src/app/simple/SimpleEditor.tsx", "contains": "data-reorder=\"up\"" },
+   { "file": "web/src/app/simple/SimpleEditor.tsx", "contains": "data-reorder=\"top\"" },
+   { "file": "web/src/app/simple/SimpleEditor.tsx", "contains": "rankContext=\"simple.list\"" }
   ] }
  ],
  "notDrags": [

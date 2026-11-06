@@ -34,7 +34,7 @@ export function SimpleRow({ task, sub, childCount = 0, selected, readOnly, onTog
   const starred = isStarred(task)
   const due = !done && task.due ? describeDue(task.due) : null
   return (
-    <li data-simple-row={task.id} data-task-id={task.id} data-selected={selected || undefined} aria-current={selected || undefined}
+    <li data-simple-row={task.id} data-task-id={task.id} data-drag-id="simple-row" data-selected={selected || undefined} aria-current={selected || undefined}
       draggable={!!drag && !readOnly} onDragStart={drag?.onDragStart} onDragEnd={drag?.onDragEnd}
       onFocus={onSelect} onPointerDown={onSelect}
       className={`group flex min-h-11 items-center gap-2 rounded-control pe-1 ${sub ? 'ps-7' : 'ps-1'} ${selected ? 'bg-selected-row' : 'hover:bg-hover'}`}>

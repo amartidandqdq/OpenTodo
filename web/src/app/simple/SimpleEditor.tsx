@@ -25,7 +25,10 @@ import { SimpleRow } from './SimpleRow'
 
 const NotesEditor = lazy(() => import('../NotesEditor'))
 
-export function SimpleEditor({ id, projects, readOnly, onClose, onStar, onBreakDown, onOpenFull, onOpenTask }: {
+/** One-click alternatives to dragging a row (accessibility-aa D3); a step is absent where it cannot move. */
+export interface SimpleReorder { up?: () => void; down?: () => void; top?: () => void; bottom?: () => void }
+
+export function SimpleEditor({ id, projects, readOnly, onClose, onStar, onBreakDown, onOpenFull, onOpenTask, reorder }: {
   id: string
   projects: readonly Project[]
   readOnly: boolean
@@ -36,6 +39,8 @@ export function SimpleEditor({ id, projects, readOnly, onClose, onStar, onBreakD
   onOpenFull: (task: Task) => void
   /** Edits another task (a subtask) in the same sheet. */
   onOpenTask: (id: string) => void
+  /** Absent for a subtask, a completed task or a read-only one. */
+  reorder?: SimpleReorder
 }) {
   const task = useTask(id)
   const subtasks = useSubtasks(id)
@@ -66,6 +71,15 @@ export function SimpleEditor({ id, projects, readOnly, onClose, onStar, onBreakD
           trigger={<Icon name="ellipsis" />}>
           {onBreakDown && <MenuItem icon="sparkles" label={t('Break this down')} disabled={readOnly} onSelect={() => onBreakDown(task)} />}
           <MenuItem icon="external-link" label={t('Open in full app')} onSelect={() => onOpenFull(task)} />
+          {reorder && !readOnly && (
+            <>
+              <MenuSeparator />
+              <MenuItem data-reorder="up" label={t('Move up')} disabled={!reorder.up} onSelect={() => reorder.up?.()} />
+              <MenuItem data-reorder="down" label={t('Move down')} disabled={!reorder.down} onSelect={() => reorder.down?.()} />
+              <MenuItem data-reorder="top" label={t('Move to top')} disabled={!reorder.top} onSelect={() => reorder.top?.()} />
+              <MenuItem data-reorder="bottom" label={t('Move to bottom')} disabled={!reorder.bottom} onSelect={() => reorder.bottom?.()} />
+            </>
+          )}
           <MenuSeparator />
           <MenuItem icon="trash-2" label={t('Delete')} danger disabled={readOnly} onSelect={() => { onClose(); act(deleteWithUndo(task.id)) }} />
         </Menu>

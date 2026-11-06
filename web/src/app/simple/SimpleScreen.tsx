@@ -25,7 +25,7 @@ import { navigate, routePath } from '../router'
 import { openTaskPage } from '../taskTrail'
 import { completeWithUndo } from '../undoable'
 import { SimpleColumnView, type ColumnActions } from './SimpleColumn'
-import { SimpleEditor } from './SimpleEditor'
+import { SimpleEditor, type SimpleReorder } from './SimpleEditor'
 import { SimpleField, type FieldAssistant } from './SimpleField'
 import { SimpleMenu } from './SimpleMenu'
 import { useSimpleKeys } from './simpleKeys'
@@ -125,6 +125,17 @@ export function SimpleScreen({ name = '' }: { name?: string }) {
     openTaskPage(task.id, { from: routePath(task.project_id ? { view: 'project', id: task.project_id } : { view: 'inbox' }) })
   }
 
+  // The editor's Move up, Move down, Move to top and Move to bottom: the same drop as a drag or Alt+arrows.
+  const reorderOf = (id: string): SimpleReorder | undefined => {
+    const col = columns.find((c) => c.rows.some((r) => r.task.id === id))
+    const at = col ? col.rows.findIndex((r) => r.task.id === id) : -1
+    const row = col?.rows[at]
+    if (!col || !row || row.task.parent_id || row.task.completed_at || !actions.canEdit(row.task)) return undefined
+    const last = col.rows.length - 1
+    const to = (index: number) => () => drop(col.id, id, index)
+    return { up: at > 0 ? to(at - 1) : undefined, down: at < last ? to(at + 1) : undefined, top: at > 0 ? to(0) : undefined, bottom: at < last ? to(last) : undefined }
+  }
+
   useSimpleKeys({ columns, column, taskId, field, paused: editing !== null, select: selectColumn, actions, open: setEditing })
 
   if (!tasks || !column) return <main className="h-dvh bg-canvas" aria-busy="true" />
@@ -158,7 +169,7 @@ export function SimpleScreen({ name = '' }: { name?: string }) {
       </div>
       {editing && editingTask !== undefined && (
         <SimpleEditor id={editing} projects={projects} readOnly={!canEditTask(editingTask, memberMap)} onClose={() => setEditing(null)}
-          onStar={actions.star} onBreakDown={assistant ? (task) => { setEditing(null); breakDown(task) } : undefined} onOpenFull={openFull} onOpenTask={setEditing} />
+          onStar={actions.star} onBreakDown={assistant ? (task) => { setEditing(null); breakDown(task) } : undefined} onOpenFull={openFull} onOpenTask={setEditing} reorder={reorderOf(editing)} />
       )}
       {assistantLoaded && <PanelBoundary><Suspense fallback={null}><AssistantRoot name={name} context={() => ({ view: 'simple', projectId: column.id === MY_TASKS ? undefined : column.id, selected: taskId ? [taskId] : undefined })} /></Suspense></PanelBoundary>}
       <ActionToasts />

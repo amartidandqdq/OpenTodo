@@ -62,6 +62,7 @@ export function statusFor(name: string, args: string): string {
   switch (name) {
     case 'today_summary': return 'Looking at Today…'
     case 'list_projects': return 'Looking at your projects…'
+    case 'list_dossiers': return 'Looking at your dossiers…'
     case 'list_tasks': {
       let view = ''
       try { view = (JSON.parse(args) as { view?: string }).view ?? '' } catch { /* the default line */ }

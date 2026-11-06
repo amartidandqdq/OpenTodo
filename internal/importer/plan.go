@@ -55,6 +55,9 @@ type State struct {
 	Objectives []opsync.Entity
 	// Notes are standalone notes, deleted ones included (notes-overview D9).
 	Notes []opsync.Entity
+	// Dossiers (including deleted ones) let own-export rows detect existing ids
+	// (resume-dossiers).
+	Dossiers []opsync.Entity
 	// Rules are the account's automation rules (automation-rules).
 	Rules []opsync.Entity
 	// UserID is the importing account (own-export assignees are kept only for it).
@@ -124,7 +127,9 @@ type Totals struct {
 	// Places counts created live places (task-locations); additive.
 	Places int `json:"places"`
 	// Notes counts created live standalone notes (notes-overview); additive.
-	Notes    int `json:"notes"`
+	Notes int `json:"notes"`
+	// Dossiers counts created live dossiers (resume-dossiers); additive.
+	Dossiers int `json:"dossiers"`
 	Entities int `json:"entities"`
 	Written  int `json:"written"`
 	Ops      int `json:"ops"`
@@ -284,7 +289,7 @@ func sectionKey(projectID, name string) string {
 func BuildPlan(parsed *Parsed, opts Options, st *State, now time.Time, newID func() string) *Plan {
 	pl := &planner{opts: opts, st: st, now: now.UnixMilli(), newID: newID, position: now.UnixMilli(), files: parsed.Files,
 		byKind: map[string]map[string]opsync.Entity{KindProject: {}, KindLabel: {}, KindTask: {},
-			KindSection: {}, KindReminder: {}, KindView: {}, KindRule: {}, KindUserPrefs: {}, KindAttachment: {}, KindTimeEntry: {}, KindPlace: {}, KindField: {}, KindReview: {}, KindProjectPrefs: {}, KindNote: {}, KindTheme: {}, KindObjective: {}},
+			KindSection: {}, KindReminder: {}, KindView: {}, KindRule: {}, KindUserPrefs: {}, KindAttachment: {}, KindTimeEntry: {}, KindPlace: {}, KindDossier: {}, KindField: {}, KindReview: {}, KindProjectPrefs: {}, KindNote: {}, KindTheme: {}, KindObjective: {}},
 		projectByName: map[string]string{}, labelByName: map[string]string{}, fingerprints: map[string]string{},
 		implicitProj: map[string]*implicit{}, implicitByID: map[string]*implicit{}, implicitLbl: map[string]*implicit{},
 		sectionByKey: map[string]string{}, implicitSec: map[string]*implicit{}, createdBySource: map[string]string{}}
@@ -292,7 +297,7 @@ func BuildPlan(parsed *Parsed, opts Options, st *State, now time.Time, newID fun
 		st.Remembered = map[string]string{}
 	}
 	for kind, list := range map[string][]opsync.Entity{KindProject: st.Projects, KindLabel: st.Labels, KindTask: st.Tasks,
-		KindSection: st.Sections, KindReminder: st.Reminders, KindView: st.Views, KindRule: st.Rules, KindUserPrefs: st.UserPrefs, KindAttachment: st.Attachments, KindTimeEntry: st.TimeEntries, KindPlace: st.Places, KindField: st.Fields, KindReview: st.Review, KindProjectPrefs: st.ProjectPrefs, KindNote: st.Notes, KindTheme: st.Themes, KindObjective: st.Objectives} {
+		KindSection: st.Sections, KindReminder: st.Reminders, KindView: st.Views, KindRule: st.Rules, KindUserPrefs: st.UserPrefs, KindAttachment: st.Attachments, KindTimeEntry: st.TimeEntries, KindPlace: st.Places, KindDossier: st.Dossiers, KindField: st.Fields, KindReview: st.Review, KindProjectPrefs: st.ProjectPrefs, KindNote: st.Notes, KindTheme: st.Themes, KindObjective: st.Objectives} {
 		for _, e := range list {
 			id := str(e, "id")
 			pl.byKind[kind][id] = e
@@ -385,6 +390,20 @@ func BuildPlan(parsed *Parsed, opts Options, st *State, now time.Time, newID fun
 			p.Totals.Warnings++
 		}
 	}
+	countTotals(p)
+	seenHint := map[string]bool{}
+	for _, h := range parsed.ViewHints {
+		if id, ok := pl.createdBySource[h.ProjectSourceID]; ok && !seenHint[id] {
+			seenHint[id] = true
+			p.ViewHints = append(p.ViewHints, PlanViewHint{ProjectID: id, View: h.View})
+		}
+	}
+	p.Rows, p.Truncated = previewRows(pl.results)
+	return p
+}
+
+// countTotals fills the additive counters of a built plan.
+func countTotals(p *Plan) {
 	for _, c := range p.changes {
 		if c.created && c.entity == KindProject {
 			p.Totals.NewProjects++
@@ -418,17 +437,11 @@ func BuildPlan(parsed *Parsed, opts Options, st *State, now time.Time, newID fun
 		if c.created && c.entity == KindNote && live {
 			p.Totals.Notes++
 		}
-	}
-	p.Totals.Entities = len(p.changes)
-	seenHint := map[string]bool{}
-	for _, h := range parsed.ViewHints {
-		if id, ok := pl.createdBySource[h.ProjectSourceID]; ok && !seenHint[id] {
-			seenHint[id] = true
-			p.ViewHints = append(p.ViewHints, PlanViewHint{ProjectID: id, View: h.View})
+		if c.created && c.entity == KindDossier && live {
+			p.Totals.Dossiers++
 		}
 	}
-	p.Rows, p.Truncated = previewRows(pl.results)
-	return p
+	p.Totals.Entities = len(p.changes)
 }
 
 func nonNil(s []string) []string {

@@ -32,7 +32,8 @@ export interface UndoableResult {
   label: string
 }
 
-async function apply(changes: Change[], label: string): Promise<UndoableResult> {
+/** Applies the changes as one undoable batch labelled for the toast. */
+export async function apply(changes: Change[], label: string): Promise<UndoableResult> {
   await getDeviceId()
   const entry = await applyBatch(await toProposed(changes, await membershipMap()), { source: 'action', label })
   return { entry, label }
@@ -334,3 +335,4 @@ export async function moveProjectToWorkspaceUndoable(projectId: string, target: 
   }
   return apply(changes, t('Moved to {target}', { target: targetName }))
 }
+

@@ -232,6 +232,7 @@ var consentFields = []string{
 	"workspace, project, section and label names, and project descriptions",
 	"saved view names and the hosts of your webhooks, when you describe a routine",
 	"your routines and calendar frames",
+	"your dossiers and their notes",
 	"tracked time and its notes",
 	"names of members and groups of shared projects and workspaces",
 	"your display name, today's date and your time zone",

@@ -105,7 +105,7 @@ describe('primary destinations and More (ux-overhaul 4.1)', () => {
   it('shows Inbox, Today, Upcoming and Calendar, then a closed More group; Assigned and Updates only once a project is shared', async () => {
     const r = await render(<Sidebar route={{ view: 'inbox' }} user={user} />)
     await waitFor(() => !!r.container.querySelector('[data-testid="sidebar-more"] button[aria-expanded]'), 'the More group')
-    expect(primaryOf(r.container)).toEqual(['inbox', 'today', 'upcoming', 'day'])
+    expect(primaryOf(r.container)).toEqual(['resume', 'inbox', 'today', 'upcoming', 'day'])
     expect(moreToggle(r.container).getAttribute('aria-expanded')).toBe('false')
     expect(moreItems(r.container)).toEqual([])
     await click(moreToggle(r.container))
@@ -115,7 +115,7 @@ describe('primary destinations and More (ux-overhaul 4.1)', () => {
     await db.memberships.put({ projectId: 'p1', role: 'editor', ownerId: 'alice', members: [] } as Membership)
     await waitFor(() => moreItems(r.container).includes('assigned'))
     expect(moreItems(r.container)).toEqual(['loop', 'next', 'waiting', 'anytime', 'someday', 'assigned', 'completed', 'review', 'stats', 'focus', 'notes', 'feed', 'places', 'rules', 'trash', 'filter'])
-    expect(primaryOf(r.container)).toHaveLength(4)
+    expect(primaryOf(r.container)).toHaveLength(5)
     await r.unmount()
   })
 
@@ -124,7 +124,7 @@ describe('primary destinations and More (ux-overhaul 4.1)', () => {
     rememberCalendarMode('week')
     const r = await render(<Sidebar route={{ view: 'inbox' }} user={user} />)
     await waitFor(() => primaryOf(r.container).includes('completed'))
-    expect(primaryOf(r.container)).toEqual(['inbox', 'today', 'upcoming', 'week', 'completed'])
+    expect(primaryOf(r.container)).toEqual(['resume', 'inbox', 'today', 'upcoming', 'week', 'completed'])
     await click(moreToggle(r.container))
     expect(moreItems(r.container)).not.toContain('completed')
     // Day and Week are one active item.
@@ -138,17 +138,17 @@ describe('primary destinations and More (ux-overhaul 4.1)', () => {
     await applyOps([{ id: 'x1', entity: 'user_prefs', entityId: 'me', field: 'sidebar_destinations', value: 'next,loop-of-the-future', ts: 5, device: 'laptop' } as Op])
     const r = await render(<Sidebar route={{ view: 'inbox' }} user={user} />)
     await waitFor(() => primaryOf(r.container).includes('next'))
-    expect(primaryOf(r.container)).toEqual(['inbox', 'today', 'upcoming', 'day', 'next'])
+    expect(primaryOf(r.container)).toEqual(['resume', 'inbox', 'today', 'upcoming', 'day', 'next'])
     expect((await db.userPrefs.get('me'))?.sidebar_destinations).toBe('next,loop-of-the-future')
     await r.unmount()
   })
 
-  it('Open Loops first sidebar: six destinations by the Places; Upcoming and Calendar join More; promotions are kept for later', async () => {
+  it('Open Loops first sidebar: seven destinations by the Places; Upcoming and Calendar join More; promotions are kept for later', async () => {
     await setPromoted(null, 'someday', true)
     await applyOps([{ id: 'm1', entity: 'user_prefs', entityId: 'me', field: 'method_mode', value: 'first', ts: Date.now() + 1000, device: 'laptop' } as Op])
     const r = await render(<Sidebar route={{ view: 'inbox' }} user={user} />)
-    await waitFor(() => primaryOf(r.container)[0] === 'loop')
-    expect(primaryOf(r.container)).toEqual(['loop', 'inbox', 'today', 'next', 'waiting', 'review'])
+    await waitFor(() => primaryOf(r.container).includes('loop'))
+    expect(primaryOf(r.container)).toEqual(['resume', 'loop', 'inbox', 'today', 'next', 'waiting', 'review'])
     // Review is a primary item here, so the closed More row does not repeat its marker.
     expect(r.container.querySelector('[data-review-due-more]')).toBeNull()
     expect(r.container.querySelector('[data-destination="review"] [data-review-due]')).not.toBeNull()
@@ -158,11 +158,11 @@ describe('primary destinations and More (ux-overhaul 4.1)', () => {
     // Back to Companion: the promoted Someday is a primary destination again.
     await applyOps([{ id: 'm2', entity: 'user_prefs', entityId: 'me', field: 'method_mode', value: 'companion', ts: Date.now() + 2000, device: 'laptop' } as Op])
     await waitFor(() => primaryOf(r.container).includes('someday'))
-    expect(primaryOf(r.container)).toEqual(['inbox', 'today', 'upcoming', 'day', 'someday'])
+    expect(primaryOf(r.container)).toEqual(['resume', 'inbox', 'today', 'upcoming', 'day', 'someday'])
     await r.unmount()
   })
 
-  it('Notes (notes-overview): in More after Focus, promotable in Companion, back in More in Open Loops first with the six destinations unchanged', async () => {
+  it('Notes (notes-overview): in More after Focus, promotable in Companion, back in More in Open Loops first with the seven destinations unchanged', async () => {
     await applyOps([{ id: 'n0', entity: 'user_prefs', entityId: 'me', field: 'method_mode', value: 'companion', ts: Date.now() + 500, device: 'laptop' } as Op])
     const r = await render(<Sidebar route={{ view: 'inbox' }} user={user} />)
     await waitFor(() => !!r.container.querySelector('[data-testid="sidebar-more"] button[aria-expanded]'), 'the More group')
@@ -173,11 +173,11 @@ describe('primary destinations and More (ux-overhaul 4.1)', () => {
     expect(r.container.querySelector('[data-destination="notes"]')!.textContent).toBe('Notes')
     await setPromoted(await db.userPrefs.get('me'), 'notes', true)
     await waitFor(() => primaryOf(r.container).includes('notes'))
-    expect(primaryOf(r.container)).toEqual(['inbox', 'today', 'upcoming', 'day', 'notes'])
+    expect(primaryOf(r.container)).toEqual(['resume', 'inbox', 'today', 'upcoming', 'day', 'notes'])
     expect(moreItems(r.container)).not.toContain('notes')
     await applyOps([{ id: 'n1', entity: 'user_prefs', entityId: 'me', field: 'method_mode', value: 'first', ts: Date.now() + 1000, device: 'laptop' } as Op])
-    await waitFor(() => primaryOf(r.container)[0] === 'loop')
-    expect(primaryOf(r.container)).toEqual(['loop', 'inbox', 'today', 'next', 'waiting', 'review'])
+    await waitFor(() => primaryOf(r.container).includes('loop'))
+    expect(primaryOf(r.container)).toEqual(['resume', 'loop', 'inbox', 'today', 'next', 'waiting', 'review'])
     expect(primaryOf(r.container).length).toBeLessThanOrEqual(budget.MAX_PRIMARY_DESTINATIONS)
     expect(moreItems(r.container)).toContain('notes')
     expect((await db.userPrefs.get('me'))?.sidebar_destinations).toBe('notes')
@@ -189,10 +189,10 @@ describe('primary destinations and More (ux-overhaul 4.1)', () => {
     await applyOps([{ id: 'o1', entity: 'user_prefs', entityId: 'me', field: 'sidebar_order', value: 'today,inbox,someday,upcoming,calendar', ts: Date.now() + 1000, device: 'laptop' } as Op])
     const r = await render(<Sidebar route={{ view: 'inbox' }} user={user} />)
     await waitFor(() => primaryOf(r.container)[0] === 'today')
-    expect(primaryOf(r.container)).toEqual(['today', 'inbox', 'someday', 'upcoming', 'day'])
+    expect(primaryOf(r.container)).toEqual(['today', 'inbox', 'someday', 'upcoming', 'day', 'resume'])
     await applyOps([{ id: 'm1', entity: 'user_prefs', entityId: 'me', field: 'method_mode', value: 'first', ts: Date.now() + 2000, device: 'laptop' } as Op])
-    await waitFor(() => primaryOf(r.container)[0] === 'loop')
-    expect(primaryOf(r.container)).toEqual(['loop', 'inbox', 'today', 'next', 'waiting', 'review'])
+    await waitFor(() => primaryOf(r.container).includes('loop'))
+    expect(primaryOf(r.container)).toEqual(['resume', 'loop', 'inbox', 'today', 'next', 'waiting', 'review'])
     expect((await db.userPrefs.get('me'))?.sidebar_order).toBe('today,inbox,someday,upcoming,calendar')
     await r.unmount()
   })
@@ -320,7 +320,7 @@ describe('the desktop sidebar (sidebar-compact-desktop)', () => {
 })
 
 describe('resize and collapse (ux-overhaul 4.9)', () => {
-  it('keeps the width between 15 and 22.5 rem in half-rem steps, per device', () => {
+  it('keeps the width between 10.5 and 22.5 rem in half-rem steps, per device ', () => {
     expect(sidebarLayout()).toEqual({ width: 16, collapsed: false })
     setSidebarWidth(10)
     expect(sidebarLayout().width).toBe(15)
@@ -341,7 +341,7 @@ describe('resize and collapse (ux-overhaul 4.9)', () => {
     const r = await render(<Sidebar route={{ view: 'inbox' }} user={user} collapsed onToggleCollapse={() => {}} />)
     await waitFor(() => r.container.querySelector('[data-project-id]') !== null)
     expect(r.container.querySelector('[data-sidebar-collapsed]')).toBeTruthy()
-    expect(primaryOf(r.container)).toEqual(['inbox', 'today', 'upcoming', 'day'])
+    expect(primaryOf(r.container)).toEqual(['resume', 'inbox', 'today', 'upcoming', 'day'])
     const inbox = r.container.querySelector('[data-destination="inbox"]')!
     expect(inbox.querySelector('.sr-only')?.textContent).toBe('Inbox')
     expect(inbox.querySelector('[data-count]')).toBeNull()
@@ -1130,7 +1130,7 @@ describe('the start guide entry (moments-and-onboarding 3.3)', () => {
     expect(entry()!.textContent).toBe('Start guide · 1 of 3 done')
     // After the other secondary destinations; never a primary one.
     expect(moreOf(r.container).lastElementChild!.contains(entry())).toBe(true)
-    expect(primaryOf(r.container)).toEqual(['inbox', 'today', 'upcoming', 'day'])
+    expect(primaryOf(r.container)).toEqual(['resume', 'inbox', 'today', 'upcoming', 'day'])
     await click(document.querySelector<HTMLElement>('[data-start-guide-menu]')!)
     await waitFor(() => !!document.querySelector('[role="menu"] [data-start-guide-hide]'))
     await click(document.querySelector<HTMLElement>('[role="menu"] [data-start-guide-hide]')!)

@@ -24,4 +24,5 @@ var ContentFields = map[string][]string{
 	"place":      {"name", "address", "geo"},
 	"objective":  {"title"},
 	"review":     {"tomorrow_note"},
+	"dossier":    {"title", "note", "waiting_for"},
 }

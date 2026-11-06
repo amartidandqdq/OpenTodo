@@ -1,0 +1,5 @@
+## Decisions
+Show a horizontally scrollable row of named, icon-bearing buttons beneath the header when there are multiple workspaces. The current button uses the existing accent surface and an explicit pressed state; workspace marks retain their configured colours. The menu remains available for counts and management. In the collapsed rail the same buttons form a bounded vertical list. Buttons work by keyboard and use the existing switch operation, including offline device persistence and route handling. Avoid changing the global theme: arbitrary workspace colours cannot guarantee contrast with every theme. No new keyboard shortcut is assigned; the existing palette remains available.
+
+## Impact
+No model, network, dependency, container size or meaningful runtime memory change; negligible first-load bundle growth. The sidebar gains one compact row, no primary destination, and no additional vertical scroll region in the expanded layout; list chrome and task properties are unaffected. No shortcut conflicts.

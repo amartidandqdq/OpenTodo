@@ -1,7 +1,7 @@
 import Dexie, { type Table } from 'dexie'
 import type { FocusState } from './focus/timer'
 import { forgetShellData } from './shell'
-import { ENTITIES, type Attachment, type Clock, type Entity, type FieldDef, type CalendarEvent, type CalendarSubscription, type ActivityEntry, type AppNotification, type Comment, type Label, type Membership, type Op, type Place, type Project, type Rule, type Frame, type CustomTheme, type Objective, type ProjectPrefs, type Reminder, type Review, type RowEncryption, type Note, type Section, type Slot, type Task, type TimeEntry, type UserPrefs, type View, type Workspace, type WorkspaceGroup, type WorkspaceMember } from './types'
+import { ENTITIES, type Attachment, type Clock, type Dossier, type Entity, type FieldDef, type CalendarEvent, type CalendarSubscription, type ActivityEntry, type AppNotification, type Comment, type Label, type Membership, type Op, type Place, type Project, type Rule, type Frame, type CustomTheme, type Objective, type ProjectPrefs, type Reminder, type Review, type RowEncryption, type Note, type Section, type Slot, type Task, type TimeEntry, type UserPrefs, type View, type Workspace, type WorkspaceGroup, type WorkspaceMember } from './types'
 import { createStore } from './store'
 
 export interface OutboxOp extends Op {
@@ -86,6 +86,33 @@ export interface AttachmentBlob {
   reason?: string
 }
 
+/** Every store of v19 (stats-and-review), the last version to redeclare them all; later versions add stores. */
+const V19_STORES = {
+  projects: 'id, position',
+  tasks: 'id, project_id, parent_id, completed_at, position, assignee_id, section_id',
+  labels: 'id, position',
+  views: 'id, position',
+  reminders: 'id, task_id, fire_at',
+  sections: 'id, [project_id+position], project_id',
+  fields: 'id, [project_id+position], project_id',
+  outbox: '++local, id',
+  meta: 'key',
+  memberships: 'projectId',
+  notifications: 'id, createdAt',
+  comments: 'id, task_id',
+  activity: 'id, [projectKey+ts], taskId, entityId',
+  prefs: 'id',
+  assistantThreads: 'id, updated_at',
+  assistantUndo: 'id, created_at',
+  pickHistory: 'id, context',
+  userPrefs: 'id',
+  attachments: 'id, task_id, comment_id',
+  attachmentBlobs: 'id',
+  calendarEvents: 'id, subscriptionId, start.date',
+  calendarSubscriptions: 'id',
+  review: 'id',
+}
+
 class OpenTodoDB extends Dexie {
   projects!: Table<Project, string>
   tasks!: Table<Task, string>
@@ -144,6 +171,8 @@ class OpenTodoDB extends Dexie {
   themes!: Table<CustomTheme, string>
   /** Quarterly and weekly objectives (OpenSpec plan-objectives): a synced entity, by period. */
   objectives!: Table<Objective, string>
+  /** Dossiers (OpenSpec change resume-dossiers): a synced personal entity, ordered by position. */
+  dossiers!: Table<Dossier, string>
   /** The focus timer's state (focus-mode D2): one row "current" on this device, never synced, cleared at sign-out. */
   focus!: Table<FocusState, string>
   /** The account's workspaces, their members and groups (workspaces D8): replaced from every sync response, never ops. */
@@ -401,31 +430,7 @@ class OpenTodoDB extends Dexie {
       calendarSubscriptions: 'id',
     })
     // v19 (stats-and-review): the synced personal `review` row (the last weekly review); every store is redeclared.
-    this.version(19).stores({
-      projects: 'id, position',
-      tasks: 'id, project_id, parent_id, completed_at, position, assignee_id, section_id',
-      labels: 'id, position',
-      views: 'id, position',
-      reminders: 'id, task_id, fire_at',
-      sections: 'id, [project_id+position], project_id',
-      fields: 'id, [project_id+position], project_id',
-      outbox: '++local, id',
-      meta: 'key',
-      memberships: 'projectId',
-      notifications: 'id, createdAt',
-      comments: 'id, task_id',
-      activity: 'id, [projectKey+ts], taskId, entityId',
-      prefs: 'id',
-      assistantThreads: 'id, updated_at',
-      assistantUndo: 'id, created_at',
-      pickHistory: 'id, context',
-      userPrefs: 'id',
-      attachments: 'id, task_id, comment_id',
-      attachmentBlobs: 'id',
-      calendarEvents: 'id, subscriptionId, start.date',
-      calendarSubscriptions: 'id',
-      review: 'id',
-    })
+    this.version(19).stores(V19_STORES)
     // v20 (time-tracking): the synced `time_entry` entity. Dexie keeps every
     // store of v19, so only the new one is declared. No index on ended_at:
     // IndexedDB does not index null, the running entry is found by user_id.
@@ -440,6 +445,7 @@ class OpenTodoDB extends Dexie {
     this.version(27).stores({ notes: 'id, project_id' }) // v27 (notes-overview): the synced `note` entity.
     this.version(28).stores({ themes: 'id, position' }) // v28 (theme-editor): the synced `theme` entity.
     this.version(29).stores({ objectives: 'id, period' }) // v29 (plan-objectives): the synced `objective` entity.
+    this.version(30).stores({ dossiers: 'id, workspace_id, position' }) // v30 (resume-dossiers): the synced `dossier` entity, partitioned like a label.
   }
 }
 
@@ -518,7 +524,7 @@ function tableMap(d: OpenTodoDB) {
   return {
     project: d.projects, task: d.tasks, label: d.labels, view: d.views, reminder: d.reminders, section: d.sections,
     field: d.fields, comment: d.comments, project_prefs: d.prefs, user_prefs: d.userPrefs, attachment: d.attachments, review: d.review,
-    time_entry: d.timeEntries, place: d.places, rule: d.rules, frame: d.frames, slot: d.slots, note: d.notes, theme: d.themes, objective: d.objectives,
+    time_entry: d.timeEntries, place: d.places, rule: d.rules, frame: d.frames, slot: d.slots, note: d.notes, theme: d.themes, objective: d.objectives, dossier: d.dossiers,
   } satisfies Record<Entity, Table<unknown, string>>
 }
 

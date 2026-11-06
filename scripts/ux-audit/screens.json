@@ -384,6 +384,44 @@
   "ready": "main h1"
  },
  {
+  "id": "simple",
+  "route": "simple",
+  "kind": "screen",
+  "seed": "layout-check",
+  "frequency": "daily",
+  "core": true,
+  "layoutCheck": null,
+  "layoutCheckReason": "Simple mode's own screen; checked by budget.test.tsx at 390 and 1280 px, added to the tour, not yet to the layout check",
+  "story": "Screens/Simple",
+  "path": "/simple",
+  "ready": "[data-simple-board]"
+ },
+ {
+  "id": "resume",
+  "route": "resume",
+  "kind": "screen",
+  "seed": "layout-check",
+  "frequency": "weekly",
+  "core": true,
+  "layoutCheck": null,
+  "layoutCheckReason": "Pick up the thread came with the dossiers port, after the layout check list; added to the tour",
+  "story": "Screens/Resume",
+  "path": "/resume",
+  "ready": "[data-resume-capture]"
+ },
+ {
+  "id": "dossier",
+  "route": "dossier",
+  "kind": "screen",
+  "seed": "layout-check",
+  "frequency": "weekly",
+  "core": true,
+  "layoutCheck": null,
+  "layoutCheckReason": "a dossier page needs a dossier the layout-check seed does not create; shown by the Screens/Resume dossier page story",
+  "story": "Screens/Resume",
+  "tour": false
+ },
+ {
   "id": "next",
   "route": "next",
   "kind": "screen",

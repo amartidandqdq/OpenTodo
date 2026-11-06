@@ -6,7 +6,7 @@
 // board and the timeline.
 import { CloseDayRow } from './CloseDayRow'
 import { useWithMethod } from './help/MethodLink'
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { ProjectCalendarLayout, useListExtras } from './task-list/listExtras'
 import { t } from '../lib/i18n'
 import { sharedWithSomeoneElse } from '../lib/dayLists'
@@ -70,6 +70,7 @@ import { useListShortcuts, type ListUi } from './task-list/useListShortcuts'
 import { noteTodayOpened } from '../lib/firstDay'
 import { InboxMenu } from './SampleNotice'
 import { TodayAgenda, useTodayAgenda } from './calendar/TodayAgenda'
+import { TodayFocus } from './task-list/TodayFocus'
 import { UpcomingEventsNote, useUpcomingList } from './calendar/UpcomingAgenda'
 import { RoutinesInboxSlot } from './routines/InboxSlot'
 import { closedListMeta } from './task-list/useClosedList'
@@ -79,6 +80,7 @@ import { closedListOffered } from '../lib/closedListPrefs'
 import { dayPartsOn, setDayParts } from '../lib/dayParts'
 import { readMethodMode } from '../lib/method/mode'
 import { addManyToList, createUnlessReused } from './reuseAdd'
+import { TodaySummaryLine } from './task-list/TodaySummaryLine'
 
 export { BLOCKED_OPEN_KEY } from '../lib/listGroups'
 
@@ -176,6 +178,9 @@ function useOwnOrder(route: ListRoute, rows: ListRow[], groups: ListGroup[]) {
   }, [host])
   return useMemo(() => (host ? { reorder, step, groupOf } : null), [host, reorder, step, groupOf])
 }
+
+// Resume the thread (today-home): the featured dossier's card loads after Today's rows; an account without a dossier shows nothing there.
+const TodayResume = lazy(() => import('./task-list/TodayResume').then((m) => ({ default: m.TodayResume })))
 
 export function TaskListView({ route, userId, userRole }: { route: ListRoute; userId?: string; userRole?: AccountRole }) {
   const m = useListModel(route, userId)
@@ -341,7 +346,7 @@ export function TaskListView({ route, userId, userRole }: { route: ListRoute; us
   // The Open Loops move this screen serves (open-loops "References to the method").
   const methodMove = route.view === 'inbox' ? 'catch' as const : route.view === 'someday' ? 'place' as const : undefined
   // Today's planned and tracked totals sit in the header's meta, not a new row (time-tracking D4).
-  const listedTasks = useMemo(() => (route.view === 'today' ? m.ownRows.map((r) => r.task) : []), [route.view, m.ownRows])
+  const listedTasks = useMemo(() => (route.view === 'today' ? [...new Map([...m.ownRows.map((r) => r.task), ...(m.focus?.all ?? [])].map((task) => [task.id, task])).values()] : []), [route.view, m.ownRows, m.focus])
   const totals = useDayTotals(listedTasks, today, route.view === 'today')
   const todayMeta /* with the closed list's "3 of 5 · 4 done" (today-closed-list D1, D6) */ = [m.dt.formatDate(today, 'heading'), closedListMeta(m.closed), dayTotalsText(totals.planned, totals.tracked)].filter(Boolean).join(' · ')
   const meta = useWithMethod(methodMove, route.view === 'today' ? todayMeta : route.view === 'label' ? rows.length : route.view === 'inbox' ? inbox.meta : undefined)
@@ -391,6 +396,7 @@ export function TaskListView({ route, userId, userRole }: { route: ListRoute; us
 
           {route.view === 'inbox' && <RoutinesInboxSlot />}{route.view === 'project' && currentProject && <ProjectNote project={currentProject} phone={phone} />}
           {route.view === 'project' && !board && <SubProjects projectId={route.id} />}
+          {route.view === 'today' && <TodayFocus />}{route.view === 'today' && <Suspense fallback={null}><TodayResume /></Suspense>}
           {m.offerColumns && <ColumnsToggle on={!!m.columnsPref} onToggle={() => projectId && saveListColumns(projectId, !m.columnsPref)} />}
           {own.length === 0 && !upcomingCal.hasEvents && !(board || m.liveSections.length > 0) && (m.duration || m.queryFilter?.query
             ? <FilteredEmpty onClear={() => { m.chooseDuration(null); m.queryFilter?.setQuery('') }} />
@@ -511,6 +517,7 @@ function ListHeader({ route, title, label, meta, subtitle, actions, phone, agend
       overflow={phoneItems || toggle ? <>{phoneItems}{phoneItems && toggle && <MenuSeparator />}{toggle}{startItem}{route.view === 'upcoming' && <ProjectionsMenuItem surface="upcoming" />}{upcomingItem}{agendaItem}{assigneesItem}{partsItem}{closedItems}{route.view === 'today' && <ReplanTodayItem />}</> : undefined}
       leading={label && <span className="h-3 w-3 rounded-full" style={{ backgroundColor: label.color }} />}
       meta={meta} subtitle={subtitle} menu={menu} kind={route.view === 'today' || route.view === 'upcoming' ? 'day' : 'tool'}
+      summary={route.view === 'today' ? <TodaySummaryLine /> : undefined}
       briefing={briefing && <BriefingText briefing={briefing} />} />
   )
 }

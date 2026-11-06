@@ -35,6 +35,9 @@ var notAStep = map[string]string{
 	"set_routine_enabled": "a routine never switches routines",
 	"run_routine":         "a routine never runs routines",
 	"trash_routine":       "a routine never deletes routines",
+	// Dossiers are personal threads the person tends by hand (resume-dossiers).
+	"create_dossier": "a dossier is personal context, not an automation step",
+	"update_dossier": "as create_dossier",
 }
 
 func TestEveryToolStepNamesARegistryTool(t *testing.T) {

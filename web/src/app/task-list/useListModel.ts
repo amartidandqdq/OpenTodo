@@ -14,7 +14,7 @@ import { listDisplayOf, type DisplayScope } from '../../lib/listDisplay'
 import { useListDisplay } from './useListDisplay'
 import { orderRank } from '../../lib/viewOrder'
 import { useAccountRowLayout } from '../../lib/rowLayout'
-import { useUserPrefsRow } from '../../lib/localData'
+import { useDossiers, useReviewRow, useUserPrefsRow } from '../../lib/localData'
 import { upcomingStartsWithToday } from '../../lib/userPrefs'
 import { dayPartsOn } from '../../lib/dayParts'
 import { useClosedList, useWaitingNow } from './useClosedList'
@@ -25,6 +25,7 @@ import { canEditTasks, roleOf, useMe } from '../../lib/sharing'
 import { buildTaskTree, progressMap } from '../../lib/subtasks'
 import type { Task } from '../../lib/types'
 import { inToday, upcomingDate } from '../../lib/views'
+import { todayFocusOf } from '../../lib/review'
 import { DESKTOP_HEADER_QUERY, useMediaQuery } from '../../ui'
 import { useDateTimeFormat } from '../DateTimePrefsProvider'
 import { hasTimeColumn } from '../../lib/rowTime'
@@ -172,10 +173,17 @@ export function useListModel(route: ListRoute, userId?: string) {
   // Upcoming's query filter (calendar-clarity D4), under the duration filter; per device, on local rows.
   const upcoming = useQueryFilter(UPCOMING_FILTER_KEY, allTasks)
   const queryTest = route.view === 'upcoming' ? upcoming.test : null
+  // My day already shows the tasks chosen for today, with the next step of each chosen
+  // dossier (resume-dossiers D5). Today's ordinary groups leave them out, so a task due
+  // today is shown once; every other view keeps its rows untouched.
+  const review = useReviewRow()
+  const dossiers = useDossiers()
+  const focus = useMemo(() => (route.view === 'today' ? todayFocusOf(review, today, allTasks, dossiers) : null), [route.view, review, today, allTasks, dossiers])
   const tasks = useMemo(() => {
     const byDuration = !duration || !filterKey ? viewTasks : viewTasks.filter(durationPredicate(duration))
-    return queryTest ? byDuration.filter(queryTest) : byDuration
-  }, [viewTasks, duration, filterKey, queryTest])
+    const byQuery = queryTest ? byDuration.filter(queryTest) : byDuration
+    return focus ? byQuery.filter((task) => !focus.ids.has(task.id)) : byQuery
+  }, [viewTasks, duration, filterKey, queryTest, focus])
 
   // Completed renders a page of the logbook at a time; a new route starts again.
   const [logbookLimit, setLogbookLimit] = useState(LOGBOOK_PAGE)
@@ -270,7 +278,7 @@ export function useListModel(route: ListRoute, userId?: string) {
     projectEditable: !!projectId && canEditTasks(roleOf(projectId, memberMap)),
     allTasks, taskMap, progress, blocked, flow, habits, ...filter, logbook, logbookLimit, setLogbookLimit,
     collapsed, toggleCollapsed, ...layout, tree, columns, groups: projectedGroups, rows, ownRows, siblingPos, timeColumn, doneBySection,
-    showCompleted, reusable, completedTasks, completedOpen, display, displayScope, listDisplay, dayParts, closed, upcomingToday, upcomingThrough,
+    showCompleted, reusable, completedTasks, completedOpen, display, displayScope, listDisplay, dayParts, closed, upcomingToday, upcomingThrough, focus,
     queryFilter: route.view === 'upcoming' ? upcoming : null,
   }
 }

@@ -354,7 +354,9 @@ func TestUserExportExcludesAudit(t *testing.T) {
 			// quarterly and weekly objectives (plan-objectives).
 			"objectives",
 			// the caller's workspaces (workspaces).
-			"workspaces":
+			"workspaces",
+			// personal threads of existing tasks (resume-dossiers).
+			"dossiers":
 		default:
 			t.Fatalf("user export has unexpected key %q", k)
 		}

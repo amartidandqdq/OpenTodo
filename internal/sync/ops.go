@@ -870,6 +870,15 @@ var Schema = map[string]map[string]Field{
 		// clients read an empty or unknown value as off and keep the stored
 		// value. Objectives stay in the export, REST, the CLI and MCP either way.
 		"objectives": {Kind: kString, Default: `""`},
+		// Simple mode (OpenSpec change simple-mode, design D2): "on" opens the
+		// app on the Simple screen (/simple: lists as columns, one field);
+		// clients read an empty or unknown value as off and keep the stored
+		// value. Settings, never content.
+		"simple_mode": {Kind: kString, Default: `""`},
+		// The lists the Simple screen leaves out (simple-mode D2): project ids;
+		// clients ignore unknown ids, and "My tasks" (no project) is never
+		// listed. Hiding writes nothing on the project or its tasks.
+		"simple_hidden": {Kind: kStringList, Default: `[]`},
 	},
 	// objective: one quarterly or weekly objective (OpenSpec change
 	// plan-objectives, design D1). Personal like place: it resolves to the
@@ -929,6 +938,30 @@ var Schema = map[string]map[string]Field{
 		// batch as focus and focus_date; an entry counts only for an id in
 		// focus. Task ids and fixed letters only, never content.
 		"focus_slots": {Kind: kString, Default: `""`},
+		// The dossiers chosen for today's focus (OpenSpec change
+		// resume-dossiers), an ordered id list beside the task focus and dated by
+		// the same focus_date. Ids only, never content.
+		"focus_dossiers": {Kind: kIDList, Default: `[]`},
+	},
+	// dossier: a personal, ordered thread of existing tasks (OpenSpec change
+	// resume-dossiers, design D1). It lives in the author's personal scope like a
+	// label and is partitioned by workspace_id; it never moves a task or changes
+	// its list, due date or completion. task_ids is the order, and the current
+	// step and progress are derived from those live tasks. waiting, waiting_for
+	// and follow_up are the thread's own hold, never a task due date. title, note
+	// and waiting_for are user-written content, so an encrypted account encrypts
+	// them.
+	"dossier": {
+		"title":        {Kind: kString, Default: `""`, Content: true},
+		"note":         {Kind: kString, Default: `""`, Content: true},
+		"task_ids":     {Kind: kIDList, Default: `[]`},
+		"waiting":      {Kind: kBool, Default: `false`},
+		"waiting_for":  {Kind: kString, Default: `""`, Content: true},
+		"follow_up":    {Kind: kDate, Default: `null`},
+		"workspace_id": {Kind: kNullableString, Default: `null`},
+		"position":     {Kind: kNumber, Default: `0`},
+		"created_at":   {Kind: kNumber, Default: `0`},
+		"deleted_at":   {Kind: kNullableNumber, Default: `null`},
 	},
 }
 
@@ -975,6 +1008,9 @@ func Validate(op Op) error {
 	}
 	if err := checkIDListOp(op, k); err != nil {
 		return err
+	}
+	if op.Entity == "review" && op.Field == "focus_dossiers" && len(idList(op.Value)) > 3 {
+		return fmt.Errorf("%w: review.focus_dossiers accepts at most three dossiers", ErrInvalidOp)
 	}
 	if op.Entity == "attachment" {
 		if err := checkAttachment(op.Field, op.Value); err != nil {

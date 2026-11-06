@@ -38,6 +38,15 @@ function inboxRule(snap: Snapshot): (t: Row) => boolean {
 const projectName = (snap: Snapshot, pid: string) => (pid ? field(snap.projects.get(pid), 'name') : 'Inbox')
 
 /** A task as an assistant sees it (snapshot.render). */
+/** The newest field clock of a local row (Unix ms), 0 without one. */
+function lastChange(t: Row): number {
+  const clock = t._clock
+  if (!clock || typeof clock !== 'object') return 0
+  let max = 0
+  for (const c of Object.values(clock as Record<string, { ts?: unknown }>)) if (typeof c?.ts === 'number' && c.ts > max) max = c.ts
+  return max
+}
+
 function render(snap: Snapshot, t: Row, tz: string, today: string, withDescription: boolean): Record<string, unknown> {
   const pid = field(t, 'project_id')
   const labels: string[] = []
@@ -61,6 +70,10 @@ function render(snap: Snapshot, t: Row, tz: string, today: string, withDescripti
   if (field(t, 'recurrence')) out.recurrence = field(t, 'recurrence')
   if (num(t, 'estimate_minutes') > 0) out.estimate_minutes = num(t, 'estimate_minutes')
   if (!isOpen(t)) out.completed_at = iso(num(t, 'completed_at'))
+  if (num(t, 'created_at') > 0) out.created_at = iso(num(t, 'created_at'))
+  // When anything of the task last changed, like the server's view (simple-mode D6: tidy-up).
+  const changed = lastChange(t)
+  if (changed > 0) out.changed_at = iso(changed)
   if (pid && snap.memberships.has(pid)) out.shared = true
   if (isCiphertext(t.title) || isCiphertext(t.description)) out.encrypted = true
   const d = dueOf(t)

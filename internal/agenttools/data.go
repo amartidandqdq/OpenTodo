@@ -65,6 +65,8 @@ type snapshot struct {
 	// part places projects and tasks in them (built on first use, reset by apply).
 	workspaces []opsync.Workspace
 	part       *opsync.Partition
+	// changed reads when each task last changed, on first use (changed.go).
+	changed lastChanged
 }
 
 // keptAway resolves which of the user's projects are kept away from AI
@@ -218,6 +220,7 @@ func (r *Registry) loadWith(ctx context.Context, userID string, tasks taskReader
 			}
 		}
 	}
+	snap.changed = r.lastChangedOf(ctx, userID)
 	return snap, nil
 }
 
@@ -489,6 +492,9 @@ type taskOut struct {
 	// (OpenSpec change completed-date-filters).
 	CompletedBy *string `json:"completed_by,omitempty"`
 	CreatedAt   *string `json:"created_at,omitempty"`
+	// ChangedAt is when anything of the task last changed (OpenSpec change
+	// simple-mode, design D6: the tidy-up skill's stale tasks).
+	ChangedAt *string `json:"changed_at,omitempty"`
 	// Shared is true for tasks of a shared project: other members may have
 	// written its text (design D9.6).
 	Shared bool `json:"shared,omitempty"`
@@ -552,6 +558,7 @@ func (snap *snapshot) render(t opsync.Entity, loc *time.Location, today string, 
 		Priority: priority(t), LabelIDs: []string{},
 		Recurrence: strPtr(t, "recurrence"), Habit: string(t["habit"]) == "true", Completed: !isOpen(t), TrackedMinutes: snap.tracked[str(t, "id")],
 		CompletedAt: isoTime(num(t, "completed_at")), CreatedAt: isoTime(num(t, "created_at")),
+		ChangedAt: snap.changed.at(str(t, "id")),
 	}
 	if out.Completed {
 		out.CompletedBy = strPtr(t, "completed_by")

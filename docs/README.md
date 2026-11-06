@@ -47,6 +47,7 @@ The same guides are published, with screenshots and search, at [open-todo.app/do
 | &nbsp;&nbsp;↳ [Calendar events in Today](calendar-events-in-today.md) | Show the day's appointments from your subscribed calendars above Today's tasks: turning it on, what the agenda shows, and how it works offline. |
 | &nbsp;&nbsp;↳ [Saved views](saved-views.md) | Turn a filter query into a view pinned to the sidebar, group and sort it, manage it from its menu, and put up to six views on one dashboard. |
 | &nbsp;&nbsp;↳ [Display mode](display-mode.md) | Show Today, Upcoming, a project or a saved view full screen in large type, for a tablet on the fridge or an e-ink panel on the wall. |
+| &nbsp;&nbsp;↳ [Simple mode](simple-mode.md) | Your lists side by side with one-line tasks and a star, and one field that adds a task or asks the assistant to plan your day, break a task down, turn notes into tasks or tidy up. |
 | [Search and commands](search.md) | One box on Ctrl+K finds any task, project, label, view or setting, runs any command by name, and understands filter queries. |
 | [Sections and boards](sections-and-boards.md) | Split a project into stages with sections, and switch it to a board to move cards between columns by drag or keyboard. |
 | &nbsp;&nbsp;↳ [A project on a timeline](project-timeline.md) | Show a project's tasks as bars from their start to their deadline, drag them to reschedule, and see which tasks wait for which. |

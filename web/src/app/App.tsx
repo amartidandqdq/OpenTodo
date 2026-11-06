@@ -43,6 +43,8 @@ export { DemoBanner }
 
 // Display mode (display-mode): its own chunk, fetched when a display route opens.
 const DisplayScreen = lazy(() => import('./display/DisplayScreen').then((m) => ({ default: m.DisplayScreen })))
+// Simple mode (simple-mode D1): its own chunk, fetched when /simple opens.
+const SimpleScreen = lazy(() => import('./simple/SimpleScreen').then((m) => ({ default: m.SimpleScreen })))
 
 type Phase =
   | { kind: 'loading' }
@@ -283,11 +285,10 @@ export function App() {
     if (route.view === 'share') {
       return <ShareCapture />
     }
-    if (route.view === 'display') {
-      // Display mode (display-mode D3): the display replaces the shell; sync keeps
-      // running (started above for every signed-in route), so it stays live.
-      return <PanelBoundary><Suspense fallback={null}><DisplayScreen route={route} /></Suspense></PanelBoundary>
-    }
+    // Display mode (display-mode D3) and Simple mode (simple-mode D1) replace the shell; sync
+    // keeps running (started above for every signed-in route), so they stay live.
+    if (route.view === 'display') return <PanelBoundary><Suspense fallback={null}><DisplayScreen route={route} /></Suspense></PanelBoundary>
+    if (route.view === 'simple') return <PanelBoundary><Suspense fallback={null}><SimpleScreen name={phase.user.name} /></Suspense></PanelBoundary>
     return (
       <>
         {enc.updateRequired && (

@@ -12,7 +12,7 @@ card: settings-workspaces
 
 <picture><source srcset="images/workspace-switcher-dark.webp" media="(prefers-color-scheme: dark)"><img src="images/workspace-switcher-light.webp" alt="The workspace switcher open at the top of the sidebar: Personal and Family with their Inbox and Today counts, New workspace and Manage workspaces."></picture>
 
-A workspace is a separate room with its own projects, labels, filters and people. Keep your job in **Work** and the household in **Family**, and switch between them in one click.
+A workspace has its own projects, labels, filters and people. Keep your job in **Work** and household in **Family**.
 
 ## Your default workspace
 
@@ -20,7 +20,7 @@ Every account starts with one workspace, **Personal**, which holds everything yo
 
 ## Switch
 
-Select the workspace name at the top of the sidebar to open the switcher. It lists your workspaces with their Inbox and Today counts. Pick one and every list, count, search and quick add shows that workspace. A dot on the name means another workspace has updates.
+Select a button below the sidebar header to switch workspaces. The highlighted button marks the current workspace. Select the name above for Inbox and Today counts and management actions. Every list, count, search and quick add shows the selected workspace. A dot on the name means another workspace has updates.
 
 Your choice is remembered on each device. From the keyboard, open search with <kbd>Ctrl</kbd>+<kbd>K</kbd> and type **Switch to workspace**. Opening a link or a notification from another workspace switches for you.
 

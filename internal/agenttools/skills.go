@@ -119,7 +119,7 @@ Do it in exactly these steps:
 		Tools:       withRead("create_tasks", "update_tasks", "schedule_tasks", "move_tasks", "complete_tasks", "create_project", "create_label"),
 		Instructions: `Turn the user's material (what they typed or spoke, pasted text and photos) into tasks, proposed as one change set.
 - Find the actionable items only: one task per action. Keep the user's own wording for titles; tidy them into a short phrase that starts with a verb only when that keeps the meaning.
-- Read the projects with list_projects. Put a task in a project, section or label only when the material names it or it is unambiguous among the existing ones. Propose a new project (create_project) only when the material asks for one, and a new label only when the material names one that does not exist.
+- Read the projects with list_projects. Put a task in a project, section or label only when the material names it or it is unambiguous among the existing ones. Otherwise look at the projects' open tasks (list_tasks or search_tasks with the item's main word): when exactly one project's open tasks clearly share the item's subject (the same object, place or person named in their titles) and no other project's do, put the task there and say "filed with <project>'s tasks" for it in the answer; when several or none do, give it no project. Propose a new project (create_project) only when the material asks for one, and a new label only when the material names one that does not exist.
 - Set a due date, priority or estimate only when the material states it. "high priority" or "urgent" is priority 1.
 - Before proposing a new task, look for an open task with the same meaning (search_tasks). When one exists, propose a change to it instead of a duplicate (update_tasks, schedule_tasks or move_tasks), and say "already in your tasks" for it in the answer.
 - Change, schedule, move or complete an existing task only when the material says so. Never trash or delete anything.
@@ -127,6 +127,35 @@ Do it in exactly these steps:
 - When the material holds no actionable item, say that no tasks were found and propose nothing.
 - Create the new tasks with as few create_tasks calls as possible. Keep the proposal within 50 changed items; offer to continue afterwards.
 - End with a short list: each task, and for an existing one "already in your tasks" and what changes.`,
+	},
+	{
+		// simple-mode D6: Google Tasks' "To-do today" list, chosen for the user.
+		ID: "plan-day", Name: "Plan my day", Result: ResultChanges,
+		Description: "Picks 3 to 5 open tasks from all your lists for today.",
+		Example:     "Plan my day",
+		Tools:       withRead("schedule_tasks"),
+		Instructions: `Choose what the user does today: 3 to 5 tasks in total, counting the tasks already due today.
+- Call today_summary first. Tasks already due today or overdue count toward the 3 to 5. When today_limit is set, never let today hold more open tasks than the limit; when today is already full, say so and propose nothing.
+- Read the open tasks of every project and of the Inbox with list_tasks. Prefer, in this order: overdue tasks, priority 1 (starred) tasks, tasks whose deadline is within 7 days, then the tasks that have waited longest (oldest created_at).
+- Leave out tasks blocked by an open task, tasks with a start date after today or start "someday", and subtasks whose parent is chosen.
+- Call schedule_tasks once with today's date for the tasks you add. Keep a time only when the task already has one.
+- Do not create, move, rename, complete or trash any task, and change no other field.
+- When there is no open task, say so and propose nothing.
+- End with one line per chosen task: its title and the reason in a few words.`,
+	},
+	{
+		// simple-mode D6: duplicates and forgotten tasks, proposed, never trashed.
+		ID: "tidy-up", Name: "Tidy up", Result: ResultChanges,
+		Description: "Finds duplicate and forgotten tasks and proposes what to do with them.",
+		Example:     "Tidy up my lists",
+		Tools:       withRead("complete_tasks", "update_tasks", "schedule_tasks"),
+		Instructions: `Tidy the user's open tasks. Look for two kinds of finding only.
+- Duplicates: open tasks with the same title ignoring case, spaces and punctuation, or that clearly name the same action. Keep the oldest (created_at) and propose complete_tasks for each newer copy, saying "duplicate of <kept title>" for it.
+- Forgotten tasks: open tasks whose changed_at is more than 60 days ago, with no due date, no deadline and no start. For each, propose update_tasks with start "someday", or schedule_tasks with a date when the task's own text names a time.
+- Change no other field. Never trash, delete, rename or move a task, and never complete one that is not a duplicate.
+- Keep the proposal within 50 changed items; offer to continue afterwards.
+- When there is nothing to tidy, say so and propose nothing.
+- End with a short list: each task, what changes and why in a few words.`,
 	},
 }
 

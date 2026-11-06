@@ -2211,6 +2211,7 @@
         "daily_at": "number",
         "focus": "string",
         "focus_date": "string",
+        "focus_dossiers": "id_list",
         "focus_slots": "string",
         "id": "string",
         "monthly_at": "number",
@@ -2355,6 +2356,8 @@
         "sidebar_counts": "string",
         "sidebar_destinations": "string",
         "sidebar_order": "string",
+        "simple_hidden": "string_list",
+        "simple_mode": "string",
         "start_checklist": "string",
         "task_open": "string",
         "theme_accent": "string",
@@ -2402,6 +2405,7 @@
     "members": {
       "attachments": "array",
       "comments": "array",
+      "dossiers": "array",
       "encryption": "object|null",
       "exportedAt": "string",
       "fields": "array",
@@ -2474,6 +2478,19 @@
       "arguments": {
         "ids": "array",
         "timezone": "string?"
+      },
+      "kind": "write"
+    },
+    "create_dossier": {
+      "arguments": {
+        "client_request_id": "string?",
+        "follow_up": "string|null?",
+        "id": "string?",
+        "note": "string?",
+        "task_ids": "array?",
+        "title": "string",
+        "waiting": "boolean?",
+        "waiting_for": "string?"
       },
       "kind": "write"
     },
@@ -2602,6 +2619,14 @@
         "timezone": "string?"
       },
       "kind": "read"
+    },
+    "list_dossiers": {
+      "kind": "read",
+      "result": {
+        "_notice": "string",
+        "dossiers": "array",
+        "server_time": "string"
+      }
     },
     "list_frames": {
       "arguments": {
@@ -2746,6 +2771,7 @@
         "tasks": "array",
         "tasks[].blocked": "boolean",
         "tasks[].blocked_by": "array",
+        "tasks[].changed_at": "string",
         "tasks[].completed": "boolean",
         "tasks[].created_at": "string",
         "tasks[].due": "object",
@@ -2920,6 +2946,7 @@
         "due_today": "array",
         "due_today[].blocked": "boolean",
         "due_today[].blocked_by": "array",
+        "due_today[].changed_at": "string",
         "due_today[].completed": "boolean",
         "due_today[].created_at": "string",
         "due_today[].due": "object",
@@ -2954,6 +2981,18 @@
     "trash_tasks": {
       "arguments": {
         "ids": "array"
+      },
+      "kind": "write"
+    },
+    "update_dossier": {
+      "arguments": {
+        "follow_up": "string|null?",
+        "id": "string",
+        "note": "string?",
+        "task_ids": "array?",
+        "title": "string?",
+        "waiting": "boolean?",
+        "waiting_for": "string?"
       },
       "kind": "write"
     },
@@ -3101,6 +3140,18 @@
       "parent_id": "nullable_string",
       "task_id": "id"
     },
+    "dossier": {
+      "created_at": "number",
+      "deleted_at": "nullable_number",
+      "follow_up": "date",
+      "note": "string",
+      "position": "number",
+      "task_ids": "id_list",
+      "title": "string",
+      "waiting": "bool",
+      "waiting_for": "string",
+      "workspace_id": "nullable_string"
+    },
     "field": {
       "created_at": "number",
       "deleted_at": "nullable_number",
@@ -3209,6 +3260,7 @@
       "daily_at": "number",
       "focus": "string",
       "focus_date": "string",
+      "focus_dossiers": "id_list",
       "focus_slots": "string",
       "monthly_at": "number",
       "slots": "string",
@@ -3345,6 +3397,8 @@
       "sidebar_counts": "string",
       "sidebar_destinations": "string",
       "sidebar_order": "string",
+      "simple_hidden": "string_list",
+      "simple_mode": "string",
       "start_checklist": "string",
       "task_open": "string",
       "theme_accent": "string",
@@ -4265,6 +4319,7 @@
       "response": {
         "attachments": "array",
         "comments": "array",
+        "dossiers": "array",
         "encryption": "object|null",
         "encryption.createdAt": "number",
         "encryption.iterations": "number",
@@ -4367,6 +4422,7 @@
         "jobs[].totals.attachments": "number",
         "jobs[].totals.create": "number",
         "jobs[].totals.deadlines": "number",
+        "jobs[].totals.dossiers": "number",
         "jobs[].totals.entities": "number",
         "jobs[].totals.error": "number",
         "jobs[].totals.fields": "number",
@@ -4423,6 +4479,7 @@
         "job.totals.attachments": "number",
         "job.totals.create": "number",
         "job.totals.deadlines": "number",
+        "job.totals.dossiers": "number",
         "job.totals.entities": "number",
         "job.totals.error": "number",
         "job.totals.fields": "number",
@@ -8041,6 +8098,7 @@
         "job.totals.attachments": "number",
         "job.totals.create": "number",
         "job.totals.deadlines": "number",
+        "job.totals.dossiers": "number",
         "job.totals.entities": "number",
         "job.totals.error": "number",
         "job.totals.fields": "number",
@@ -8097,6 +8155,7 @@
         "job.totals.attachments": "number",
         "job.totals.create": "number",
         "job.totals.deadlines": "number",
+        "job.totals.dossiers": "number",
         "job.totals.entities": "number",
         "job.totals.error": "number",
         "job.totals.fields": "number",
@@ -8162,6 +8221,7 @@
         "totals.attachments": "number",
         "totals.create": "number",
         "totals.deadlines": "number",
+        "totals.dossiers": "number",
         "totals.entities": "number",
         "totals.error": "number",
         "totals.fields": "number",

@@ -18,6 +18,7 @@ import { labelMenuGroups } from '../LabelsView'
 import type { ListState } from '../listActions'
 import { flatItems, type ActionGroup } from '../menus/ActionMenu'
 import { startFocusOn } from '../focus/startFocus'
+import { setSimpleMode } from '../../lib/simpleMode'
 import { projectMenuGroups, type MoveTarget } from '../ProjectHeader'
 import { navigate, type Route } from '../router'
 import { sectionMenuGroups } from '../Sections'
@@ -99,6 +100,7 @@ interface Command {
 // The "Go to" commands; their shortcut column is the registry's `go.*` rows (keyboard-shortcuts "Registry drives the guide and the palette").
 type RouteCommand = { label: string; route: Route; icon: IconName; shortcut?: string; keywords?: string }
 const ROUTES: RouteCommand[] = translatedList<RouteCommand, 'label'>([
+  { label: msg('Go to Pick up the thread'), route: { view: 'resume' }, icon: 'compass', keywords: 'dossier dossiers thread resume reprendre fil' },
   { label: msg('Go to Inbox'), route: { view: 'inbox' }, icon: 'inbox', shortcut: keysOf('go.inbox') },
   { label: msg('Go to Today'), route: { view: 'today' }, icon: 'calendar-check', shortcut: keysOf('go.today') },
   { label: msg('Go to Upcoming'), route: { view: 'upcoming' }, icon: 'calendar-days', shortcut: keysOf('go.upcoming') },
@@ -381,6 +383,8 @@ export function commands(ctx: PaletteContext): Command[] {
     })),
     { id: 'workspace:new', label: t('New workspace'), icon: 'plus', keywords: 'workspace add create', run: () => requestNewWorkspace() },
     { id: 'app:sync', label: t('Sync now'), icon: 'rotate-ccw', run: () => syncNow() },
+    // Simple mode (simple-mode "Entering and leaving Simple mode"): the synced switch on, then the Simple screen.
+    { id: 'app:simple', label: t('Simple mode'), icon: 'list-checks', keywords: t('google tasks columns lists simple minimal'), run: () => setSimpleMode(true).then(() => navigate({ view: 'simple' })) },
     { id: 'app:shortcuts', label: t('Keyboard shortcuts'), icon: 'list', shortcut: keysOf('global.help'), run: () => ctx.showShortcuts() },
     { id: 'app:sidebar-find', label: t('Find in the sidebar'), icon: 'search', shortcut: keysOf('go.find'), keywords: t('project label view'), run: () => sidebarFind.request('open') },
     { id: 'app:vim', label: ctx.vimEnabled ? t('Turn off Vim keybindings') : t('Turn on Vim keybindings'), icon: 'settings', run: () => setVimEnabled(!ctx.vimEnabled) },

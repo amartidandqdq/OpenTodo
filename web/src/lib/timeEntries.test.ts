@@ -38,6 +38,19 @@ describe('the time_entry entity', () => {
   })
 })
 
+describe('re-seeding after a restore', () => {
+  it('does not re-send fields the server wrote (the server refuses them and sync would stay stuck)', async () => {
+    await applyOps([
+      { id: 'a', entity: 'task', entityId: 't1', field: 'title', value: 'From the API', ts: 5, device: 'server:boot1' },
+      { id: 'b', entity: 'task', entityId: 't1', field: 'notes', value: 'By an assistant', ts: 6, device: 'agent:tok' },
+      { id: 'c', entity: 'task', entityId: 't1', field: 'priority', value: 2, ts: 7, device: 'a-browser' },
+    ])
+    await reseedAfterRestore('gen-2')
+    const sent = (await db.outbox.toArray()).filter((o) => o.entityId === 't1')
+    expect(sent.map((o) => o.field)).toEqual(['priority'])
+  })
+})
+
 describe('start and stop', () => {
   it('Start stops the running one: A ends at B\'s start with 25 minutes, in one batch', async () => {
     const a = await startTracking('A', { now: min(0) })

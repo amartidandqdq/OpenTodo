@@ -3089,6 +3089,7 @@
   "Nothing waiting for a free moment.": "Rien n’attend un moment libre.",
   "Nothing was planned for today and nothing was completed.": "Rien n’était prévu aujourd’hui et rien n’a été terminé.",
   "Nothing was planned today": "Rien n’était prévu aujourd’hui",
+  "Nothing from this share was kept: the browser did not say where it came from. Update the browser, then share again.": "Rien de ce partage n’a été conservé : le navigateur n’a pas indiqué d’où il venait. Mettez le navigateur à jour, puis partagez à nouveau.",
   "Nothing was shared. Type a task to add it anyway.": "Rien n’a été partagé. Tapez une tâche pour l’ajouter quand même.",
   "Notifications": "Notifications",
   "Notifications allowed": "Notifications autorisées",
@@ -7317,5 +7318,9 @@
   "{n, plural, one {# earlier} other {# earlier}}": "{n, plural, one {# plus ancienne} other {# plus anciennes}}",
   "nothing earlier": "rien de plus ancien",
   "next appointment {time} {title}": "prochain rendez-vous {time} {title}",
-  "your dossiers and their notes": "vos dossiers et leurs notes"
+  "your dossiers and their notes": "vos dossiers et leurs notes",
+  "Reorder": "Réordonner",
+  "Move to top": "Placer en haut",
+  "Move to bottom": "Placer en bas",
+  "Move {name}": "Déplacer {name}"
 }

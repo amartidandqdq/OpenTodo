@@ -318,6 +318,7 @@ const shots = [
   // display-mode: Today full screen in large type, without the shell.
   { name: 'display-today', server: D, async run(p) { await go(p, demoBase, '/display/today', () => p.locator('[data-screen="display"] [data-display-row]').first().waitFor()) } },
   // simple-mode: the lists as columns with the one field.
+  { name: 'resume-page', server: D, async run(p) { await go(p, demoBase, '/resume', () => p.locator('[data-resume-capture]').first().waitFor()); await settle(p, 300) } },
   { name: 'simple-board', server: D, async run(p) { await go(p, demoBase, '/simple', () => p.locator('[data-simple-screen] [data-simple-row]').first().waitFor()); await settle(p, 300) } },
   { name: 'triage', server: D, async run(p) { await go(p, demoBase, '/triage', () => p.locator('[data-triage-card]').waitFor()); await settle(p, 300) } },
   // Notes (notes-overview): the task and project notes of the sample data.

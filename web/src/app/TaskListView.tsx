@@ -6,7 +6,7 @@
 // board and the timeline.
 import { CloseDayRow } from './CloseDayRow'
 import { useWithMethod } from './help/MethodLink'
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { ProjectCalendarLayout, useListExtras } from './task-list/listExtras'
 import { t } from '../lib/i18n'
 import { sharedWithSomeoneElse } from '../lib/dayLists'
@@ -14,7 +14,7 @@ import { useMemberships, useMembership, useUserPrefsRow } from '../lib/localData
 import { briefingHidden, preferredPlacement, setBriefingShown, setTodayEventsShown, setTodayHidesOthers, setUpcomingEventsShown, setUpcomingStartsWithToday, todayHidesOthers, upcomingStartsWithToday } from '../lib/userPrefs'
 import { useMe } from '../lib/sharing'
 import { completedOpenKey, flatRow, sectionOfRows, type ListGroup, type ListRow } from '../lib/listGroups'
-import type { Step } from '../lib/move'
+import { moveTaskBy, taskStepEdges, type Step } from '../lib/move'
 import type { ViewPlacement } from '../lib/viewOrder'
 import type { OrderHost } from '../lib/viewOrderMove'
 import { reorderInView, stepInView } from './viewOrderActions'
@@ -32,7 +32,7 @@ import { offerArchiveAfterCompletion } from './ArchivePrompt'
 import { useWorkspaceName } from './workspaceNav'
 import { BoardView } from './BoardView'
 import { BriefingText, useBriefing } from './Briefing'
-import { BulkActionsMenu, SelectionBar } from './bulk/BulkActions'
+import { BulkActionsMenu, ListReorderContext, SelectionBar, type ListReorder } from './bulk/BulkActions'
 import { useRowMenu } from './bulk/useRowMenu'
 import { useActionsOpen } from './bulk/useBulkList'
 import { useCollapsedGroups } from './collapsedGroups'
@@ -70,6 +70,7 @@ import { useListShortcuts, type ListUi } from './task-list/useListShortcuts'
 import { noteTodayOpened } from '../lib/firstDay'
 import { InboxMenu } from './SampleNotice'
 import { TodayAgenda, useTodayAgenda } from './calendar/TodayAgenda'
+import { TodayFocus } from './task-list/TodayFocus'
 import { UpcomingEventsNote, useUpcomingList } from './calendar/UpcomingAgenda'
 import { RoutinesInboxSlot } from './routines/InboxSlot'
 import { closedListMeta } from './task-list/useClosedList'
@@ -79,6 +80,7 @@ import { closedListOffered } from '../lib/closedListPrefs'
 import { dayPartsOn, setDayParts } from '../lib/dayParts'
 import { readMethodMode } from '../lib/method/mode'
 import { addManyToList, createUnlessReused } from './reuseAdd'
+import { TodaySummaryLine } from './task-list/TodaySummaryLine'
 
 export { BLOCKED_OPEN_KEY } from '../lib/listGroups'
 
@@ -177,6 +179,16 @@ function useOwnOrder(route: ListRoute, rows: ListRow[], groups: ListGroup[]) {
   return useMemo(() => (host ? { reorder, step, groupOf } : null), [host, reorder, step, groupOf])
 }
 
+// Resume the thread (today-home): the featured dossier's card loads after Today's rows; an account without a dossier shows nothing there.
+const TodayResume = lazy(() => import('./task-list/TodayResume').then((m) => ({ default: m.TodayResume })))
+/** The row menu's Reorder items (accessibility-aa D3): the keyboard move's writes, from a pointer; null without a manual order. */
+function useListReorder(manual: boolean, ownStep: ((id: string, how: Step) => Promise<boolean>) | undefined, onReorder: (() => void) | undefined): ListReorder | null {
+  return useMemo<ListReorder | null>(() => (!manual ? null : {
+    move: (id, step) => { if (ownStep) act(ownStep(id, step)); else { onReorder?.(); act(moveTaskBy(id, step)) } },
+    edges: ownStep ? () => Promise.resolve({ first: false, last: false }) : taskStepEdges,
+  }), [manual, ownStep, onReorder])
+}
+
 export function TaskListView({ route, userId, userRole }: { route: ListRoute; userId?: string; userRole?: AccountRole }) {
   const m = useListModel(route, userId)
   const workspaceName = useWorkspaceName()
@@ -249,7 +261,7 @@ export function TaskListView({ route, userId, userRole }: { route: ListRoute; us
     act(withListTransition(1, () => moveTaskToSection(task.id, key || null)))
   }, [sectionMap])
   // Manual ordering (manual-ordering): projects (editors and above) and the Inbox by positions; a label page by its own order (view-manual-order).
-  const projectManual = (route.view === 'project' && m.projectEditable) || route.view === 'inbox', ownOrder = useOwnOrder(route, rows, upcomingCal.groups), manual = projectManual || !!ownOrder
+  const projectManual = (route.view === 'project' && m.projectEditable) || route.view === 'inbox', ownOrder = useOwnOrder(route, rows, upcomingCal.groups), manual = projectManual || !!ownOrder, listReorder = useListReorder(manual, ownOrder?.step, m.listDisplay.onReorder)
   const sectionOfRow = useMemo(() => sectionOfRows(board, dataColumns, upcomingCal.groups), [board, dataColumns, upcomingCal.groups])
   const drag = useListDrag({ manual, onReorder: ownOrder ? undefined : m.listDisplay.onReorder, source: { rows, sectionOfRow, tree: m.tree, board, sectionMap, ticked: selection.ticked, onHold: (task) => holdSelect(task.id, selection, setSelectMode), openRowMenu: rowMenu.open, reorder: ownOrder?.reorder, groupOf: ownOrder?.groupOf, readOnly: isReadOnly }, moveToSection, onDropped: setSelectedId, onDragStart: rowMenu.dismiss })
   const { latestSectionMap } = drag
@@ -341,7 +353,7 @@ export function TaskListView({ route, userId, userRole }: { route: ListRoute; us
   // The Open Loops move this screen serves (open-loops "References to the method").
   const methodMove = route.view === 'inbox' ? 'catch' as const : route.view === 'someday' ? 'place' as const : undefined
   // Today's planned and tracked totals sit in the header's meta, not a new row (time-tracking D4).
-  const listedTasks = useMemo(() => (route.view === 'today' ? m.ownRows.map((r) => r.task) : []), [route.view, m.ownRows])
+  const listedTasks = useMemo(() => (route.view === 'today' ? [...new Map([...m.ownRows.map((r) => r.task), ...(m.focus?.all ?? [])].map((task) => [task.id, task])).values()] : []), [route.view, m.ownRows, m.focus])
   const totals = useDayTotals(listedTasks, today, route.view === 'today')
   const todayMeta /* with the closed list's "3 of 5 · 4 done" (today-closed-list D1, D6) */ = [m.dt.formatDate(today, 'heading'), closedListMeta(m.closed), dayTotalsText(totals.planned, totals.tracked)].filter(Boolean).join(' · ')
   const meta = useWithMethod(methodMove, route.view === 'today' ? todayMeta : route.view === 'label' ? rows.length : route.view === 'inbox' ? inbox.meta : undefined)
@@ -360,7 +372,7 @@ export function TaskListView({ route, userId, userRole }: { route: ListRoute; us
   if (route.view === 'project' && currentProject && viewMode === 'calendar') return <ProjectCalendarLayout project={currentProject} userId={userId} onCycle={toggleViewMode} onChoose={chooseViewMode} layout={<LayoutSwitch mode={viewMode} onChoose={chooseViewMode} />} />
 
   return (
-    <div ref={listRoot} className="min-w-0 px-4 py-5 md:px-8">
+    <ListReorderContext.Provider value={listReorder}><div ref={listRoot} className="min-w-0 px-4 py-5 md:px-8">
         <div className={PAGE_FRAME} data-page-body={frame.width} data-page-frame={frame.kind} data-page-gutter="outside" data-list-page
           data-page-project={route.view === 'project' ? '' : undefined}>
           {route.view === 'project' && currentProject ? (
@@ -391,6 +403,7 @@ export function TaskListView({ route, userId, userRole }: { route: ListRoute; us
 
           {route.view === 'inbox' && <RoutinesInboxSlot />}{route.view === 'project' && currentProject && <ProjectNote project={currentProject} phone={phone} />}
           {route.view === 'project' && !board && <SubProjects projectId={route.id} />}
+          {route.view === 'today' && <TodayFocus />}{route.view === 'today' && <Suspense fallback={null}><TodayResume /></Suspense>}
           {m.offerColumns && <ColumnsToggle on={!!m.columnsPref} onToggle={() => projectId && saveListColumns(projectId, !m.columnsPref)} />}
           {own.length === 0 && !upcomingCal.hasEvents && !(board || m.liveSections.length > 0) && (m.duration || m.queryFilter?.query
             ? <FilteredEmpty onClear={() => { m.chooseDuration(null); m.queryFilter?.setQuery('') }} />
@@ -420,7 +433,7 @@ export function TaskListView({ route, userId, userRole }: { route: ListRoute; us
         </div>
       {ui.prompt && <CompleteParentPrompt parent={ui.prompt} onAccept={acceptPrompt} onDismiss={() => setPrompt(null)} />}
       <RowPickerDialogs assignFor={ui.assignFor} pickerFor={ui.pickerFor} userId={userId} onCloseAssign={() => ui.setAssignFor(null)} onClosePicker={() => ui.setPickerFor(null)} />
-    </div>
+    </div></ListReorderContext.Provider>
   )
 }
 
@@ -511,6 +524,7 @@ function ListHeader({ route, title, label, meta, subtitle, actions, phone, agend
       overflow={phoneItems || toggle ? <>{phoneItems}{phoneItems && toggle && <MenuSeparator />}{toggle}{startItem}{route.view === 'upcoming' && <ProjectionsMenuItem surface="upcoming" />}{upcomingItem}{agendaItem}{assigneesItem}{partsItem}{closedItems}{route.view === 'today' && <ReplanTodayItem />}</> : undefined}
       leading={label && <span className="h-3 w-3 rounded-full" style={{ backgroundColor: label.color }} />}
       meta={meta} subtitle={subtitle} menu={menu} kind={route.view === 'today' || route.view === 'upcoming' ? 'day' : 'tool'}
+      summary={route.view === 'today' ? <TodaySummaryLine /> : undefined}
       briefing={briefing && <BriefingText briefing={briefing} />} />
   )
 }

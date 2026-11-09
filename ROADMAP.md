@@ -194,6 +194,7 @@ The five changes land in this order. Routines never fetch URLs or feeds: outboun
 | Custom fields per project: text, number, date, choice, link and checkbox values on tasks, in the panel, on cards, as columns and in filters; sub-projects inherit their parent's fields; lists and saved views can be ordered by a Number or Date field (closes [#404](https://github.com/OpenTodoApp/OpenTodo/issues/404)) | `custom-fields`, `inherited-custom-fields`, `custom-field-sort` |
 | Open Loops, OpenTodo's own method inspired by GTD: the five moves, Next and Waiting views, the Loop home, a weekly review that walks every project with a Daily check and a Monthly look, and a choice of how prominent it is (Lists only, Companion, Open Loops first) | `open-loops-method` |
 | Appearance: light, dark or system, and eight colour themes, synced to every device | `theming` |
+| Simple mode: a Google Tasks–like screen with lists as columns, one-line tasks with a star, and one field to add or ask the assistant (Plan my day, Break this down, Turn this into tasks, Tidy up). See [docs/simple-mode.md](docs/simple-mode.md) | `simple-mode` |
 
 ### 4. Time management
 

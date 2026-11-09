@@ -12,7 +12,7 @@ import { focusHeading, pageHeading } from './pageFocus'
 import { navigate, type Route } from './router'
 
 /** Views whose content belongs to one workspace's entities: switching leaves them for the Inbox. */
-const ENTITY_VIEWS: ReadonlySet<Route['view']> = new Set(['project', 'label', 'view', 'place', 'task'])
+const ENTITY_VIEWS: ReadonlySet<Route['view']> = new Set(['project', 'label', 'view', 'place', 'task', 'dossier'])
 
 /** The route to show after switching from `route`. */
 export function routeAfterSwitch(route: Route): Route {
@@ -63,7 +63,7 @@ export function workspaceLabel(name: string, isDefault: boolean): string {
  * default one with a toast.
  */
 export function useWorkspaceFollow(route: Route, panelTask: string | null): void {
-  const key = route.view === 'project' || route.view === 'task' || route.view === 'label' || route.view === 'view' ? `${route.view}:${route.id}` : ''
+  const key = route.view === 'project' || route.view === 'task' || route.view === 'label' || route.view === 'view' || route.view === 'dossier' ? `${route.view}:${route.id}` : ''
   useEffect(() => {
     if (!key) return
     const [kind, id] = key.split(':') as [PartitionedKind, string]

@@ -17,6 +17,7 @@ import { resetPanel } from './panel'
 import { navigate } from './router'
 import { Shell } from './Shell'
 import { TaskListView } from './TaskListView'
+import { SimpleScreen } from './simple/SimpleScreen'
 // The limits, shared with the interface audit tour (scripts/ux-audit, ux-audit-three-widths D2).
 import budget from './budget.json'
 
@@ -295,15 +296,18 @@ describe('on a phone (390 px)', () => {
     }
   })
 
-  it('the bar holds Process the Inbox; its overflow lists Select tasks, and Today\'s lists Display mode', async () => {
+  it('the phone bar keeps Ask and the duration chip; Process the Inbox and Select tasks are in the overflow, as is Today\'s Display mode', async () => {
     await seed()
     navigate({ view: 'inbox' })
     const r = await render(<Shell user={user} onLogout={() => {}} />)
-    await waitFor(() => !!document.querySelector('[data-phone-bar] [data-triage-start]'))
+    // mobile-task-focus: processing the Inbox moved off the bar into the overflow menu.
+    await waitFor(() => !!document.querySelector('[data-phone-bar] button[aria-label="More actions"], [data-phone-bar] [data-inbox-menu]'))
     expect(document.querySelector('[data-list-page] [data-triage-start]')).toBeNull()
+    expect(document.querySelector('[data-phone-bar] [data-triage-start]')).toBeNull()
     const more = () => document.querySelector<HTMLButtonElement>('[data-phone-bar] [data-inbox-menu], [data-phone-bar] button[aria-label="More actions"]')
     await waitFor(() => !!more())
     more()!.click()
+    await waitFor(() => !!document.querySelector('[data-phone-item="process"]'))
     await waitFor(() => !!document.querySelector('[data-phone-item="select"]'))
     await r.unmount()
     navigate({ view: 'today' })
@@ -337,4 +341,36 @@ describe('on a phone (390 px)', () => {
     expect(document.documentElement.style.getPropertyValue('--toast-lift')).toBe('7.75rem')
     await r.unmount()
   })
+})
+
+describe('the Simple screen (simple-mode D7)', () => {
+  const original = window.matchMedia
+  afterEach(() => { window.matchMedia = original })
+  const width = (px: number) => {
+    window.matchMedia = ((q: string) => ({
+      matches: minWidthPx(q) <= px && !/pointer:\s*fine/.test(q), media: q, onchange: null,
+      addEventListener() {}, removeEventListener() {}, addListener() {}, removeListener() {}, dispatchEvent: () => false,
+    })) as typeof window.matchMedia
+  }
+  for (const px of [390, 1280]) {
+    it(`${px} px: the field is the only chrome row above the board, and the board is the one vertical scroller`, async () => {
+      width(px)
+      await seed()
+      const r = await render(<SimpleScreen />)
+      await waitFor(() => r.container.querySelectorAll('[data-task-id]').length > 0)
+      const screen = r.container.querySelector('[data-simple-screen]')!
+      const before: Element[] = []
+      for (const child of screen.children) {
+        if (child.querySelector('[data-task-id]')) break
+        before.push(child)
+      }
+      expect(before.map((e) => e.tagName)).toEqual(['HEADER'])
+      expect(before.length).toBeLessThanOrEqual(MAX_CHROME_ROWS)
+      expect(scrollers(screen).map((e) => e.getAttribute('data-simple-board') !== null)).toEqual([true])
+      // Below 768 px one list at a time under tabs; from 768 px every list as a column.
+      expect(r.container.querySelectorAll('[data-simple-column]').length).toBe(px < 768 ? 1 : 2)
+      expect(!!r.container.querySelector('[role="tablist"]')).toBe(px < 768)
+      await r.unmount()
+    })
+  }
 })

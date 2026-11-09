@@ -53,6 +53,9 @@ export const ROUTE_SCREENS: Record<Route['view'], string | null> = {
   loop: 'loop',
   focus: 'focus',
   notes: 'notes',
+  resume: 'resume',
+  dossier: 'resume',
+  simple: 'simple-mode',
   // Reached from a link someone sent or the app made; the guide of that link explains it.
   invite: null,
   'project-invite': null,

@@ -2,7 +2,7 @@
 // actions, the layout switch, the duration filter, empty views, the "complete the
 // parent too?" prompt and the label and assignee dialogs. Each is a small
 // component with props only; TaskListView decides when they show.
-import type { ReactNode } from 'react'
+import { useMemo, type ReactNode } from 'react'
 import { DURATION_FILTERS, type DurationFilter } from '../../lib/filters'
 import { msg, t, translatedMap } from '../../lib/i18n'
 import type { ProjectViewMode } from '../../lib/sections'
@@ -16,6 +16,10 @@ import { LabelPicker } from '../LabelPicker'
 import type { ActionGroup, ActionItem } from '../menus/ActionMenu'
 import { Dialog, Menu } from '../../ui'
 import { navigate } from '../router'
+import { useDossiers, useReviewRow } from '../../lib/localData'
+import { useLiveTasks } from '../../lib/liveTasks'
+import { todayFocusOf } from '../../lib/review'
+import { useToday } from '../useViews'
 import { requestProjectNote } from '../ProjectNote'
 import { FilterQueryChip } from '../calendar/queryFilter'
 import { RowScheduleHost } from './RowSwipe'
@@ -116,11 +120,10 @@ export interface PhoneItem { id: string; label: string; icon?: IconName; checked
 
 /**
  * A list's actions on a phone (phone-v2 D1): two visible slots in the shell's bar
- * (Process the Inbox or Ask in Today first, then the duration filter) and the rest
- * as overflow items: Select tasks, Display mode, and the duration filter when it
- * had no slot (its active choice then shows as a chip in the bar).
+ * Ask in Today and an active duration chip stay visible; processing, selection,
+ * display mode and duration choices live in the overflow menu.
  */
-export function usePhoneListActions({ route, userRole, rowCount, topLevelCount, onSelectMode, filterKey, duration, onDuration, project, extraSlot, queryFilter }: {
+export function usePhoneListActions({ route, userRole, rowCount, onSelectMode, filterKey, duration, onDuration, project, extraSlot, queryFilter }: {
   route: ListRoute
   /** A last slot of the bar: a project's or label's display options (list-display-options). */
   extraSlot?: ReactNode
@@ -139,30 +142,23 @@ export function usePhoneListActions({ route, userRole, rowCount, topLevelCount, 
   const phone = !useMediaQuery(DESKTOP_HEADER_QUERY)
   const ask = useTodayAsk(userRole) && route.view === 'today'
   const process = route.view === 'inbox' && rowCount > 0
-  const filterSlot = !!filterKey && !ask && !process
   const items: PhoneItem[] = []
+  if (process) items.push({ id: 'process', label: t('Process'), icon: 'inbox', onSelect: () => navigate({ view: 'triage' }) })
   if (route.view !== 'completed' && rowCount > 0) items.push({ id: 'select', label: t('Select tasks'), icon: 'list-checks', onSelect: onSelectMode })
   if (route.view === 'today' || route.view === 'upcoming') {
     const target = { kind: route.view }
     items.push({ id: 'display', label: t('Display mode'), icon: 'monitor', onSelect: () => navigate({ view: 'display', target, options: { ...DEFAULT_DISPLAY_OPTIONS } }) })
   }
-  if (filterKey && !filterSlot) {
+  if (filterKey) {
     for (const f of DURATION_FILTERS) items.push({ id: `duration-${f.kind}`, label: f.label, checked: duration === f.kind, group: t('Filter by duration'), onSelect: () => onDuration(duration === f.kind ? null : f.kind) })
   }
-  if (queryFilter && !filterSlot) items.push({ id: 'query-filter', label: t('Filter…'), icon: 'filter', onSelect: queryFilter.onOpen })
+  if (queryFilter) items.push({ id: 'query-filter', label: t('Filter…'), icon: 'filter', onSelect: queryFilter.onOpen })
   const current = DURATION_FILTERS.find((f) => f.kind === duration)
   const slots = (
     <>
       {ask && <TodayAskAction role={userRole} />}
-      {process && (
-        <Button variant="secondary" size="sm" icon="inbox" onClick={() => navigate({ view: 'triage' })} data-triage-start>
-          {/* As on the desktop header: a phone with a large text size keeps the icon, so the title fits. */}
-          <span className="max-[21rem]:sr-only">{t.rich('Process {count}', { count: <span className="tabular-nums text-muted">{topLevelCount}</span> })}</span>
-        </Button>
-      )}
       {queryFilter?.query && <FilterQueryChip query={queryFilter.query} onOpen={queryFilter.onOpen} onClear={queryFilter.onClear} />}
-      {filterSlot && <DurationFilterControl active={duration} onChange={onDuration} onQuery={queryFilter?.onOpen} />}
-      {!filterSlot && current && <DurationChip label={current.label} onClear={() => onDuration(null)} />}
+      {current && <DurationChip label={current.label} onClear={() => onDuration(null)} />}
       {extraSlot}
     </>
   )
@@ -303,6 +299,14 @@ export function EmptyState({ view, waiting = 0, readOnly = false, completed = 0,
   completed?: number
   onShowCompleted?: () => void
 }) {
+  const review = useReviewRow()
+  const dossiers = useDossiers()
+  const liveTasks = useLiveTasks()
+  const today = useToday()
+  const focus = useMemo(() => (view === 'today' && liveTasks ? todayFocusOf(review, today, liveTasks, dossiers) : null), [view, liveTasks, review, today, dossiers])
+  // Today's ordinary groups leave My day's tasks out (resume-dossiers D5): when those
+  // were all it held, saying Nothing due today under them would contradict the page.
+  if (view === 'today' && focus && (focus.dossiers.length > 0 || focus.tasks.length > 0)) return null
   const copy = EMPTY_COPY[view]
   const blocked = view === 'today' && waiting > 0
   const action = emptyAction(view === 'project' && readOnly ? 'inbox' : copy.action)

@@ -4,18 +4,19 @@
 // like every other object menu. Moves and assignments go through the review (D6).
 import { keysOf } from '../../lib/shortcuts'
 import { Kbd } from '../shortcuts/Kbd'
-import { useMemo, useRef, useState, type RefObject } from 'react'
+import { createContext, useContext, useEffect, useMemo, useRef, useState, type RefObject } from 'react'
+import type { Step } from '../../lib/move'
 import { useBelowStickyHeader } from './useBelowStickyHeader'
 import { allCompleted, applyBulk, commonSharedProject, readTicked, reviewAssign, reviewMove, type BulkAction, type ReviewPlan, useTickedTasks } from '../../lib/bulk'
-import { useAllLabels, useLabelsLoaded, useLiveSections, useProjects, useMembershipMapOrLoading, useReviewRow, useUserPrefsRow } from '../../lib/localData'
+import { useAllLabels, useDossiersLoaded, useLabelsLoaded, useLiveSections, useProjects, useMembershipMapOrLoading, useReviewRow, useUserPrefsRow } from '../../lib/localData'
 import { DAY_PARTS, dayPartName, dayPartOf, dayPartsOn, type DayPart } from '../../lib/dayParts'
 import { dayPartUndoable, energyUndoable } from '../../lib/undoActions'
 import { ENERGY_LEVELS, energyLevelsOn, energyName, energyOf, type Energy } from '../../lib/energy'
 import { itemKeywords, projectSource, sectionSource, type PickerItem } from '../../lib/pickerSources'
-import { roleOf } from '../../lib/sharing'
+import { canEditTasks, roleOf } from '../../lib/sharing'
 import { toggleTracking, useRunningEntry } from '../../lib/timeEntries'
 import { act } from '../actionError'
-import type { Label, Membership, Priority, Project, Section, Task } from '../../lib/types'
+import type { Dossier, Label, Membership, Priority, Project, Section, Task } from '../../lib/types'
 import { Icon, Dialog, useFinePointer } from '../../ui'
 import { Tooltip } from '../../ui'
 import { DateField } from '../datetime/DateField'
@@ -23,6 +24,7 @@ import { ActionMenu, type ActionGroup, type ActionItem, type ConfirmSpec } from 
 import { openRowSchedule } from '../task-list/RowSwipe'
 import { BulkReview } from './BulkReview'
 import { showBulkToast, showUndoToast } from './toastStore'
+import { dossierText } from '../../lib/dossierText'
 import { navigate } from '../router'
 import { createStore } from '../../lib/store'
 import { startFocusOn } from '../focus/startFocus'
@@ -92,7 +94,7 @@ const itemKey = (i: PickerItem) => i.key
 const itemLabel = (i: PickerItem) => i.label
 const itemPath = (i: PickerItem) => i.path
 
-interface Data { tasks: Task[]; labels: Label[]; projects: Project[]; sections: Section[]; memberships: Map<string, Membership>; runningTask?: string | null; dayParts?: boolean
+interface Data { tasks: Task[]; labels: Label[]; projects: Project[]; sections: Section[]; memberships: Map<string, Membership>; runningTask?: string | null; dossiers?: Dossier[]; dayParts?: boolean
   /** Energy levels on (task-energy D3): the Energy submenu. */
   energy?: boolean
   /** Today with a limit (today-closed-list D3): the one task's slot command. */
@@ -100,7 +102,9 @@ interface Data { tasks: Task[]; labels: Label[]; projects: Project[]; sections: 
   /** Today's focus (phone-touch-focus D3): the one task's focus command. */
   focus?: FocusMenuState
   /** Every read the items depend on has landed: until then the menu stays closed, so it opens complete (issue 840). */
-  ready?: boolean }
+  ready?: boolean
+  /** One task's place in a manually ordered list (accessibility-aa D3): the Reorder items. */
+  edges?: { first: boolean; last: boolean } | null }
 
 /**
  * Start or Stop tracking for one task (time-tracking D5): Stop while its entry runs,
@@ -143,6 +147,33 @@ export function todayFocusItem(task: Task | undefined, state: FocusMenuState | u
 }
 
 /**
+ * "Add to a dossier…" for one open task the person may edit: a picker over the live
+ * dossiers, and a typed name that matches none creates one. Nothing for a completed,
+ * deleted or read-only task.
+ */
+export function dossierMenuItem(task: Task | undefined, d: Pick<Data, 'dossiers' | 'memberships'>): ActionItem | undefined {
+  if (!task || task.completed_at || task.deleted_at || !canEditTasks(roleOf(task.project_id, d.memberships))) return undefined
+  return { kind: 'picker', id: 'dossier', label: t('Add to a dossier'), icon: 'compass', picker: {
+    title: t('Add to a dossier'), placeholder: t('Find a dossier…'), source: d.dossiers ?? [], rankContext: 'dossier',
+    getKey: (x: Dossier) => x.id, getLabel: (x: Dossier) => dossierText(x.title) || t('Untitled dossier'),
+    onPick: (x: Dossier) => act(addTaskToDossierFromMenu(task, { dossier: x })),
+    onCreate: (name: string) => act(addTaskToDossierFromMenu(task, { name })),
+  } }
+}
+
+/** Attaches the task to the chosen dossier, or creates the named one with it: one undoable batch. */
+async function addTaskToDossierFromMenu(task: Task, target: { dossier: Dossier } | { name: string }): Promise<void> {
+  const { attachTaskToDossier, createDossierWithTask } = await import('../../lib/dossiers')
+  if ('name' in target) {
+    const { entry } = await createDossierWithTask(target.name, task.id)
+    showUndoToast(t('{task} added to {dossier}', { task: task.title, dossier: target.name }), entry?.id ?? null)
+    return
+  }
+  const entry = await attachTaskToDossier(target.dossier.id, task.id)
+  if (entry) showUndoToast(t('{task} added to {dossier}', { task: task.title, dossier: dossierText(target.dossier.title) }), entry.id)
+}
+
+/**
  * "Day part…" (day-parts D4): while the account uses day parts, a submenu of the
  * four parts, the tasks' common part checked; nothing for a viewer's task.
  */
@@ -176,8 +207,38 @@ export function energyItem(ids: readonly string[], d: Pick<Data, 'tasks' | 'memb
   })) }]
 }
 
+/**
+ * How the list the menu opened on reorders a task (accessibility-aa D3): set by a manually
+ * ordered list (a project, the Inbox, a label page's own order), absent everywhere else.
+ */
+export interface ListReorder {
+  /** The same write as the keyboard move (Alt+↑ and Alt+↓) and the drag: works offline. */
+  move: (id: string, step: Step) => void
+  /** First or last in its list (the items at that edge are disabled); null when the task cannot move. */
+  edges: (id: string) => Promise<{ first: boolean; last: boolean } | null>
+}
+export const ListReorderContext = createContext<ListReorder | null>(null)
+
+/**
+ * "Reorder" for one task in a manually ordered list (accessibility-aa D3, WCAG 2.2 2.5.7):
+ * Move up, Move down, Move to top and Move to bottom, the single-pointer alternative to
+ * dragging a row; nothing where the list has no manual order, the task cannot move or is alone.
+ */
+export function reorderItem(id: string | undefined, r: ListReorder | null | undefined, edges: { first: boolean; last: boolean } | null | undefined): ActionItem[] {
+  // Alone in its list, there is nowhere to move it.
+  if (!id || !r || !edges || (edges.first && edges.last)) return []
+  const first = { disabled: edges.first, reason: t('Already first') }
+  const last = { disabled: edges.last, reason: t('Already last') }
+  return [{ kind: 'submenu', id: 'reorder', label: t('Reorder'), icon: 'chevrons-up-down', items: [
+    { kind: 'action', id: 'move-up', label: t('Move up'), icon: 'arrow-up', shortcut: keysOf('list.move-up'), ...first, onSelect: () => r.move(id, -1) },
+    { kind: 'action', id: 'move-down', label: t('Move down'), icon: 'arrow-down', shortcut: keysOf('list.move-down'), ...last, onSelect: () => r.move(id, 1) },
+    { kind: 'action', id: 'move-top', label: t('Move to top'), icon: 'arrow-up', shortcut: keysOf('list.move-top'), ...first, onSelect: () => r.move(id, 'top') },
+    { kind: 'action', id: 'move-bottom', label: t('Move to bottom'), icon: 'arrow-down', shortcut: keysOf('list.move-bottom'), ...last, onSelect: () => r.move(id, 'bottom') },
+  ] }]
+}
+
 /** The menu's groups for the given tasks (exported for the palette and tests). */
-export function bulkMenuGroups(ids: readonly string[], d: Data, a: { review: (title: string, plan: Promise<ReviewPlan>) => void; pickDate: () => void; schedule?: () => void }, besideRow = false): ActionGroup[] {
+export function bulkMenuGroups(ids: readonly string[], d: Data, a: { review: (title: string, plan: Promise<ReviewPlan>) => void; pickDate: () => void; schedule?: () => void; reorder?: ListReorder | null }, besideRow = false): ActionGroup[] {
   const n = d.tasks.length
   const reopen = allCompleted(d.tasks)
   const live = d.labels.filter((l) => !l.deleted_at)
@@ -187,6 +248,7 @@ export function bulkMenuGroups(ids: readonly string[], d: Data, a: { review: (ti
   const shared = commonSharedProject(d.tasks, d.memberships)
   const members = shared ? d.memberships.get(shared)?.members ?? [] : []
   const run = (action: BulkAction) => () => runBulk(ids, action)
+  const dossier = n === 1 ? dossierMenuItem(d.tasks[0], d) : undefined
   const complete: ActionItem = { kind: 'action', id: 'complete', label: reopen ? t('Reopen') : t('Complete'), icon: 'check', shortcut: keysOf('list.complete'), onSelect: run({ kind: 'complete' }) }
   // On touch, one task's menu starts with the two swipe actions (phone-v2 D3, WCAG 2.2 2.5.7).
   const swipeTwins = n === 1 && a.schedule
@@ -219,7 +281,9 @@ export function bulkMenuGroups(ids: readonly string[], d: Data, a: { review: (ti
         onPick: (l: Label) => { void labelToggle(ids, l.id) },
       } },
     ] },
+    ...(dossier ? [{ items: [dossier] }] : []),
     { items: [
+      ...(n === 1 ? reorderItem(ids[0], a.reorder, d.edges) : []),
       { kind: 'picker', id: 'move', label: t('Move to project'), icon: 'folder-input', picker: {
         title: t('Move to project'), placeholder: t('Find a project…'), source: projectSource(d.projects, { memberships: d.memberships }),
         getKey: itemKey, getLabel: itemLabel, getPath: itemPath, getKeywords: itemKeywords, rankContext: 'project',
@@ -247,6 +311,18 @@ async function labelToggle(ids: readonly string[], labelId: string) {
   await runBulk(ids, { kind: 'label', labelId, add: !all })
 }
 
+/** A task's edges in its list while the menu is open, for the Reorder items; null outside a manual order. */
+function useReorderEdges(id: string, reorder: ListReorder | null) {
+  const [edges, setEdges] = useState<{ id: string; at: { first: boolean; last: boolean } | null } | null>(null)
+  useEffect(() => {
+    if (!id || !reorder) return
+    let live = true
+    void reorder.edges(id).then((at) => { if (live) setEdges({ id, at }) })
+    return () => { live = false }
+  }, [id, reorder])
+  return edges?.id === id && reorder ? edges.at : null
+}
+
 /** Live data the menu needs, read while it is mounted. */
 function useBulkData(ids: readonly string[]): Data {
   const key = ids.join(',')
@@ -261,6 +337,7 @@ function useBulkData(ids: readonly string[]): Data {
   const memberMap = useMembershipMapOrLoading()
   const memberships = memberMap ?? NO_MEMBER_MAP
   const runningTask = useRunningEntry()?.task_id ?? null
+  const dossiers = useDossiersLoaded()
   const prefs = useUserPrefsRow()
   const dayParts = dayPartsOn(prefs)
   const energy = energyLevelsOn(prefs)
@@ -270,8 +347,8 @@ function useBulkData(ids: readonly string[]): Data {
   const focus = tasks.length === 1 ? focusMenuState(tasks[0], review, prefs, today) : null
   // The one task's items (focus, tracking, slot, Energy, Day part) and the Labels item's
   // reason come from these reads: a menu shown before them grows under the pointer.
-  const ready = read?.key === key && labelsLoaded && memberMap !== undefined && prefs !== undefined && review !== undefined
-  return { tasks, labels, projects, sections, memberships, runningTask, dayParts, energy, slot, focus, ready }
+  const ready = read?.key === key && labelsLoaded && memberMap !== undefined && prefs !== undefined && review !== undefined && dossiers !== undefined
+  return { tasks, labels, projects, sections, memberships, runningTask, dossiers, dayParts, energy, slot, focus, ready }
 }
 
 /**
@@ -290,7 +367,10 @@ export function BulkActionsMenu({ ids, open, onOpenChange, trigger, triggerClass
   /** Opened from a row's More button: placed there, without the groups the row's own buttons offer. */
   anchor?: RefObject<HTMLElement | null>
 }) {
-  const data = useBulkData(ids)
+  const reorder = useContext(ListReorderContext)
+  const edges = useReorderEdges(ids.length === 1 ? ids[0] : '', reorder)
+  const bulk = useBulkData(ids)
+  const data = useMemo(() => ({ ...bulk, edges }), [bulk, edges])
   // Held back only until the first full read: a later selection's read must not close an open menu.
   const [settled, setSettled] = useState(false)
   if (data.ready && !settled) setSettled(true)
@@ -301,7 +381,8 @@ export function BulkActionsMenu({ ids, open, onOpenChange, trigger, triggerClass
     review: (title, plan) => { void plan.then((p) => bulkDialog.set({ kind: 'review', title, plan: p })) },
     pickDate: () => bulkDialog.set({ kind: 'date', ids, n }),
     schedule: touch && ids.length === 1 ? () => openRowSchedule(ids[0]) : undefined,
-  }, besideRow), [ids, data, besideRow, touch, n])
+    reorder,
+  }, besideRow), [ids, data, besideRow, touch, n, reorder])
   return (
     <ActionMenu label={t('Actions for {tasks}', { tasks: tasksWord(n) })} title={tasksWord(n)} groups={groups} open={open} pending={!settled && !data.ready} onOpenChange={onOpenChange}
       trigger={trigger} triggerClassName={triggerClassName} triggerProps={triggerProps} startPicker={startPicker} width="sm:w-72" anchor={anchor} />

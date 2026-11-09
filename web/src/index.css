@@ -635,7 +635,7 @@ html:root[data-contrast="high"][data-theme="dark"], html[data-contrast="high"] [
   --ot-hue-slate-soft: oklch(0 0 0); --ot-hue-slate-text: oklch(0.869 0.0198 252.89);
 }
 /* Soft tints read as the surface in high contrast; an outline keeps the shape. */
-html:root[data-contrast="high"] :is(.bg-accent-soft, .bg-success-soft, .bg-warning-soft, .bg-danger-soft, .bg-info-soft, .bg-hue-soft, .bg-p1-soft, .bg-p2-soft, .bg-p3-soft, .bg-p4-soft) {
+html:root[data-contrast="high"] :is(.bg-accent-soft, .bg-success-soft, .bg-warning-soft, .bg-danger-soft, .bg-info-soft, .bg-hue-soft, .section-header-tint, .bg-p1-soft, .bg-p2-soft, .bg-p3-soft, .bg-p4-soft) {
   outline: 2px solid currentColor;
   outline-offset: -2px;
 }
@@ -1162,6 +1162,16 @@ li[data-task-id][data-touch-hold] { background-color: color-mix(in oklab, var(--
 @container row (width < 30rem) {
   [data-row-trailing] [data-origin-text] { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 }
+/* The row's end is one width from 40 rem (GitHub issue 945): every list row has the
+   trailing slot, with an origin or empty, so the property column ends at the same
+   place on every row and the date and label cells line up down the list. A longer
+   origin is cut with an ellipsis; its whole text stays in the link's name and the
+   task's details. A detailed row has no column and keeps its end as wide as it is. */
+@container row (width >= 40rem) {
+  [data-row-trailing] { flex: none; width: 6rem; }
+  [data-row-trailing] > span, [data-row-trailing] [data-origin] { flex-shrink: 1; min-width: 0; max-width: 100%; }
+  [data-row-layout="detailed"] > [data-row-trailing] { flex: 0 1 auto; width: auto; }
+}
 @container row (width >= 40rem) {
   /* align-content: on touch the open control is at least 44 px tall (the coarse-pointer
      button rule); the lines stay at its top, on the circle's line, not in its middle. */
@@ -1480,3 +1490,8 @@ html:root[data-contrast="high"] .quick-add-tint { background-color: transparent;
 /* The frame (precision-shell D3): the whole content surface, from its left edge, so the
    docked panel narrows it from the right and nothing moves. */
 .page-frame { margin-left: 0; margin-right: 0; }
+
+/* Coloured section group bars use the theme-aware soft hue. */
+@layer components {
+  .section-header-tint { background-color: var(--hue-soft); }
+}

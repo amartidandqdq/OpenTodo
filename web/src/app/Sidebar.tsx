@@ -17,7 +17,7 @@ import { dailyDue, dayClosed, monthlyDue, reviewAgo, reviewDue } from '../lib/re
 import { formatInstant } from '../lib/dates'
 import { readMethodMode, type MethodMode } from '../lib/method/mode'
 import { SidebarFooter } from './SidebarFooter'
-import { WorkspaceControl } from './WorkspaceControl'
+import { WorkspaceButtons, WorkspaceControl } from './WorkspaceControl'
 import { InstanceMark, useInstanceName } from './InstanceBrand'
 import { buildProjectTree, collapseAllProjects, expandAllProjects, expandAncestorsOf, openCountsByProject, projectPath, siblingEdges, toggleCollapsedProject, visibleProjects, type ProjectNode, useCollapsedProjects } from '../lib/projects'
 import { flattenTree } from '../lib/tree'
@@ -214,12 +214,9 @@ export function Sidebar({ route, user, onSearch, onShortcuts, onAssistant, onSig
   // Re-read every minute, so the counts move to the new day at midnight.
   const today = useToday()
   const counts = useMemo(() => {
-    let assigned = 0
     // Deferred and parked tasks are not counted (someday-and-evening D2).
     const active = openTasks.filter((tk) => openCount(tk, today))
-    for (const task of active) {
-      if (task.assignee_id === user.id) assigned++
-    }
+    const assigned = active.filter((tk) => tk.assignee_id === user.id).length
     // The same number the app icon badge shows (app-icon-badge).
     const hide = todayAssigneeFilter(prefsRow, [...memberMap.values()], user.id)
     return { inbox: countInbox(openTasks, liveTasks ?? openTasks), today: todayCount(openTasks, today, hide), assigned, byProject: openCountsByProject(active, tree, collapsed_) }
@@ -393,7 +390,8 @@ export function Sidebar({ route, user, onSearch, onShortcuts, onAssistant, onSig
   const item = (r: Route, label: string, icon: IconName, count?: number, badge?: ReactNode, tip?: string) => {
     // Day, Week, Month and Plan are one Calendar destination (ux-overhaul, planner-view).
     const calendar = (v: string) => v === 'day' || v === 'week' || v === 'month' || v === 'plan' || v === 'year'
-    const active = calendar(r.view) ? calendar(route.view) : JSON.stringify(r) === JSON.stringify(route)
+    // A dossier page belongs to Pick up the thread (resume-dossiers): its section stays active.
+    const active = r.view === 'resume' ? route.view === 'resume' || route.view === 'dossier' : calendar(r.view) ? calendar(route.view) : JSON.stringify(r) === JSON.stringify(route)
     // With "Show shortcut hints" on, the destination prints its `g` key (keyboard-shortcuts "Hints preference").
     const go = hints && !collapsed && badge == null ? GO_KEYS[r.view] : undefined
     const node = <SidebarItem key={label} icon={icon} label={label} count={count} countLabel={openTasksLabel(count)} badge={go ? <kbd className="ui-kbd" data-go-hint>{go}</kbd> : badge} active={active} collapsed={collapsed} onClick={() => navigate(r)} data-destination={r.view} aria-description={tip && badge == null ? tip : undefined} {...(r.view === 'inbox' ? INBOX_DROP : {})} />
@@ -434,6 +432,7 @@ export function Sidebar({ route, user, onSearch, onShortcuts, onAssistant, onSig
         {/* The header row is the workspace control (sidebar-v2 D1, workspaces D6); search beside it, in the rail's footer when collapsed. */}
         <SidebarHeader left={<WorkspaceControl route={route} />} rail={<InstanceMark size={24} />} railLabel={instanceLabel}
           collapsed={collapsed} onSearch={onSearch} searchLabel={t('Search and commands')} searchShortcut={keysOf('global.palette')} />
+        <WorkspaceButtons route={route} collapsed={collapsed} />
         <nav className="space-y-0.5" aria-label={t('Primary')} data-sidebar-primary>
           {primary.map((d) => <Fragment key={d.id}>{d.node}</Fragment>)}
           {moreAsMenu && rest.length > 0 && (
@@ -482,7 +481,7 @@ export function Sidebar({ route, user, onSearch, onShortcuts, onAssistant, onSig
             const count = counts.byProject.get(n.id)
             const drop = dropAt?.id === n.id ? dropAt.zone : null
             return (
-              <li key={n.id} role="treeitem" aria-level={n.depth + 1} aria-expanded={has ? !isCollapsed : undefined}
+              <li data-drag-id="sidebar-project" key={n.id} role="treeitem" aria-level={n.depth + 1} aria-expanded={has ? !isCollapsed : undefined}
                 data-project-row={n.id} data-drop-target={`project:${n.id}`} data-task-drop={canEditTasks(roleOf(n.id, memberMap)) ? taskDrop.project(n.id) : undefined}
                 onPointerDown={movable(n.id) ? (e) => startDrag(e, n) : undefined}
                 className={`group relative flex items-center rounded-control ${countsAll ? 'ui-swap-row ' : ''}${movingProject ? '' : 'data-drop-active:ring-2 data-drop-active:ring-accent'} ${rowGap(shownRows, i)} ${drop === 'inside' ? feedback.inside : ''}`} style={{ paddingLeft: collapsed ? 0 : `${levels * INDENT_REM}rem` }}>
@@ -685,14 +684,16 @@ const TAB_BAR_VIEWS = new Set<Route['view']>(['inbox', 'today', 'upcoming'])
 function primaryDestinations(first: boolean, calendarMode: Route['view'], counts: { inbox?: number; today?: number }, reviewDot: ReactNode, reviewText: string): { id: string; route: Route; label: string; icon: IconName; count?: number; badge?: ReactNode; tip?: string }[] {
   const inbox = { id: 'inbox', route: { view: 'inbox' } as Route, label: t('Inbox'), icon: 'inbox' as IconName, count: counts.inbox }
   const today = { id: 'today', route: { view: 'today' } as Route, label: t('Today'), icon: 'calendar-check' as IconName, count: counts.today }
+  // Pick up the thread is a primary destination in every mode (resume-dossiers, app-shell "Dossier destinations").
+  const resume = { id: 'resume', route: { view: 'resume' } as Route, label: t('Pick up the thread'), icon: 'compass' as IconName }
   return first
     ? [
-        { id: 'loop', route: { view: 'loop' }, label: t('Loop home'), icon: 'rotate-ccw' }, inbox, today,
+        resume, { id: 'loop', route: { view: 'loop' }, label: t('Loop home'), icon: 'rotate-ccw' }, inbox, today,
         { id: 'next', route: { view: 'next' }, label: t('Next', { context: 'method' }), icon: 'arrow-right' },
         { id: 'waiting', route: { view: 'waiting' }, label: t('Waiting', { context: 'method' }), icon: 'hourglass' },
         { id: 'review', route: { view: 'review' }, label: t('Review'), icon: 'clipboard-check', badge: reviewDot, tip: reviewText },
       ]
-    : [inbox, today, { id: 'upcoming', route: { view: 'upcoming' }, label: t('Upcoming'), icon: 'calendar-days' }, { id: 'calendar', route: { view: calendarMode } as Route, label: t('Calendar'), icon: 'calendar-range' }]
+    : [resume, inbox, today, { id: 'upcoming', route: { view: 'upcoming' }, label: t('Upcoming'), icon: 'calendar-days' }, { id: 'calendar', route: { view: calendarMode } as Route, label: t('Calendar'), icon: 'calendar-range' }]
 }
 
 function MoreMenu({ entries, active, collapsed, hints, extra }: {

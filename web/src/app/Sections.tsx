@@ -158,8 +158,8 @@ export function SectionHeader({ section, count, layout, editable, first, last, c
   // One group header for every list (task-list-presentation "Group headers"); a
   // section with only completed tasks keeps its header with "n completed" and Show.
   return (
-    <div data-section-heading={section?.id ?? ''} onKeyDown={editable && section && !renaming ? onRowKey : undefined}>
-      <ListGroupHeader title={titleNode} count={count} countTone={layout === 'board' ? 'muted' : 'faint'} bar={layout !== 'board'} kind={section ? 'named' : 'generated'}
+    <div data-section-heading={section?.id ?? ''} data-hue={layout === 'list' && section?.color ? hueFor(section.color) : undefined} onKeyDown={editable && section && !renaming ? onRowKey : undefined}>
+      <ListGroupHeader title={titleNode} count={count} countTone={layout === 'board' ? 'muted' : 'faint'} bar={layout !== 'board'} barBackground={layout === 'list' && section?.color ? 'section-header-tint' : undefined} kind={section ? 'named' : 'generated'}
         collapsed={collapsed} onToggle={onToggleCollapse}
         note={count === 0 && completed > 0 ? (
           <span className="flex items-center gap-1">

@@ -4,22 +4,18 @@
 // project in a project; the Inbox's elsewhere), the same local-first createTask as the
 // list's line, and one "Added to …" toast with Open.
 import { currentDateTime, logicalToday } from '../../lib/dates'
-import { loadQuickAddSettings, parse, resolveDayMonthOrder, resolveLanguages, toTaskInput, type LabelRef, type ProjectRef } from '../../lib/nlp'
 import { getProject, getTask } from '../../lib/localData'
-import { preferredLanguages, t } from '../../lib/i18n'
+import { t } from '../../lib/i18n'
 import { createTaskThenSuggest } from '../../lib/assistantSuggest'
 import { createTask } from '../../lib/ops'
 import { addTasksUndoable } from '../../lib/pasteTasks'
 import { preferredPlacement } from '../../lib/userPrefs'
 import { canEditTasks, membershipMap, roleOf } from '../../lib/sharing'
-import { dayPartsPreferred } from '../../lib/dayParts'
-import { timeSectorsPreferred } from '../../lib/sectorPrefs'
-import { energyLevelsPreferred } from '../../lib/energy'
 import { VIEW_SCOPES } from '../../lib/shortcuts'
 import { addedWhere } from '../addedWhere'
 import { ACTION_TOAST_MS, showBulkToast } from '../bulk/toastStore'
 import { taskDefaults } from '../listActions'
-import { createLabelByName, nowHHMM, type QuickAddInput } from '../QuickAdd'
+import type { QuickAddInput } from '../QuickAdd'
 import { navigate, routePath, type Route } from '../router'
 import { selectTask } from '../signals'
 import { openTaskPage } from '../taskTrail'
@@ -100,20 +96,4 @@ function openAt(id: string, target: Route) {
   openTaskPage(id, { from: routePath(target) })
 }
 
-/** One line read like the quick add reads it (Search's "Add as a task"); the plain line when parsing is off or leaves no title. */
-export async function lineToInput(line: string, projects: readonly ProjectRef[], labels: readonly LabelRef[]): Promise<QuickAddInput> {
-  const settings = loadQuickAddSettings()
-  if (!settings.enabled) return { title: line }
-  const langs = preferredLanguages()
-  const parsed = parse(line, {
-    today: logicalToday(), now: nowHHMM(), languages: resolveLanguages(settings, langs), dayMonthOrder: resolveDayMonthOrder(settings, langs, null),
-    weekStart: currentDateTime().weekStart, projects, dismissed: [],
-    // Part phrases only while the account uses day parts (day-parts D5).
-    dayParts: await dayPartsPreferred(),
-    // The `~deep` tokens only while the account offers energy (task-energy D3).
-    energy: await energyLevelsPreferred(),
-    // Sector phrases only while the account uses time sectors (time-sectors D8).
-    sectors: await timeSectorsPreferred(),
-  })
-  return parsed.title ? toTaskInput(parsed, { labels, createLabel: createLabelByName }) : { title: line }
-}
+export { lineToInput } from './lineInput'

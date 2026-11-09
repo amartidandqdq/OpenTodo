@@ -239,6 +239,14 @@ export const SETTINGS_COPY = {
     learnMore: 'settings/start-view',
     rows: { open: { label: msg('Open on launch') } },
   },
+  // Simple mode (simple-mode): the synced user_prefs.simple_mode.
+  'simple-mode': {
+    title: msg('Simple mode'),
+    icon: 'list-checks',
+    description: msg('Your lists side by side, with one field for tasks and the assistant. On all your devices.'),
+    learnMore: 'simple-mode',
+    rows: { on: { label: msg('Open in Simple mode') } },
+  },
   // The day pages' briefing (precision-polish-2): the same synced choice as Hide briefing in their menu.
   briefing: {
     title: msg('Briefing'),
